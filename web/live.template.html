@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DadsFFL — Live Scoring</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:#fcfcfb; --page:#f9f9f7; --text-primary:#0b0b0b; --text-secondary:#52514e;
+    --text-muted:#898781; --grid:#e1e0d9; --border:rgba(11,11,11,0.10);
+    --home:#2a78d6; --away:#eb6834; --good:#0ca30c; --muted-fill:#e1e0d9;
+    --shadow:0 1px 2px rgba(11,11,11,0.06),0 1px 8px rgba(11,11,11,0.04);
+  }
+  @media (prefers-color-scheme: dark){:root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --surface-1:#1a1a19; --page:#0d0d0d; --text-primary:#fff; --text-secondary:#c3c2b7;
+    --text-muted:#898781; --grid:#2c2c2a; --border:rgba(255,255,255,0.10);
+    --home:#3987e5; --away:#d95926; --good:#0ca30c; --muted-fill:#2c2c2a;
+    --shadow:0 1px 2px rgba(0,0,0,0.4),0 1px 10px rgba(0,0,0,0.35);
+  }}
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --surface-1:#1a1a19; --page:#0d0d0d; --text-primary:#fff; --text-secondary:#c3c2b7;
+    --text-muted:#898781; --grid:#2c2c2a; --border:rgba(255,255,255,0.10);
+    --home:#3987e5; --away:#d95926; --good:#0ca30c; --muted-fill:#2c2c2a;
+    --shadow:0 1px 2px rgba(0,0,0,0.4),0 1px 10px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{background:var(--page);color:var(--text-primary);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;line-height:1.4;}
+  .wrap{max-width:1000px;margin:0 auto;padding:16px 14px 56px;}
+  header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .brand{font-size:20px;font-weight:700;letter-spacing:-0.01em;}
+  .brand .sub{color:var(--text-muted);font-weight:500;font-size:13px;margin-left:8px;}
+  .meta{color:var(--text-muted);font-size:12px;display:flex;gap:12px;align-items:center;}
+  #updated{color:var(--text-secondary);font-weight:600;font-variant-numeric:tabular-nums;}
+  .theme-toggle{border:1px solid var(--border);background:var(--surface-1);color:var(--text-secondary);
+    border-radius:999px;font-size:12px;padding:5px 12px;cursor:pointer;font-family:inherit;}
+  .theme-toggle:hover{color:var(--text-primary);}
+  .note{color:var(--text-muted);font-size:12px;margin:6px 0 18px;}
+  .games{display:grid;gap:14px;grid-template-columns:1fr 1fr;}
+  @media (max-width:760px){.games{grid-template-columns:1fr;}}
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:14px;
+    box-shadow:var(--shadow);overflow:hidden;}
+  .g-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border);}
+  .g-teams{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;}
+  .g-teams .vs{color:var(--text-muted);font-weight:500;margin:0 6px;}
+  .g-teams .sc{color:var(--text-secondary);font-weight:600;margin-left:4px;}
+  .pill{font-size:11px;font-weight:700;letter-spacing:.02em;padding:2px 9px;border-radius:999px;text-transform:uppercase;white-space:nowrap;}
+  .pill.in{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good);}
+  .pill.post{background:var(--muted-fill);color:var(--text-secondary);}
+  .pill.pre{background:var(--muted-fill);color:var(--text-muted);}
+  .pill .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--good);margin-right:5px;vertical-align:middle;}
+  .cols{display:grid;grid-template-columns:1fr 1fr;}
+  .col{padding:8px 12px 12px;}
+  .col+.col{border-left:1px solid var(--border);}
+  .col h4{margin:4px 0 6px;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--text-secondary);
+    display:flex;align-items:center;gap:6px;}
+  .col h4 .chip{width:8px;height:8px;border-radius:2px;}
+  .col.away h4 .chip{background:var(--away);} .col.home h4 .chip{background:var(--home);}
+  .p{display:grid;grid-template-columns:26px 1fr auto;gap:7px;align-items:baseline;padding:4px 0;border-top:1px solid var(--grid);}
+  .p:first-of-type{border-top:0;}
+  .p .pos{font-size:9.5px;font-weight:700;color:var(--text-muted);letter-spacing:.02em;padding-top:1px;}
+  .p .who{min-width:0;}
+  .p .nm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .p .ln{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .p .pt{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;}
+  .empty{color:var(--text-muted);font-size:12px;padding:18px;text-align:center;}
+  footer.f{margin-top:24px;color:var(--text-muted);font-size:11px;text-align:center;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">DadsFFL<span class="sub">Live Scoring</span></div>
+    <div class="meta">
+      <span id="updated"></span>
+      <button class="theme-toggle" id="themeBtn" type="button">Theme</button>
+    </div>
+  </header>
+  <div class="note" id="note"></div>
+  <div class="games" id="games"></div>
+  <footer class="f" id="footer"></footer>
+</div>
+<script>
+  const DATA = /*__DATA__*/ null;
+  const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt = n => (Math.round(n*10)/10).toFixed(0);
+
+  function playerRow(p, side){
+    return `<div class="p">
+      <span class="pos">${esc(p.pos)}</span>
+      <span class="who"><div class="nm">${esc(p.name)}</div><div class="ln">${esc(p.summary)}</div></span>
+      <span class="pt">${fmt(p.pts)}</span>
+    </div>`;
+  }
+  function teamCol(meta, players, side){
+    const t = meta[side]||{};
+    const rows = (players[t.abbrev]||[]);
+    const body = rows.length ? rows.map(p=>playerRow(p,side)).join('')
+                             : `<div class="empty">no fantasy points yet</div>`;
+    return `<div class="col ${side}"><h4><span class="chip"></span>${esc(t.abbrev)} · ${esc(t.name)}</h4>${body}</div>`;
+  }
+  function gameCard(g){
+    const m=g.meta, a=m.away||{}, h=m.home||{};
+    const state=m.state||'?';
+    const dot = state==='in' ? '<span class="dot"></span>' : '';
+    return `<div class="card">
+      <div class="g-head">
+        <div class="g-teams">${esc(a.abbrev)}<span class="sc">${esc(a.score)}</span><span class="vs">@</span>${esc(h.abbrev)}<span class="sc">${esc(h.score)}</span></div>
+        <span class="pill ${state}">${dot}${esc(m.status||state)}</span>
+      </div>
+      <div class="cols">${teamCol(m,g.players,'away')}${teamCol(m,g.players,'home')}</div>
+    </div>`;
+  }
+  function render(){
+    if(!DATA) return;
+    document.getElementById('updated').textContent = 'Last updated as of ' + esc(DATA.generated);
+    document.getElementById('note').textContent =
+      'Every player’s fantasy points under DadsFFL scoring, computed live from the ESPN feed. Preseason validation of the read → parse → score chain.';
+    const g=document.getElementById('games');
+    g.innerHTML = DATA.games.length ? DATA.games.map(gameCard).join('')
+      : '<div class="empty">No games to show right now.</div>';
+    document.getElementById('footer').innerHTML =
+      'Source: ESPN box scores · scored by src/scoring_engine.py' +
+      (DATA.refresh ? ' · auto-refreshing every '+DATA.refresh+'s' : '');
+  }
+  const btn=document.getElementById('themeBtn'),order=['','light','dark'],
+        labels={'':'Theme: Auto','light':'Theme: Light','dark':'Theme: Dark'};
+  let ti=0;
+  function applyTheme(){document.documentElement.setAttribute('data-theme',order[ti]);btn.textContent=labels[order[ti]];}
+  btn.addEventListener('click',()=>{ti=(ti+1)%order.length;applyTheme();});
+  applyTheme(); render();
+
+  // auto-refresh the page when running under --watch (server rewrites this file)
+  if(DATA && DATA.refresh){ setTimeout(()=>location.reload(), DATA.refresh*1000); }
+</script>
+</body>
+</html>

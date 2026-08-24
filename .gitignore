@@ -1,0 +1,7 @@
+# Nothing heavy or sensitive belongs in this repo.
+__pycache__/
+*.pyc
+_site/
+web/live.html
+/tmp/
+.DS_Store
