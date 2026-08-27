@@ -25,6 +25,8 @@ Writes a self-contained web/live.html. Open it in a browser; with --watch it
 regenerates on a loop and the page auto-refreshes.
 """
 
+from __future__ import annotations  # lazy type hints -> runs on Python 3.7+
+
 import argparse
 import json
 import subprocess

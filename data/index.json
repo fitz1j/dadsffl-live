@@ -1,0 +1,28 @@
+{
+ "weeks": [
+  {
+   "season": 2026,
+   "season_type": 1,
+   "week": 3,
+   "label": "pre-wk03",
+   "title": "PRE Week 3 \u00b7 2026",
+   "path": "data/2026/pre-wk03.json"
+  },
+  {
+   "season": 2026,
+   "season_type": 1,
+   "week": 2,
+   "label": "pre-wk02",
+   "title": "PRE Week 2 \u00b7 2026",
+   "path": "data/2026/pre-wk02.json"
+  },
+  {
+   "season": 2026,
+   "season_type": 1,
+   "week": 1,
+   "label": "pre-wk01",
+   "title": "PRE Week 1 \u00b7 2026",
+   "path": "data/2026/pre-wk01.json"
+  }
+ ]
+}
