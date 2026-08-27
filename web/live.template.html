@@ -67,6 +67,12 @@
   .p .ln{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .p .pt{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;}
   .empty{color:var(--text-muted);font-size:12px;padding:18px;text-align:center;}
+  /* non-scoring players: hidden until "All players" is toggled on */
+  .p.unscored{display:none;}
+  body.show-all .p.unscored{display:grid;}
+  .p.unscored .nm,.p.unscored .pt{color:var(--text-muted);font-weight:500;}
+  body.show-all .scored-empty{display:none;}
+  .theme-toggle[aria-pressed="true"]{color:var(--text-primary);border-color:var(--text-muted);}
   footer.f{margin-top:24px;color:var(--text-muted);font-size:11px;text-align:center;line-height:1.5;}
 </style>
 </head>
@@ -76,6 +82,7 @@
     <div class="brand">DadsFFL<span class="sub">Live Scoring</span></div>
     <div class="meta">
       <span id="updated"></span>
+      <button class="theme-toggle" id="allBtn" type="button">Scored only</button>
       <button class="theme-toggle" id="themeBtn" type="button">Theme</button>
     </div>
   </header>
@@ -89,7 +96,7 @@
   const fmt = n => (Math.round(n*10)/10).toFixed(0);
 
   function playerRow(p, side){
-    return `<div class="p">
+    return `<div class="p ${p.scored ? '' : 'unscored'}">
       <span class="pos">${esc(p.pos)}</span>
       <span class="who"><div class="nm">${esc(p.name)}</div><div class="ln">${esc(p.summary)}</div></span>
       <span class="pt">${fmt(p.pts)}</span>
@@ -98,9 +105,10 @@
   function teamCol(meta, players, side){
     const t = meta[side]||{};
     const rows = (players[t.abbrev]||[]);
-    const body = rows.length ? rows.map(p=>playerRow(p,side)).join('')
-                             : `<div class="empty">no fantasy points yet</div>`;
-    return `<div class="col ${side}"><h4><span class="chip"></span>${esc(t.abbrev)} · ${esc(t.name)}</h4>${body}</div>`;
+    const scored = rows.filter(p=>p.scored);
+    const empty = scored.length ? '' : `<div class="empty scored-empty">no fantasy points yet</div>`;
+    const body = rows.map(p=>playerRow(p,side)).join('');
+    return `<div class="col ${side}"><h4><span class="chip"></span>${esc(t.abbrev)} · ${esc(t.name)}</h4>${empty}${body}</div>`;
   }
   function gameCard(g){
     const m=g.meta, a=m.away||{}, h=m.home||{};
@@ -132,6 +140,23 @@
   function applyTheme(){document.documentElement.setAttribute('data-theme',order[ti]);btn.textContent=labels[order[ti]];}
   btn.addEventListener('click',()=>{ti=(ti+1)%order.length;applyTheme();});
   applyTheme(); render();
+
+  // "Scored only" <-> "All players" (reveals non-scoring players + their stats).
+  // Persisted so the auto-refresh doesn't reset the choice.
+  const allBtn=document.getElementById('allBtn');
+  function applyAll(on){
+    document.body.classList.toggle('show-all', on);
+    allBtn.textContent = on ? 'All players' : 'Scored only';
+    allBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  let showAll=false;
+  try{ showAll = localStorage.getItem('dadsffl-showall')==='1'; }catch(e){}
+  allBtn.addEventListener('click',()=>{
+    showAll=!showAll;
+    try{ localStorage.setItem('dadsffl-showall', showAll?'1':'0'); }catch(e){}
+    applyAll(showAll);
+  });
+  applyAll(showAll);
 
   // auto-refresh the page when running under --watch (server rewrites this file)
   if(DATA && DATA.refresh){ setTimeout(()=>location.reload(), DATA.refresh*1000); }

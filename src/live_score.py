@@ -61,14 +61,25 @@ def curl_json(url: str) -> dict:
         return {}
 
 
-def live_game_ids() -> list[str]:
+def scoreboard_states():
+    """Classify the current NFL scoreboard into (live, final, pre) event-id lists.
+    'in' = in progress, 'post' = final, 'pre' = scheduled/not started."""
     sb = curl_json(SCOREBOARD_URL)
-    ids = []
+    live, final, pre = [], [], []
     for ev in sb.get("events", []):
         state = ev.get("status", {}).get("type", {}).get("state")
-        if state in ("in", "post"):   # in-progress or final
-            ids.append(ev["id"])
-    return ids
+        if state == "in":
+            live.append(ev["id"])
+        elif state == "post":
+            final.append(ev["id"])
+        elif state == "pre":
+            pre.append(ev["id"])
+    return live, final, pre
+
+
+def live_game_ids() -> list[str]:
+    live, final, _pre = scoreboard_states()
+    return live + final   # in-progress or final
 
 
 def fetch_summary_to_file(game_id: str, cache_dir: Path) -> Path | None:
@@ -163,17 +174,24 @@ def build_game(path: Path) -> dict:
     meta = game_meta(path)
     by_team = {}
     for aid, line in parsed.items():
-        pts = score_stat_line(line).total
-        if pts <= 0:
+        pts = round(score_stat_line(line).total, 1)
+        summary = stat_summary(line)
+        # Keep anyone who either scored OR has a stat line worth showing. Players
+        # with a completely empty line (0 everything we parse) are dropped.
+        if pts <= 0 and not summary:
             continue
+        act = (line.get("pass_yards", 0) + line.get("rush_yards", 0)
+               + line.get("rec_yards", 0))   # rough activity, to rank non-scorers
         row = {
             "name": line["name"], "team": line["team"],
-            "pos": infer_pos(line), "summary": stat_summary(line),
-            "pts": round(pts, 1),
+            "pos": infer_pos(line), "summary": summary,
+            "pts": pts, "scored": pts > 0, "act": act,
         }
         by_team.setdefault(line["team"], []).append(row)
-    for team in by_team:
-        by_team[team].sort(key=lambda r: -r["pts"])
+    # scorers first (by points), then non-scorers (by activity)
+    for team, rows in by_team.items():
+        rows.sort(key=lambda r: (0 if r["scored"] else 1,
+                                 -r["pts"] if r["scored"] else -r["act"]))
     return {"meta": meta, "players": by_team}
 
 
@@ -196,16 +214,38 @@ def collect(args) -> list[dict]:
             except Exception as e:
                 print(f"  skip {p.name}: {e}", file=sys.stderr)
     else:
-        cache = Path(tempfile.gettempdir()) / "dadsffl_live"
-        ids = [args.game] if args.game else live_game_ids()
-        if not ids:
-            print("No live/finished games found on the ESPN scoreboard right now.")
-        for gid in ids:
-            p = fetch_summary_to_file(gid, cache)
+        tmp = Path(tempfile.gettempdir()) / "dadsffl_live"
+        cache_dir = Path(args.cache_dir) if getattr(args, "cache_dir", None) else None
+        refetch = getattr(args, "refetch_finals", False)
+        if args.game:
+            pairs = [(args.game, False)]           # single game: always fetch fresh
+        else:
+            live, final, _pre = scoreboard_states()
+            finals = set(final)
+            pairs = [(g, g in finals) for g in (live + final)]
+            if not pairs:
+                print("No live/finished games found on the ESPN scoreboard right now.")
+        n_fetch = n_cache = 0
+        for gid, is_final in pairs:
+            p, from_cache = None, False
+            # A final game's box score is stable — serve it from the persisted
+            # cache and DON'T re-hit ESPN, unless --refetch-finals (Tuesday final).
+            if is_final and cache_dir and not refetch:
+                cached = cache_dir / f"{gid}.json"
+                if cached.exists():
+                    p, from_cache = cached, True
+            if p is None:
+                dest = cache_dir if (is_final and cache_dir) else tmp
+                p = fetch_summary_to_file(gid, dest)   # writes/overwrites the cache for finals
             if p:
                 games.append(build_game(p))
+                n_cache += from_cache
+                n_fetch += (not from_cache)
             else:
                 print(f"  could not fetch game {gid} (no internet from here?)", file=sys.stderr)
+        if pairs:
+            print(f"  ({n_fetch} fetched from ESPN, {n_cache} served from cache)",
+                  file=sys.stderr)
     # order: in-progress first, then finals, then pre
     order = {"in": 0, "post": 1, "pre": 2, "?": 3}
     games.sort(key=lambda g: order.get(g["meta"]["state"], 9))
@@ -223,6 +263,18 @@ def main() -> int:
                     help="client-side page auto-reload interval in seconds; "
                          "defaults to --watch. Set this in CI (e.g. 120) so the "
                          "published page reloads to pick up each new deploy.")
+    ap.add_argument("--require-games", action="store_true",
+                    help="publish only if a game is in progress or final on the "
+                         "scoreboard; if nothing is live/final, do NOT write the "
+                         "output (so a CI job can skip the deploy). Ignored with "
+                         "--from-dir.")
+    ap.add_argument("--cache-dir",
+                    help="persist final games' box scores here and serve them from "
+                         "cache instead of re-fetching ESPN. Live games are always "
+                         "fetched fresh. In CI, back this with actions/cache.")
+    ap.add_argument("--refetch-finals", action="store_true",
+                    help="ignore the finals cache and re-fetch every game fresh "
+                         "(the Tuesday-noon final run, to catch stat corrections).")
     args = ap.parse_args()
 
     refresh = args.refresh if args.refresh is not None else (args.watch or 0)
@@ -231,11 +283,19 @@ def main() -> int:
     def once():
         # e.g. "Wed, Aug 19 · 3:48:14 PM EDT" — date + tz so it's unambiguous
         stamp = time.strftime("%a, %b %-d · %-I:%M:%S %p %Z")
+        if args.require_games and not args.from_dir:
+            live, final, _pre = scoreboard_states()
+            if not (live or final):
+                print(f"[{stamp}] no games in progress or final — skipping "
+                      f"publish (--require-games); leaving {out.name} untouched.")
+                return
         games = collect(args)
         render(games, out, refresh, stamp)
         n = sum(len(g["players"]) and 1 for g in games)
+        n_scored = sum(1 for g in games for v in g["players"].values() for p in v if p["scored"])
+        n_all = sum(len(v) for g in games for v in g["players"].values())
         print(f"[{stamp}] wrote {out} — {len(games)} games, "
-              f"{sum(len(v) for g in games for v in g['players'].values())} scoring players")
+              f"{n_scored} scoring / {n_all} total players")
 
     once()
     if args.watch:

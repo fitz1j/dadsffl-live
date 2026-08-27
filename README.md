@@ -29,15 +29,16 @@ web/live.template.html    the self-contained display (light/dark, auto-refresh)
    git init -b main
    git add .
    git commit -m "DadsFFL live scoring"
-   git remote add origin https://github.com/<your-username>/dadsffl-live.git
+   git remote add origin git@github-fitz1j:fitz1j/dadsffl-live.git
    git push -u origin main
    ```
    (Or, if you install the GitHub CLI: `gh repo create dadsffl-live --public --source=. --push`.)
+   > Note: the remote uses the `github-fitz1j` SSH alias (personal account, kept separate from work GitHub). One-time setup: generate `~/.ssh/id_ed25519_fitz1j`, add its `.pub` to the fitz1j account, and add a `Host github-fitz1j` block (HostName github.com, that IdentityFile, IdentitiesOnly yes) to `~/.ssh/config`. Test with `ssh -T git@github-fitz1j`.
 3. **Turn on Pages via Actions:** repo **Settings → Pages → Build and deployment →
    Source = GitHub Actions**.
 4. That's it. The workflow runs on every push, on a game-day schedule, and on
    demand. Your live page will be at:
-   `https://<your-username>.github.io/dadsffl-live/`
+   `https://fitz1j.github.io/dadsffl-live/`
 
 ## Run it now (don't wait for the schedule)
 

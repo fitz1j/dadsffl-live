@@ -1,12 +1,22 @@
 name: DadsFFL live scoring
 
+# Stateless fetch -> score -> publish to GitHub Pages. The cron fires every 5 min
+# only during NFL game-hour windows (UTC); the script checks the live scoreboard on
+# each fire and publishes ONLY when a game is in progress or final. Final games are
+# cached (actions/cache) and served from cache instead of re-hitting ESPN — only
+# live games are re-fetched each run. A dedicated Tuesday ~noon-ET run re-fetches
+# EVERY game (to catch stat corrections) and always publishes: the league's Final.
+
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
   schedule:
-    # UTC, best-effort. Every 5 min on Sun/Mon/Thu/Sat (typical NFL game days).
-    - cron: '*/5 * * * 0,1,4,6'
+    - cron: '*/5 17-23 * * *'
+    - cron: '*/5 0-4 * * *'
+    - cron: '*/5 13-16 * * 0,6'
+    - cron: '0 16 * * 2'
+    - cron: '0 17 * * 2'
 
 concurrency:
   group: pages
@@ -30,13 +40,44 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Fetch + score live games
+
+      - name: Restore finals cache
+        uses: actions/cache@v4
+        with:
+          path: cache/finals
+          key: dadsffl-finals-${{ github.run_id }}
+          restore-keys: |
+            dadsffl-finals-
+
+      - name: Fetch + score (publish only when warranted)
         run: |
-          python3 src/live_score.py --live --refresh 120 --out _site/index.html
-          ls -la _site
+          set -e
+          FORCE=0
+          REFETCH=""
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            FORCE=1
+          else
+            case "${{ github.event.schedule }}" in
+              "0 16 * * 2"|"0 17 * * 2")
+                FORCE=1; REFETCH="--refetch-finals" ;;
+            esac
+          fi
+          COMMON="--live --refresh 120 --out _site/index.html --cache-dir cache/finals $REFETCH"
+          if [ "$FORCE" = "1" ]; then
+            echo "Mode: force publish  $REFETCH"
+            python3 src/live_score.py $COMMON
+          else
+            echo "Mode: game-window poll (publish only if games are live/final)"
+            python3 src/live_score.py $COMMON --require-games
+          fi
+          if [ -f _site/index.html ]; then echo "-> publishing"; else echo "-> nothing to publish this run"; fi
+
       - uses: actions/configure-pages@v5
+        if: ${{ hashFiles('_site/index.html') != '' }}
       - uses: actions/upload-pages-artifact@v3
+        if: ${{ hashFiles('_site/index.html') != '' }}
         with:
           path: _site
       - id: deploy
+        if: ${{ hashFiles('_site/index.html') != '' }}
         uses: actions/deploy-pages@v4
