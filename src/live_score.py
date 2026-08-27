@@ -39,6 +39,14 @@ from scoring_engine import score_stat_line
 SUMMARY_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event={}"
 SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
+# Optional scoreboard query (?seasontype=T&week=N) so we can target a SPECIFIC
+# past week for backfilling the archive. Empty = the current default scoreboard.
+SB_QUERY = ""
+
+
+def sb_url() -> str:
+    return SCOREBOARD_URL + SB_QUERY
+
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUT = HERE.parent / "web" / "live.html"
 TEMPLATE = HERE.parent / "web" / "live.template.html"
@@ -73,7 +81,7 @@ def curl_json(url: str) -> dict:
 def scoreboard_states():
     """Classify the current NFL scoreboard into (live, final, pre) event-id lists.
     'in' = in progress, 'post' = final, 'pre' = scheduled/not started."""
-    sb = curl_json(SCOREBOARD_URL)
+    sb = curl_json(sb_url())
     live, final, pre = [], [], []
     for ev in sb.get("events", []):
         state = ev.get("status", {}).get("type", {}).get("state")
@@ -218,17 +226,53 @@ def _strip_stats(games: list[dict]) -> list[dict]:
     return out
 
 
-def render(games: list[dict], out: Path, refresh: int, updated: str):
-    payload = {"generated": updated, "refresh": refresh, "games": _strip_stats(games)}
-    tpl = TEMPLATE.read_text()
-    html = tpl.replace("/*__DATA__*/ null", json.dumps(payload))
+def _build_page(payload: dict, out: Path, tpl: str):
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html)
+    out.write_text(tpl.replace("/*__DATA__*/ null", json.dumps(payload)))
+
+
+def _weeks_nav(archive_dir: Path) -> list[dict]:
+    """Nav entries (newest first) for every archived week: {label,title,url}."""
+    idx = archive_dir / "index.json"
+    if not idx.exists():
+        return []
+    try:
+        weeks = json.loads(idx.read_text()).get("weeks", [])
+    except Exception:
+        return []
+    return [{"label": w.get("label"), "title": w.get("title"),
+             "url": f"week-{w.get('label')}.html"} for w in weeks]
+
+
+def render_site(games: list[dict], out: Path, refresh: int, updated: str,
+                archive_dir: Path | None):
+    """Write the live index page AND a standalone page per archived week.
+    Week pages are regenerated each run from the committed archive JSON."""
+    tpl = TEMPLATE.read_text()
+    weeks = _weeks_nav(archive_dir) if archive_dir else []
+
+    _build_page({"mode": "live", "current": "live", "title": "Live",
+                 "generated": updated, "refresh": refresh,
+                 "games": _strip_stats(games), "weeks": weeks}, out, tpl)
+
+    if archive_dir:
+        for p in sorted(archive_dir.glob("*/*.json")):
+            if p.name == "index.json":
+                continue
+            try:
+                d = json.loads(p.read_text())
+            except Exception:
+                continue
+            _build_page({"mode": "archive", "current": d.get("label"),
+                         "title": d.get("title"), "generated": d.get("generated"),
+                         "refresh": 0, "games": _strip_stats(d.get("games", [])),
+                         "weeks": weeks},
+                        out.parent / f"week-{d.get('label')}.html", tpl)
 
 
 def scoreboard_meta() -> tuple:
     """(season_year, season_type, week_number) from the current scoreboard."""
-    sb = curl_json(SCOREBOARD_URL)
+    sb = curl_json(sb_url())
     season = sb.get("season") or {}
     week = sb.get("week") or {}
     return season.get("year"), season.get("type"), week.get("number")
@@ -351,7 +395,15 @@ def main() -> int:
                     help="also write each week's FINAL games (with raw stats) to "
                          "<dir>/<year>/<label>.json + <dir>/index.json, for a "
                          "durable history and DB ingest. Ignored with --from-dir.")
+    ap.add_argument("--week", type=int,
+                    help="target a SPECIFIC past week for backfill (with --seasontype).")
+    ap.add_argument("--seasontype", type=int, choices=(1, 2, 3),
+                    help="1=preseason, 2=regular, 3=post. Use with --week to backfill.")
     args = ap.parse_args()
+
+    global SB_QUERY
+    if args.week and args.seasontype:
+        SB_QUERY = f"?seasontype={args.seasontype}&week={args.week}"
 
     refresh = args.refresh if args.refresh is not None else (args.watch or 0)
     out = Path(args.out)
@@ -366,12 +418,14 @@ def main() -> int:
                       f"publish (--require-games); leaving {out.name} untouched.")
                 return
         games = collect(args)
-        render(games, out, refresh, stamp)
-        if getattr(args, "archive_dir", None) and not args.from_dir:
+        adir = (Path(args.archive_dir)
+                if (getattr(args, "archive_dir", None) and not args.from_dir) else None)
+        if adir:
             try:
-                write_archive(games, scoreboard_meta(), stamp, Path(args.archive_dir))
+                write_archive(games, scoreboard_meta(), stamp, adir)   # updates index.json first
             except Exception as e:
                 print(f"  archive step failed: {e}", file=sys.stderr)
+        render_site(games, out, refresh, stamp, adir)
         n_scored = sum(1 for g in games for v in g["players"].values() for p in v if p["scored"])
         n_all = sum(len(v) for g in games for v in g["players"].values())
         print(f"[{stamp}] wrote {out} — {len(games)} games, "
