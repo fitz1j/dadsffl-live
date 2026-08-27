@@ -63,6 +63,20 @@ ARCHIVE_STAT_KEYS = [
 SEASON_TYPE_LABEL = {1: "pre", 2: "reg", 3: "post"}
 
 
+def week_title(season_type, week) -> str:
+    """Human label for a week. ESPN files the Hall of Fame Game as preseason
+    week 1, so preseason week N>1 displays as 'Pre Week N-1'."""
+    try:
+        w = int(week)
+    except (TypeError, ValueError):
+        return "Week"
+    if season_type == 1:
+        return "Hall of Fame" if w == 1 else f"Pre Week {w - 1}"
+    if season_type == 3:
+        return f"Post Week {w}"
+    return f"Week {w}"
+
+
 # ---- fetch (needs internet; used on Mac / GitHub Actions) ----------------------
 
 def curl_json(url: str) -> dict:
@@ -242,7 +256,8 @@ def _weeks_nav(archive_dir: Path) -> list[dict]:
         weeks = json.loads(idx.read_text()).get("weeks", [])
     except Exception:
         return []
-    return [{"label": w.get("label"), "title": w.get("title"),
+    return [{"label": w.get("label"),
+             "title": week_title(w.get("season_type"), w.get("week")),
              "url": f"week-{w.get('label')}.html"} for w in weeks]
 
 
@@ -266,7 +281,8 @@ def render_site(games: list[dict], out: Path, refresh: int, updated: str,
             except Exception:
                 continue
             _build_page({"mode": "archive", "current": d.get("label"),
-                         "title": d.get("title"), "generated": d.get("generated"),
+                         "title": week_title(d.get("season_type"), d.get("week")),
+                         "generated": d.get("generated"),
                          "refresh": 0, "games": _strip_stats(d.get("games", [])),
                          "weeks": weeks},
                         out.parent / f"week-{d.get('label')}.html", tpl)
@@ -296,7 +312,7 @@ def write_archive(games: list[dict], meta: tuple, stamp: str, archive_dir: Path)
     ydir.mkdir(parents=True, exist_ok=True)
     payload = {
         "season": year, "season_type": stype, "week": wk, "label": label,
-        "title": f"{prefix.upper()} Week {int(wk)} · {year}",
+        "title": week_title(stype, wk),
         "generated": stamp, "games": finals,
     }
     (ydir / f"{label}.json").write_text(json.dumps(payload, indent=1))
@@ -315,7 +331,8 @@ def _write_index(archive_dir: Path):
             continue
         weeks.append({
             "season": d.get("season"), "season_type": d.get("season_type"),
-            "week": d.get("week"), "label": d.get("label"), "title": d.get("title"),
+            "week": d.get("week"), "label": d.get("label"),
+            "title": week_title(d.get("season_type"), d.get("week")),
             "path": f"data/{p.parent.name}/{p.name}",
         })
     weeks.sort(key=lambda w: (w.get("season") or 0, w.get("season_type") or 0,
