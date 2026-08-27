@@ -73,6 +73,10 @@
   .p.unscored .nm,.p.unscored .pt{color:var(--text-muted);font-weight:500;}
   body.show-all .scored-empty{display:none;}
   .theme-toggle[aria-pressed="true"]{color:var(--text-primary);border-color:var(--text-muted);}
+  .wk-select{font-family:inherit;-webkit-appearance:none;appearance:none;padding-right:22px;
+    background-image:linear-gradient(45deg,transparent 50%,var(--text-muted) 50%),linear-gradient(135deg,var(--text-muted) 50%,transparent 50%);
+    background-position:calc(100% - 12px) 52%,calc(100% - 7px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;}
+  .wk-select.archived{color:var(--text-primary);border-color:var(--text-muted);}
   footer.f{margin-top:24px;color:var(--text-muted);font-size:11px;text-align:center;line-height:1.5;}
 </style>
 </head>
@@ -82,6 +86,7 @@
     <div class="brand">DadsFFL<span class="sub">Live Scoring</span></div>
     <div class="meta">
       <span id="updated"></span>
+      <select class="theme-toggle wk-select" id="wkSelect" title="Choose week"></select>
       <button class="theme-toggle" id="allBtn" type="button">Scored only</button>
       <button class="theme-toggle" id="themeBtn" type="button">Theme</button>
     </div>
@@ -122,24 +127,27 @@
       <div class="cols">${teamCol(m,g.players,'away')}${teamCol(m,g.players,'home')}</div>
     </div>`;
   }
-  function render(){
-    if(!DATA) return;
-    document.getElementById('updated').textContent = 'Last updated as of ' + esc(DATA.generated);
-    document.getElementById('note').textContent =
-      'Every player’s fantasy points under DadsFFL scoring, computed live from the ESPN feed. Preseason validation of the read → parse → score chain.';
+  function render(data, isLive){
+    if(!data) return;
+    document.getElementById('updated').textContent =
+      (isLive ? 'Last updated as of ' : 'Final as of ') + esc(data.generated || '');
+    document.getElementById('note').textContent = isLive
+      ? 'Every player’s fantasy points under DadsFFL scoring, computed live from the ESPN feed.'
+      : (esc(data.title || 'Archived week') + ' — final results.');
     const g=document.getElementById('games');
-    g.innerHTML = DATA.games.length ? DATA.games.map(gameCard).join('')
-      : '<div class="empty">No games to show right now.</div>';
+    const games = data.games || [];
+    g.innerHTML = games.length ? games.map(gameCard).join('')
+      : '<div class="empty">No games to show.</div>';
     document.getElementById('footer').innerHTML =
       'Source: ESPN box scores · scored by src/scoring_engine.py' +
-      (DATA.refresh ? ' · auto-refreshing every '+DATA.refresh+'s' : '');
+      (isLive && data.refresh ? ' · live view auto-refreshes every '+data.refresh+'s' : '');
   }
   const btn=document.getElementById('themeBtn'),order=['','light','dark'],
         labels={'':'Theme: Auto','light':'Theme: Light','dark':'Theme: Dark'};
   let ti=0;
   function applyTheme(){document.documentElement.setAttribute('data-theme',order[ti]);btn.textContent=labels[order[ti]];}
   btn.addEventListener('click',()=>{ti=(ti+1)%order.length;applyTheme();});
-  applyTheme(); render();
+  applyTheme();
 
   // "Scored only" <-> "All players" (reveals non-scoring players + their stats).
   // Persisted so the auto-refresh doesn't reset the choice.
@@ -158,8 +166,54 @@
   });
   applyAll(showAll);
 
-  // auto-refresh the page when running under --watch (server rewrites this file)
-  if(DATA && DATA.refresh){ setTimeout(()=>location.reload(), DATA.refresh*1000); }
+  // ---- Week selector: the live view + archived past weeks (never lost) ----
+  const REFRESH = (DATA && DATA.refresh) | 0;
+  const sel = document.getElementById('wkSelect');
+  let reloadTimer = null;
+  function scheduleReload(on){
+    if(reloadTimer){ clearTimeout(reloadTimer); reloadTimer=null; }
+    if(on && REFRESH){ reloadTimer = setTimeout(()=>location.reload(), REFRESH*1000); }
+  }
+  function showLive(){ sel.classList.remove('archived'); render(DATA, true); scheduleReload(true); }
+  async function showWeek(path){
+    try{
+      const r = await fetch(path, {cache:'no-store'});
+      if(!r.ok) throw 0;
+      const d = await r.json();
+      sel.classList.add('archived');
+      render(d, false);
+      scheduleReload(false);              // archived weeks are final; don't reload
+    }catch(e){ sel.value='live'; showLive(); }
+  }
+  function applySelection(val){
+    try{ localStorage.setItem('dadsffl-week', val); }catch(e){}
+    if(val==='live'){ showLive(); } else { showWeek(val); }
+  }
+  sel.addEventListener('change', ()=>applySelection(sel.value));
+
+  showLive();                              // render immediately so the page is never blank
+  (async function initWeeks(){
+    let saved='live';
+    try{ saved = localStorage.getItem('dadsffl-week') || 'live'; }catch(e){}
+    sel.innerHTML = '<option value="live">Live (this week)</option>';
+    let savedExists = (saved==='live');
+    try{
+      const r = await fetch('data/index.json', {cache:'no-store'});
+      if(r.ok){
+        const idx = await r.json();
+        (idx.weeks||[]).forEach(w=>{
+          const o=document.createElement('option');
+          o.value=w.path; o.textContent=w.title||w.label;
+          if(w.path===saved) savedExists=true;
+          sel.appendChild(o);
+        });
+      }
+    }catch(e){}
+    // hide the selector entirely if there are no archived weeks yet
+    if(sel.options.length<=1){ sel.style.display='none'; return; }
+    sel.value = savedExists ? saved : 'live';
+    if(sel.value!=='live'){ showWeek(sel.value); }
+  })();
 </script>
 </body>
 </html>

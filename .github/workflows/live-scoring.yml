@@ -1,11 +1,13 @@
 name: DadsFFL live scoring
 
-# Stateless fetch -> score -> publish to GitHub Pages. The cron fires every 5 min
-# only during NFL game-hour windows (UTC); the script checks the live scoreboard on
-# each fire and publishes ONLY when a game is in progress or final. Final games are
-# cached (actions/cache) and served from cache instead of re-hitting ESPN — only
-# live games are re-fetched each run. A dedicated Tuesday ~noon-ET run re-fetches
-# EVERY game (to catch stat corrections) and always publishes: the league's Final.
+# Stateless fetch -> score -> publish to GitHub Pages, PLUS a durable weekly
+# archive committed into the repo (data/<year>/<label>.json + data/index.json).
+# The cron fires every 5 min only during NFL game-hour windows; the script checks
+# the live scoreboard and publishes ONLY when a game is in progress or final.
+# Final games are cached (actions/cache) so each is fetched from ESPN once. Each
+# week's FINAL games (with raw stats) are archived and committed, so past weeks
+# never roll off. The Tuesday ~noon-ET run re-fetches every game (stat corrections)
+# and always publishes: the league's Final.
 
 on:
   workflow_dispatch:
@@ -23,7 +25,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -62,7 +64,7 @@ jobs:
                 FORCE=1; REFETCH="--refetch-finals" ;;
             esac
           fi
-          COMMON="--live --refresh 120 --out _site/index.html --cache-dir cache/finals $REFETCH"
+          COMMON="--live --refresh 120 --out _site/index.html --cache-dir cache/finals --archive-dir data $REFETCH"
           if [ "$FORCE" = "1" ]; then
             echo "Mode: force publish  $REFETCH"
             python3 src/live_score.py $COMMON
@@ -71,6 +73,23 @@ jobs:
             python3 src/live_score.py $COMMON --require-games
           fi
           if [ -f _site/index.html ]; then echo "-> publishing"; else echo "-> nothing to publish this run"; fi
+
+      - name: Commit weekly archive
+        run: |
+          if [ -d data ] && [ -n "$(git status --porcelain data)" ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data
+            git commit -m "Archive weekly results ($(date -u +%FT%TZ))"
+            git push || (git pull --rebase --autostash && git push)
+          else
+            echo "no archive changes"
+          fi
+
+      - name: Stage archive into the published site
+        if: ${{ hashFiles('_site/index.html') != '' }}
+        run: |
+          if [ -d data ]; then mkdir -p _site/data && cp -r data/. _site/data/; fi
 
       - uses: actions/configure-pages@v5
         if: ${{ hashFiles('_site/index.html') != '' }}

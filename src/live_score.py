@@ -43,6 +43,15 @@ HERE = Path(__file__).resolve().parent
 DEFAULT_OUT = HERE.parent / "web" / "live.html"
 TEMPLATE = HERE.parent / "web" / "live.template.html"
 
+# raw counting stats carried into the archive (so a week can be re-scored later
+# / ingested into the DB). Kept out of the live page's inline data to stay lean.
+ARCHIVE_STAT_KEYS = [
+    "pat_made", "fg_yards", "pass_yards", "pass_td", "rush_yards", "rush_td",
+    "receptions", "rec_yards", "rec_td", "def_td", "fumble_td", "return_td",
+    "two_pt_conv", "sacks", "interceptions", "safeties",
+]
+SEASON_TYPE_LABEL = {1: "pre", 2: "reg", 3: "post"}
+
 
 # ---- fetch (needs internet; used on Mac / GitHub Actions) ----------------------
 
@@ -186,6 +195,7 @@ def build_game(path: Path) -> dict:
             "name": line["name"], "team": line["team"],
             "pos": infer_pos(line), "summary": summary,
             "pts": pts, "scored": pts > 0, "act": act,
+            "stats": {k: line.get(k) for k in ARCHIVE_STAT_KEYS},
         }
         by_team.setdefault(line["team"], []).append(row)
     # scorers first (by points), then non-scorers (by activity)
@@ -197,12 +207,74 @@ def build_game(path: Path) -> dict:
 
 # ---- render --------------------------------------------------------------------
 
+def _strip_stats(games: list[dict]) -> list[dict]:
+    """Drop the raw per-player stats from the games (they belong in the archive,
+    not inline on the live page — keeps the page's embedded JSON lean)."""
+    out = []
+    for g in games:
+        players = {t: [{k: v for k, v in p.items() if k != "stats"} for p in rows]
+                   for t, rows in g["players"].items()}
+        out.append({"meta": g["meta"], "players": players})
+    return out
+
+
 def render(games: list[dict], out: Path, refresh: int, updated: str):
-    payload = {"generated": updated, "refresh": refresh, "games": games}
+    payload = {"generated": updated, "refresh": refresh, "games": _strip_stats(games)}
     tpl = TEMPLATE.read_text()
     html = tpl.replace("/*__DATA__*/ null", json.dumps(payload))
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html)
+
+
+def scoreboard_meta() -> tuple:
+    """(season_year, season_type, week_number) from the current scoreboard."""
+    sb = curl_json(SCOREBOARD_URL)
+    season = sb.get("season") or {}
+    week = sb.get("week") or {}
+    return season.get("year"), season.get("type"), week.get("number")
+
+
+def write_archive(games: list[dict], meta: tuple, stamp: str, archive_dir: Path):
+    """Persist this week's FINAL games (with raw stats) to
+    <archive_dir>/<year>/<label>.json and refresh <archive_dir>/index.json.
+    Only final games are archived; nothing is written if none are final."""
+    year, stype, wk = meta
+    if not (year and stype and wk):
+        return
+    finals = [g for g in games if g["meta"].get("state") == "post"]
+    if not finals:
+        return
+    prefix = SEASON_TYPE_LABEL.get(stype, f"t{stype}")
+    label = f"{prefix}-wk{int(wk):02d}"
+    ydir = archive_dir / str(year)
+    ydir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "season": year, "season_type": stype, "week": wk, "label": label,
+        "title": f"{prefix.upper()} Week {int(wk)} · {year}",
+        "generated": stamp, "games": finals,
+    }
+    (ydir / f"{label}.json").write_text(json.dumps(payload, indent=1))
+    _write_index(archive_dir)
+
+
+def _write_index(archive_dir: Path):
+    """Rebuild index.json listing every archived week, newest first."""
+    weeks = []
+    for p in sorted(archive_dir.glob("*/*.json")):
+        if p.name == "index.json":
+            continue
+        try:
+            d = json.loads(p.read_text())
+        except Exception:
+            continue
+        weeks.append({
+            "season": d.get("season"), "season_type": d.get("season_type"),
+            "week": d.get("week"), "label": d.get("label"), "title": d.get("title"),
+            "path": f"data/{p.parent.name}/{p.name}",
+        })
+    weeks.sort(key=lambda w: (w.get("season") or 0, w.get("season_type") or 0,
+                              w.get("week") or 0), reverse=True)
+    (archive_dir / "index.json").write_text(json.dumps({"weeks": weeks}, indent=1))
 
 
 def collect(args) -> list[dict]:
@@ -275,6 +347,10 @@ def main() -> int:
     ap.add_argument("--refetch-finals", action="store_true",
                     help="ignore the finals cache and re-fetch every game fresh "
                          "(the Tuesday-noon final run, to catch stat corrections).")
+    ap.add_argument("--archive-dir",
+                    help="also write each week's FINAL games (with raw stats) to "
+                         "<dir>/<year>/<label>.json + <dir>/index.json, for a "
+                         "durable history and DB ingest. Ignored with --from-dir.")
     args = ap.parse_args()
 
     refresh = args.refresh if args.refresh is not None else (args.watch or 0)
@@ -291,7 +367,11 @@ def main() -> int:
                 return
         games = collect(args)
         render(games, out, refresh, stamp)
-        n = sum(len(g["players"]) and 1 for g in games)
+        if getattr(args, "archive_dir", None) and not args.from_dir:
+            try:
+                write_archive(games, scoreboard_meta(), stamp, Path(args.archive_dir))
+            except Exception as e:
+                print(f"  archive step failed: {e}", file=sys.stderr)
         n_scored = sum(1 for g in games for v in g["players"].values() for p in v if p["scored"])
         n_all = sum(len(v) for g in games for v in g["players"].values())
         print(f"[{stamp}] wrote {out} — {len(games)} games, "
