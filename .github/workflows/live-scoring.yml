@@ -1,18 +1,19 @@
 name: DadsFFL live scoring
 
-# Publishes web/live.html — a static page that reads live scores client-side
-# from Supabase (via the fetch-and-score Edge Function + PostgREST) — to GitHub
-# Pages. All score-fetching now happens server-side on a Supabase pg_cron
-# schedule, not here, so this workflow only needs to run when the page itself
-# changes. (Superseded the old GitHub Actions `schedule:`-triggered Python
-# pipeline that rendered live.html itself every 5 minutes — see
-# src/live_score.py, now unused for the live page.)
+# Publishes web/index.html (title/landing page) and web/live.html (the page that
+# reads live scores client-side from Supabase, via the fetch-and-score Edge
+# Function + PostgREST) to GitHub Pages. All score-fetching now happens
+# server-side on a Supabase pg_cron schedule, not here, so this workflow only
+# needs to run when either page itself changes. (Superseded the old GitHub
+# Actions `schedule:`-triggered Python pipeline that rendered live.html itself
+# every 5 minutes — see src/live_score.py, now unused for the live page.)
 
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
     paths:
+      - 'web/index.html'
       - 'web/live.html'
       - '.github/workflows/live-scoring.yml'
 
@@ -37,7 +38,8 @@ jobs:
       - name: Stage site
         run: |
           mkdir -p _site
-          cp web/live.html _site/index.html
+          cp web/index.html _site/index.html
+          cp web/live.html _site/live.html
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
