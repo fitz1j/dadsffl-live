@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DadsFFL — Live Scoring</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:#fcfcfb; --page:#f9f9f7; --text-primary:#0b0b0b; --text-secondary:#52514e;
+    --text-muted:#898781; --grid:#e1e0d9; --border:rgba(11,11,11,0.10);
+    --home:#2a78d6; --away:#eb6834; --good:#0ca30c; --muted-fill:#e1e0d9;
+    --shadow:0 1px 2px rgba(11,11,11,0.06),0 1px 8px rgba(11,11,11,0.04);
+  }
+  @media (prefers-color-scheme: dark){:root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --surface-1:#1a1a19; --page:#0d0d0d; --text-primary:#fff; --text-secondary:#c3c2b7;
+    --text-muted:#898781; --grid:#2c2c2a; --border:rgba(255,255,255,0.10);
+    --home:#3987e5; --away:#d95926; --good:#0ca30c; --muted-fill:#2c2c2a;
+    --shadow:0 1px 2px rgba(0,0,0,0.4),0 1px 10px rgba(0,0,0,0.35);
+  }}
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --surface-1:#1a1a19; --page:#0d0d0d; --text-primary:#fff; --text-secondary:#c3c2b7;
+    --text-muted:#898781; --grid:#2c2c2a; --border:rgba(255,255,255,0.10);
+    --home:#3987e5; --away:#d95926; --good:#0ca30c; --muted-fill:#2c2c2a;
+    --shadow:0 1px 2px rgba(0,0,0,0.4),0 1px 10px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{background:var(--page);color:var(--text-primary);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;line-height:1.4;}
+  .wrap{max-width:1000px;margin:0 auto;padding:16px 14px 56px;}
+  header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .brand{font-size:20px;font-weight:700;letter-spacing:-0.01em;}
+  .brand .sub{color:var(--text-muted);font-weight:500;font-size:13px;margin-left:8px;}
+  .meta{color:var(--text-muted);font-size:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  #updated{color:var(--text-secondary);font-weight:600;font-variant-numeric:tabular-nums;}
+  .theme-toggle{border:1px solid var(--border);background:var(--surface-1);color:var(--text-secondary);
+    border-radius:999px;font-size:12px;padding:5px 12px;cursor:pointer;font-family:inherit;}
+  .theme-toggle:hover{color:var(--text-primary);}
+  .theme-toggle:disabled{opacity:.55;cursor:default;}
+  .theme-toggle[aria-pressed="true"]{color:var(--text-primary);border-color:var(--text-muted);}
+  .note{color:var(--text-muted);font-size:12px;margin:6px 0 18px;}
+  .note.err{color:var(--away);}
+  .games{display:grid;gap:14px;grid-template-columns:1fr 1fr;}
+  @media (max-width:760px){.games{grid-template-columns:1fr;}}
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:14px;
+    box-shadow:var(--shadow);overflow:hidden;}
+  .g-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border);}
+  .g-teams{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;}
+  .g-teams .vs{color:var(--text-muted);font-weight:500;margin:0 6px;}
+  .g-teams .sc{color:var(--text-secondary);font-weight:600;margin-left:4px;}
+  .pill{font-size:11px;font-weight:700;letter-spacing:.02em;padding:2px 9px;border-radius:999px;text-transform:uppercase;white-space:nowrap;}
+  .pill.in{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good);}
+  .pill.post{background:var(--muted-fill);color:var(--text-secondary);}
+  .pill.pre{background:var(--muted-fill);color:var(--text-muted);}
+  .pill .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--good);margin-right:5px;vertical-align:middle;}
+  .cols{display:grid;grid-template-columns:1fr 1fr;}
+  .col{padding:8px 12px 12px;}
+  .col+.col{border-left:1px solid var(--border);}
+  .col h4{margin:4px 0 6px;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--text-secondary);
+    display:flex;align-items:center;gap:6px;}
+  .col h4 .chip{width:8px;height:8px;border-radius:2px;}
+  .col.away h4 .chip{background:var(--away);} .col.home h4 .chip{background:var(--home);}
+  .p{display:grid;grid-template-columns:26px 1fr auto;gap:7px;align-items:baseline;padding:4px 0;border-top:1px solid var(--grid);}
+  .p:first-of-type{border-top:0;}
+  .p .pos{font-size:9.5px;font-weight:700;color:var(--text-muted);letter-spacing:.02em;padding-top:1px;}
+  .p .who{min-width:0;}
+  .p .nm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .p .ln{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .p .pt{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;}
+  .empty{color:var(--text-muted);font-size:12px;padding:18px;text-align:center;}
+  /* non-scoring players: hidden until "All players" is toggled on */
+  .p.unscored{display:none;}
+  body.show-all .p.unscored{display:grid;}
+  .p.unscored .nm,.p.unscored .pt{color:var(--text-muted);font-weight:500;}
+  body.show-all .scored-empty{display:none;}
+  .wknav{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 2px;}
+  .wknav a{font-size:12px;text-decoration:none;color:var(--text-secondary);
+    border:1px solid var(--border);border-radius:999px;padding:4px 11px;white-space:nowrap;background:var(--surface-1);}
+  .wknav a:hover{color:var(--text-primary);}
+  .wknav a.on{color:var(--text-primary);border-color:var(--text-muted);font-weight:600;}
+  .wknav a.live-link .d{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--good);margin-right:5px;vertical-align:middle;}
+  footer.f{margin-top:24px;color:var(--text-muted);font-size:11px;text-align:center;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">DadsFFL<span class="sub">Live Scoring</span></div>
+    <div class="meta">
+      <span id="updated"></span>
+      <button class="theme-toggle" id="refreshBtn" type="button" hidden>Refresh</button>
+      <button class="theme-toggle" id="allBtn" type="button">Scored only</button>
+      <button class="theme-toggle" id="themeBtn" type="button">Theme</button>
+    </div>
+  </header>
+  <nav class="wknav" id="wknav"></nav>
+  <div class="note" id="note"></div>
+  <div class="games" id="games"></div>
+  <footer class="f" id="footer"></footer>
+</div>
+<script>
+(function(){
+  "use strict";
+
+  // ---- Supabase config ----------------------------------------------------
+  const SUPABASE_URL = "https://lpcremgkmgumumboqjux.supabase.co";
+  const ANON_KEY = "sb_publishable_zOdIS--l6_TDNSlrOE_RhA_s3E54zsj";
+  const REST_BASE = SUPABASE_URL + "/rest/v1";
+  const FUNCTION_URL = SUPABASE_URL + "/functions/v1/fetch-and-score";
+  const REST_HEADERS = { apikey: ANON_KEY, Authorization: "Bearer " + ANON_KEY };
+  const LIVE_POLL_MS = 60000; // re-query Supabase every 60s while viewing the live week
+  const STATE_ORDER = { in: 0, post: 1, pre: 2 };
+
+  const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt = n => (Math.round(n*10)/10).toFixed(0);
+
+  async function getJSON(path){
+    const res = await fetch(REST_BASE + path, { headers: REST_HEADERS });
+    if (!res.ok) throw new Error("Supabase query failed (" + res.status + "): " + path);
+    return res.json();
+  }
+
+  // ---- Data loading ---------------------------------------------------------
+  // Mirrors the filtering/sorting that used to live in src/live_score.py's
+  // build_game(): drop players with no points AND no stat line worth showing;
+  // sort each team's roster scorers-first (by points), then non-scorers by a
+  // rough "activity" measure (yards). Games themselves sort in-progress first,
+  // then final, then anything else.
+
+  async function fetchWeeksNav(){
+    return getJSON("/weeks?select=id,season_id,season_type,week_number,label,title" +
+      "&order=season_id.desc,season_type.desc,week_number.desc&limit=64");
+  }
+
+  async function fetchLatestWeekId(){
+    const rows = await getJSON("/games?select=week_id,updated_at&order=updated_at.desc&limit=1");
+    return rows.length ? rows[0].week_id : null;
+  }
+
+  async function fetchWeekGames(weekId){
+    const games = await getJSON(
+      "/games?week_id=eq." + weekId +
+      "&select=id,home_abbrev,home_name,home_score,away_abbrev,away_name,away_score,state,status_detail,updated_at"
+    );
+    if (!games.length) return { games: [], generated: null };
+
+    const gameIds = games.map(g => g.id);
+    const statLines = await getJSON(
+      "/stat_lines?game_id=in.(" + gameIds.join(",") + ")" +
+      "&select=game_id,player_id,pass_yards,rush_yards,rec_yards,fantasy_points,summary"
+    );
+
+    const playerIds = [...new Set(statLines.map(s => s.player_id))];
+    const players = playerIds.length
+      ? await getJSON("/players?id=in.(" + playerIds.join(",") + ")&select=id,name,nfl_team,inferred_position")
+      : [];
+    const playersById = new Map(players.map(p => [p.id, p]));
+
+    const rowsByGame = new Map();
+    for (const s of statLines) {
+      const p = playersById.get(s.player_id);
+      if (!p) continue;
+      const pts = Number(s.fantasy_points) || 0;
+      const summary = s.summary || "";
+      // Drop players with a completely empty line — same rule as the old
+      // build_game(): keep anyone who either scored or has stats worth showing.
+      if (pts <= 0 && !summary) continue;
+      const act = (s.pass_yards||0) + (s.rush_yards||0) + (s.rec_yards||0);
+      const row = {
+        name: p.name, team: p.nfl_team, pos: p.inferred_position,
+        summary, pts, scored: pts > 0, act,
+      };
+      if (!rowsByGame.has(s.game_id)) rowsByGame.set(s.game_id, []);
+      rowsByGame.get(s.game_id).push(row);
+    }
+
+    let generated = null;
+    for (const g of games) {
+      if (!generated || (g.updated_at && g.updated_at > generated)) generated = g.updated_at;
+    }
+
+    const built = games.map(g => {
+      const rows = rowsByGame.get(g.id) || [];
+      const byTeam = {};
+      for (const row of rows) {
+        (byTeam[row.team] || (byTeam[row.team] = [])).push(row);
+      }
+      for (const team in byTeam) {
+        byTeam[team].sort((a,b) => {
+          if (a.scored !== b.scored) return a.scored ? -1 : 1;
+          return a.scored ? (b.pts - a.pts) : (b.act - a.act);
+        });
+      }
+      return {
+        meta: {
+          state: g.state || "?",
+          status: g.status_detail || g.state || "",
+          home: { abbrev: g.home_abbrev, name: g.home_name, score: g.home_score },
+          away: { abbrev: g.away_abbrev, name: g.away_name, score: g.away_score },
+        },
+        players: byTeam,
+      };
+    });
+    built.sort((a,b) => (STATE_ORDER[a.meta.state] ?? 3) - (STATE_ORDER[b.meta.state] ?? 3));
+
+    return { games: built, generated };
+  }
+
+  function formatGenerated(iso){
+    if (!iso) return "";
+    const d = new Date(iso);
+    const dateStr = d.toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric", timeZone:"America/New_York" });
+    const timeStr = d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit", second:"2-digit", timeZoneName:"short", timeZone:"America/New_York" });
+    return dateStr + " · " + timeStr;
+  }
+
+  // ---- Rendering (same look as the old embedded-JSON page) ------------------
+
+  function playerRow(p){
+    return `<div class="p ${p.scored ? '' : 'unscored'}">
+      <span class="pos">${esc(p.pos)}</span>
+      <span class="who"><div class="nm">${esc(p.name)}</div><div class="ln">${esc(p.summary)}</div></span>
+      <span class="pt">${fmt(p.pts)}</span>
+    </div>`;
+  }
+  function teamCol(meta, players, side){
+    const t = meta[side]||{};
+    const rows = (players[t.abbrev]||[]);
+    const scored = rows.filter(p=>p.scored);
+    const empty = scored.length ? '' : `<div class="empty scored-empty">no fantasy points yet</div>`;
+    const body = rows.map(p=>playerRow(p)).join('');
+    return `<div class="col ${side}"><h4><span class="chip"></span>${esc(t.abbrev)} · ${esc(t.name)}</h4>${empty}${body}</div>`;
+  }
+  function gameCard(g){
+    const m=g.meta, a=m.away||{}, h=m.home||{};
+    const state=m.state||'?';
+    const dot = state==='in' ? '<span class="dot"></span>' : '';
+    return `<div class="card">
+      <div class="g-head">
+        <div class="g-teams">${esc(a.abbrev)}<span class="sc">${esc(a.score)}</span><span class="vs">@</span>${esc(h.abbrev)}<span class="sc">${esc(h.score)}</span></div>
+        <span class="pill ${state}">${dot}${esc(m.status||state)}</span>
+      </div>
+      <div class="cols">${teamCol(m,g.players,'away')}${teamCol(m,g.players,'home')}</div>
+    </div>`;
+  }
+  function renderNav(weeks, current){
+    const nav=document.getElementById('wknav');
+    if(!nav) return;
+    let html=`<a href="?" class="live-link ${current==='live'?'on':''}"><span class="d"></span>Live</a>`;
+    weeks.forEach(w=>{ html+=`<a href="?week=${esc(w.label)}" class="${current===w.label?'on':''}">${esc(w.title)}</a>`; });
+    nav.innerHTML=html;
+  }
+  function render(state){
+    const { mode, current, title, generated, games, weeks } = state;
+    renderNav(weeks, current);
+    const isLive = mode!=='archive';
+    document.getElementById('updated').textContent =
+      (isLive ? 'Last updated as of ' : 'Final as of ') + esc(generated ? formatGenerated(generated) : '—');
+    document.getElementById('note').classList.remove('err');
+    document.getElementById('note').textContent = isLive
+      ? 'Every player’s fantasy points under DadsFFL scoring, computed live from the ESPN feed.'
+      : (esc(title || 'Archived week') + ' — final results.');
+    const g=document.getElementById('games');
+    g.innerHTML = games.length ? games.map(gameCard).join('')
+      : (isLive
+          ? '<div class="empty">No NFL games in progress right now. Live scores appear here during games; completed weeks are in the bar above.</div>'
+          : '<div class="empty">No games for this week.</div>');
+    document.getElementById('footer').innerHTML =
+      'Source: ESPN box scores · scored live via a Supabase Edge Function' +
+      (isLive ? ' · this page refreshes itself every ' + Math.round(LIVE_POLL_MS/1000) + 's' : '');
+    document.getElementById('refreshBtn').hidden = !isLive;
+  }
+
+  // ---- Theme toggle (unchanged) ---------------------------------------------
+  const themeBtn=document.getElementById('themeBtn'),themeOrder=['','light','dark'],
+        themeLabels={'':'Theme: Auto','light':'Theme: Light','dark':'Theme: Dark'};
+  let ti=0;
+  function applyTheme(){document.documentElement.setAttribute('data-theme',themeOrder[ti]);themeBtn.textContent=themeLabels[themeOrder[ti]];}
+  themeBtn.addEventListener('click',()=>{ti=(ti+1)%themeOrder.length;applyTheme();});
+  applyTheme();
+
+  // "Scored only" <-> "All players" — persisted so re-renders don't reset it.
+  const allBtn=document.getElementById('allBtn');
+  function applyAll(on){
+    document.body.classList.toggle('show-all', on);
+    allBtn.textContent = on ? 'All players' : 'Scored only';
+    allBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  let showAll=false;
+  try{ showAll = localStorage.getItem('dadsffl-showall')==='1'; }catch(e){}
+  allBtn.addEventListener('click',()=>{
+    showAll=!showAll;
+    try{ localStorage.setItem('dadsffl-showall', showAll?'1':'0'); }catch(e){}
+    applyAll(showAll);
+  });
+  applyAll(showAll);
+
+  // ---- Main load/refresh loop -------------------------------------------------
+  const params = new URLSearchParams(location.search);
+  const requestedWeek = params.get('week'); // null => live/current
+
+  let appState = { mode:'live', current:'live', title:'Live', generated:null, games:[], weeks:[] };
+  let pollTimer = null;
+
+  async function loadAndRender(){
+    const weeks = await fetchWeeksNav();
+    let weekId, mode, current, title;
+    if (requestedWeek) {
+      const w = weeks.find(w => w.label === requestedWeek);
+      if (!w) throw new Error('Unknown week: ' + requestedWeek);
+      weekId = w.id; mode = 'archive'; current = w.label; title = w.title;
+    } else {
+      weekId = await fetchLatestWeekId();
+      mode = 'live'; current = 'live'; title = 'Live';
+    }
+    const { games, generated } = weekId != null
+      ? await fetchWeekGames(weekId)
+      : { games: [], generated: null };
+    appState = { mode, current, title, generated, games, weeks };
+    render(appState);
+  }
+
+  async function initialLoad(){
+    try {
+      await loadAndRender();
+    } catch (e) {
+      const note = document.getElementById('note');
+      note.classList.add('err');
+      note.textContent = 'Could not load live scores right now (' + e.message + '). Try reloading.';
+    }
+    if (appState.mode !== 'archive') {
+      pollTimer = setInterval(() => { loadAndRender().catch(()=>{}); }, LIVE_POLL_MS);
+    }
+  }
+
+  // ---- Refresh button: triggers the fetch-and-score Edge Function directly,
+  // rate-limited server-side (429 + Retry-After / retry_after_seconds JSON). ----
+  const refreshBtn = document.getElementById('refreshBtn');
+  let cooldownTimer = null;
+
+  function startCooldown(seconds){
+    if (cooldownTimer) clearInterval(cooldownTimer);
+    let remaining = Math.max(0, Math.ceil(seconds));
+    const tick = () => {
+      if (remaining <= 0) {
+        clearInterval(cooldownTimer);
+        cooldownTimer = null;
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = 'Refresh';
+        return;
+      }
+      const m = Math.floor(remaining/60), s = remaining%60;
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = 'Wait ' + m + ':' + String(s).padStart(2,'0');
+      remaining--;
+    };
+    tick();
+    cooldownTimer = setInterval(tick, 1000);
+  }
+
+  refreshBtn.addEventListener('click', async () => {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = 'Refreshing…';
+    try {
+      const res = await fetch(FUNCTION_URL, {
+        method: 'POST',
+        headers: { ...REST_HEADERS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger: 'button' }),
+      });
+      if (res.status === 429) {
+        const body = await res.json().catch(()=>({}));
+        startCooldown(body.retry_after_seconds || 300);
+        return;
+      }
+      if (!res.ok) throw new Error('refresh failed (' + res.status + ')');
+      await loadAndRender();
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = 'Refresh';
+    } catch (e) {
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = 'Refresh';
+      const note = document.getElementById('note');
+      note.classList.add('err');
+      note.textContent = 'Refresh failed: ' + e.message;
+    }
+  });
+
+  initialLoad();
+})();
+</script>
+</body>
+</html>
