@@ -1,27 +1,27 @@
 name: DadsFFL live scoring
 
-# Stateless fetch -> score -> publish to GitHub Pages, PLUS a durable weekly
-# archive committed into the repo. IMPORTANT ordering: the site is DEPLOYED FIRST,
-# then the archive is committed as a best-effort (continue-on-error) last step, so
-# a commit/push problem can never block the live scoreboard from updating.
+# Publishes web/live.html — a static page that reads live scores client-side
+# from Supabase (via the fetch-and-score Edge Function + PostgREST) — to GitHub
+# Pages. All score-fetching now happens server-side on a Supabase pg_cron
+# schedule, not here, so this workflow only needs to run when the page itself
+# changes. (Superseded the old GitHub Actions `schedule:`-triggered Python
+# pipeline that rendered live.html itself every 5 minutes — see
+# src/live_score.py, now unused for the live page.)
 
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
-  schedule:
-    - cron: '*/5 17-23 * * *'
-    - cron: '*/5 0-4 * * *'
-    - cron: '*/5 13-16 * * 0,6'
-    - cron: '0 16 * * 2'
-    - cron: '0 17 * * 2'
+    paths:
+      - 'web/live.html'
+      - '.github/workflows/live-scoring.yml'
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -31,73 +31,17 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
-    env:
-      TZ: America/New_York
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
 
-      - name: Restore finals cache
-        uses: actions/cache@v4
-        with:
-          path: cache/finals
-          key: dadsffl-finals-${{ github.run_id }}
-          restore-keys: |
-            dadsffl-finals-
-
-      - name: Fetch + score (publish only when warranted)
+      - name: Stage site
         run: |
-          set -e
-          FORCE=0
-          REFETCH=""
-          if [ "${{ github.event_name }}" != "schedule" ]; then
-            FORCE=1
-          else
-            case "${{ github.event.schedule }}" in
-              "0 16 * * 2"|"0 17 * * 2")
-                FORCE=1; REFETCH="--refetch-finals" ;;
-            esac
-          fi
-          COMMON="--live --refresh 120 --out _site/index.html --cache-dir cache/finals --archive-dir data $REFETCH"
-          if [ "$FORCE" = "1" ]; then
-            echo "Mode: force publish  $REFETCH"
-            python3 src/live_score.py $COMMON
-          else
-            echo "Mode: game-window poll (publish only if games are live/final)"
-            python3 src/live_score.py $COMMON --require-games
-          fi
-          if [ -f _site/index.html ]; then echo "-> publishing"; else echo "-> nothing to publish this run"; fi
+          mkdir -p _site
+          cp web/live.html _site/index.html
 
-      - name: Stage archive into the published site
-        if: ${{ hashFiles('_site/index.html') != '' }}
-        run: |
-          if [ -d data ]; then mkdir -p _site/data && cp -r data/. _site/data/; fi
-
-      # ---- DEPLOY FIRST: the live page must update regardless of the commit ----
       - uses: actions/configure-pages@v5
-        if: ${{ hashFiles('_site/index.html') != '' }}
       - uses: actions/upload-pages-artifact@v3
-        if: ${{ hashFiles('_site/index.html') != '' }}
         with:
           path: _site
       - id: deploy
-        if: ${{ hashFiles('_site/index.html') != '' }}
         uses: actions/deploy-pages@v4
-
-      # ---- Then persist the archive, best-effort. A push failure is logged but does
-      # NOT fail the job or block the deploy that already happened above. ----
-      - name: Commit weekly archive (best-effort)
-        if: ${{ hashFiles('_site/index.html') != '' }}
-        continue-on-error: true
-        run: |
-          if [ -d data ] && [ -n "$(git status --porcelain data)" ]; then
-            git config user.name  "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data
-            git commit -m "Archive weekly results ($(date -u +%FT%TZ))"
-            git push || (git pull --rebase --autostash && git push) || echo "WARN: archive push failed (deploy already done)"
-          else
-            echo "no archive changes"
-          fi
