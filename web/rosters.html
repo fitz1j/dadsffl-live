@@ -1,0 +1,435 @@
+<title>2026 DadsFFL Rosters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    --paper: #f6f3e9;
+    --paper-raised: #fffdf7;
+    --ink: #1c2621;
+    --ink-soft: #4a544d;
+    --line: #ddd6c4;
+    --turf: #2f6f4e;
+    --turf-deep: #1c4531;
+    --turf-tint: #e3ede6;
+    --gold: #ad8a1e;
+    --gold-tint: #f3ead0;
+    --clemenza: #ad5a2d;
+    --clemenza-tint: #f2e3d8;
+    --tessio: #2f6180;
+    --tessio-tint: #dfe9ee;
+    --shadow: 0 1px 2px rgba(28,38,33,0.06), 0 6px 20px -8px rgba(28,38,33,0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14201a;
+      --paper-raised: #1b2a22;
+      --ink: #eef2ec;
+      --ink-soft: #a8b6ac;
+      --line: #2c3a30;
+      --turf: #6bbd91;
+      --turf-deep: #9fdcb9;
+      --turf-tint: #1e352a;
+      --gold: #e0bc55;
+      --gold-tint: #33301c;
+      --clemenza: #e08a55;
+      --clemenza-tint: #3a2a1f;
+      --tessio: #7fb8d6;
+      --tessio-tint: #1f3038;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14201a;
+    --paper-raised: #1b2a22;
+    --ink: #eef2ec;
+    --ink-soft: #a8b6ac;
+    --line: #2c3a30;
+    --turf: #6bbd91;
+    --turf-deep: #9fdcb9;
+    --turf-tint: #1e352a;
+    --gold: #e0bc55;
+    --gold-tint: #33301c;
+    --clemenza: #e08a55;
+    --clemenza-tint: #3a2a1f;
+    --tessio: #7fb8d6;
+    --tessio-tint: #1f3038;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Libre Franklin", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px 64px; }
+
+  /* ---------- Header ---------- */
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    padding: 18px 24px 14px;
+  }
+  .top-inner { max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 28px; }
+  .brand { display: flex; flex-direction: column; gap: 2px; margin-right: auto; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--turf);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: "Oswald", ui-sans-serif, sans-serif;
+    font-weight: 700;
+    font-size: clamp(26px, 3.4vw, 34px);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .subtitle { color: var(--ink-soft); font-size: 13.5px; max-width: 62ch; }
+
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 230px;
+  }
+  .search svg { flex: none; opacity: 0.55; }
+  .search input {
+    border: none; background: transparent; outline: none;
+    font-family: "Libre Franklin", sans-serif; font-size: 14px; color: var(--ink);
+    width: 100%;
+  }
+  .search input::placeholder { color: var(--ink-soft); }
+
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.03em;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  }
+  .chip:hover { border-color: var(--turf); }
+  .chip.active { background: var(--turf); border-color: var(--turf); color: var(--paper-raised); }
+
+  .stat-strip {
+    display: flex; gap: 22px; flex-wrap: wrap;
+    margin-top: 14px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .stat-strip b { color: var(--ink); font-weight: 600; }
+
+  .no-results { display: none; padding: 40px 0; text-align: center; color: var(--ink-soft); font-size: 14px; }
+
+  /* ---------- Divisions ---------- */
+  .division { margin-top: 34px; }
+  .division-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--div-color);
+  }
+  .division-head h2 {
+    font-family: "Oswald", sans-serif;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 0;
+    color: var(--div-color);
+  }
+  .division-head span { font-size: 12.5px; color: var(--ink-soft); }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 16px;
+  }
+
+  /* ---------- Team card ---------- */
+  .team-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .team-card-head {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--line);
+    background: var(--div-tint);
+  }
+  .team-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .team-name {
+    font-family: "Oswald", sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .team-abbrev-badge {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px; font-weight: 600;
+    color: var(--div-color);
+    background: var(--paper-raised);
+    border: 1px solid var(--div-color);
+    border-radius: 5px;
+    padding: 1px 6px;
+    flex: none;
+  }
+  .team-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .team-meta b { color: var(--ink); font-weight: 600; }
+
+  .roster-body { padding: 6px 16px 14px; flex: 1; }
+  .pos-group { margin-top: 10px; }
+  .pos-group:first-child { margin-top: 8px; }
+  .pos-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em;
+    color: var(--turf); text-transform: uppercase;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pos-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .pos-count { color: var(--ink-soft); font-weight: 500; }
+
+  ul.player-list { list-style: none; margin: 4px 0 0; padding: 0; }
+  .player-row {
+    display: grid;
+    grid-template-columns: 40px 1fr auto auto;
+    align-items: baseline;
+    gap: 8px;
+    padding: 3px 0;
+    border-radius: 4px;
+  }
+  .pick-no {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px; color: var(--ink-soft);
+  }
+  .player-name { font-size: 13.5px; font-weight: 500; }
+  .nfl-team {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px; font-weight: 600;
+    color: var(--turf-deep);
+    white-space: nowrap;
+  }
+  .bye-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10px; color: var(--ink-soft);
+    background: var(--turf-tint);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+  }
+
+  .team-card-foot {
+    padding: 8px 16px;
+    border-top: 1px solid var(--line);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex; justify-content: space-between;
+  }
+
+  .player-row.is-hidden { display: none; }
+  .team-card.is-hidden { display: none; }
+  .player-row.is-match .player-name { color: var(--turf-deep); font-weight: 700; }
+
+  footer.note {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  footer.note code {
+    font-family: "IBM Plex Mono", monospace;
+    background: var(--turf-tint);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 560px) {
+    .top-inner { gap: 12px 16px; }
+    .controls { width: 100%; }
+    .search { flex: 1; }
+  }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="eyebrow">DadsFFL &middot; 2026 Season</span>
+      <h1>Draft Rosters</h1>
+      <span class="subtitle">192 picks across 8 teams &mdash; every roster full at 24, no open slots, no duplicate players &mdash; from the commissioner's draft board, with each player's NFL team and bye week shown alongside the pick.</span>
+    </div>
+    <div class="controls">
+      <label class="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="search" type="text" placeholder="Find a player or team&hellip;" autocomplete="off">
+      </label>
+      <div class="chips" id="pos-chips"></div>
+    </div>
+  </div>
+  <div class="top-inner">
+    <div class="stat-strip" id="stat-strip"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="no-results" id="no-results">No players match &ldquo;<span id="no-results-term"></span>&rdquo;.</div>
+  <div id="divisions"></div>
+
+  <footer class="note">
+    Parsed from the 2026 draft board (<code>parse_draft_board.py</code>) &mdash; 192 roster slots across 8 teams, 24 each, every slot filled, no duplicate players. All previously-known issues are resolved: the four double-drafted players (Dallas Goedert, Derwin James Jr., Derek Stingley Jr., Marlon Humphrey) have been fixed on the sheet, and Predetermined Destination's round-28 QB slot now has a player entered. Every team is within the roster composition caps (2 DB, 2 DL/LB, 2 K, 3 QB, 7 RB, 2 TE/WR flex, 6 WR per team). NFL team and bye week are looked up from a separate player database and cross-checked by hand for spelling. One stray, unrecognized team code ("AM") still shows up in a round-28 Roster Full no-op placeholder (not a real pick) &mdash; worth checking with the commissioner what that should actually say.
+  </footer>
+</div>
+
+<script>
+  const ROSTER_DATA = {"teams": [{"code": "OS", "name": "Odds & Sods", "abbrev": "O&S", "division": "Clemenza", "players": [{"pick_number": 7, "round": 1, "round_slot": 7, "pos": "QB", "name": "Dak Prescott", "nfl_team": "DAL", "bye": 14}, {"pick_number": 15, "round": 2, "round_slot": 7, "pos": "QB", "name": "Jaxson Dart", "nfl_team": "NYG", "bye": 8}, {"pick_number": 23, "round": 3, "round_slot": 7, "pos": "QB", "name": "Jared Goff", "nfl_team": "DET", "bye": 6}, {"pick_number": 39, "round": 5, "round_slot": 7, "pos": "DL/LB", "name": "Andrew Van Ginkel", "nfl_team": "MIN", "bye": 6}, {"pick_number": 42, "round": 6, "round_slot": 2, "pos": "K", "name": "Harrison Mevis", "nfl_team": "LAR", "bye": 11}, {"pick_number": 57, "round": 8, "round_slot": 1, "pos": "RB", "name": "MarShawn Lloyd", "nfl_team": "GB", "bye": 11}, {"pick_number": 58, "round": 8, "round_slot": 2, "pos": "TE", "name": "Kyle Pitts Sr.", "nfl_team": "ATL", "bye": 11}, {"pick_number": 71, "round": 9, "round_slot": 7, "pos": "RB", "name": "Bhayshul Tuten", "nfl_team": "JAX", "bye": 7}, {"pick_number": 74, "round": 10, "round_slot": 2, "pos": "RB", "name": "J.K. Dobbins", "nfl_team": "DEN", "bye": 10}, {"pick_number": 87, "round": 11, "round_slot": 7, "pos": "RB", "name": "Rico Dowdle", "nfl_team": "PIT", "bye": 9}, {"pick_number": 90, "round": 12, "round_slot": 2, "pos": "RB", "name": "Jordan Mason", "nfl_team": "MIN", "bye": 6}, {"pick_number": 103, "round": 13, "round_slot": 7, "pos": "K", "name": "Evan McPherson", "nfl_team": "CIN", "bye": 6}, {"pick_number": 106, "round": 14, "round_slot": 2, "pos": "RB", "name": "Jacory Croskey-Merritt", "nfl_team": "WAS", "bye": 7}, {"pick_number": 119, "round": 15, "round_slot": 7, "pos": "RB", "name": "Blake Corum", "nfl_team": "LAR", "bye": 11}, {"pick_number": 122, "round": 16, "round_slot": 2, "pos": "WR", "name": "Jayden Reed", "nfl_team": "GB", "bye": 11}, {"pick_number": 135, "round": 17, "round_slot": 7, "pos": "WR", "name": "DK Metcalf", "nfl_team": "PIT", "bye": 9}, {"pick_number": 138, "round": 18, "round_slot": 2, "pos": "WR", "name": "Sam LaPorta", "nfl_team": "DET", "bye": 6}, {"pick_number": 151, "round": 19, "round_slot": 7, "pos": "WR", "name": "Travis Kelce", "nfl_team": "KC", "bye": 5}, {"pick_number": 154, "round": 20, "round_slot": 2, "pos": "WR", "name": "Quentin Johnston", "nfl_team": "LAC", "bye": 7}, {"pick_number": 167, "round": 21, "round_slot": 7, "pos": "WR", "name": "Matthew Golden", "nfl_team": "GB", "bye": 11}, {"pick_number": 170, "round": 22, "round_slot": 2, "pos": "WR", "name": "Carnell Tate", "nfl_team": "TEN", "bye": 9}, {"pick_number": 183, "round": 23, "round_slot": 7, "pos": "DB", "name": "Antonio Johnson", "nfl_team": "JAX", "bye": 7}, {"pick_number": 186, "round": 24, "round_slot": 2, "pos": "DB", "name": "Kerby Joseph", "nfl_team": "DET", "bye": 6}, {"pick_number": 199, "round": 25, "round_slot": 7, "pos": "DL/LB", "name": "Josh Sweat", "nfl_team": "ARI", "bye": 14}]}, {"code": "PD", "name": "Predetermined Destination", "abbrev": "PD", "division": "Clemenza", "players": [{"pick_number": 6, "round": 1, "round_slot": 6, "pos": "QB", "name": "Jayden Daniels", "nfl_team": "WAS", "bye": 7}, {"pick_number": 22, "round": 3, "round_slot": 6, "pos": "QB", "name": "C.J. Stroud", "nfl_team": "HOU", "bye": 8}, {"pick_number": 27, "round": 4, "round_slot": 3, "pos": "K", "name": "Eddy Pi\u00f1eiro", "nfl_team": "SF", "bye": 8}, {"pick_number": 54, "round": 7, "round_slot": 6, "pos": "K", "name": "Tyler Loop", "nfl_team": "BAL", "bye": 13}, {"pick_number": 59, "round": 8, "round_slot": 3, "pos": "RB", "name": "Tyler Allgeier", "nfl_team": "ARI", "bye": 14}, {"pick_number": 70, "round": 9, "round_slot": 6, "pos": "RB", "name": "Keaton Mitchell", "nfl_team": "LAC", "bye": 7}, {"pick_number": 75, "round": 10, "round_slot": 3, "pos": "RB", "name": "Brian Robinson Jr", "nfl_team": "ATL", "bye": 11}, {"pick_number": 91, "round": 12, "round_slot": 3, "pos": "RB", "name": "Tyjae Spears", "nfl_team": "TEN", "bye": 9}, {"pick_number": 102, "round": 13, "round_slot": 6, "pos": "TE", "name": "Colston Loveland", "nfl_team": "CHI", "bye": 10}, {"pick_number": 107, "round": 14, "round_slot": 3, "pos": "RB", "name": "Tank Bigsby", "nfl_team": "PHI", "bye": 10}, {"pick_number": 118, "round": 15, "round_slot": 6, "pos": "RB", "name": "Woody Marks", "nfl_team": "HOU", "bye": 8}, {"pick_number": 123, "round": 16, "round_slot": 3, "pos": "RB", "name": "Mike Washington Jr.", "nfl_team": "LV", "bye": 13}, {"pick_number": 134, "round": 17, "round_slot": 6, "pos": "WR", "name": "Emeka Egbuka", "nfl_team": "TB", "bye": 10}, {"pick_number": 139, "round": 18, "round_slot": 3, "pos": "WR", "name": "Rome Odunze", "nfl_team": "CHI", "bye": 10}, {"pick_number": 150, "round": 19, "round_slot": 6, "pos": "WR", "name": "Davante Adams", "nfl_team": "LAR", "bye": 11}, {"pick_number": 155, "round": 20, "round_slot": 3, "pos": "WR", "name": "Christian Watson", "nfl_team": "GB", "bye": 11}, {"pick_number": 166, "round": 21, "round_slot": 6, "pos": "WR", "name": "Brian Thomas Jr.", "nfl_team": "JAX", "bye": 7}, {"pick_number": 171, "round": 22, "round_slot": 3, "pos": "WR", "name": "Parker Washington", "nfl_team": "JAX", "bye": 7}, {"pick_number": 182, "round": 23, "round_slot": 6, "pos": "WR", "name": "Alec Pierce", "nfl_team": "IND", "bye": 13}, {"pick_number": 187, "round": 24, "round_slot": 3, "pos": "DB", "name": "Kevin Byard III", "nfl_team": "NE", "bye": 11}, {"pick_number": 198, "round": 25, "round_slot": 6, "pos": "DB", "name": "Jalen Ramsey", "nfl_team": "PIT", "bye": 9}, {"pick_number": 203, "round": 26, "round_slot": 3, "pos": "DL/LB", "name": "Josh Hines-Allen", "nfl_team": "JAX", "bye": 7}, {"pick_number": 214, "round": 27, "round_slot": 6, "pos": "DL/LB", "name": "T.J. Watt", "nfl_team": "PIT", "bye": 9}, {"pick_number": 219, "round": 28, "round_slot": 3, "pos": "QB", "name": "Jacoby Brissett", "nfl_team": "ARI", "bye": 14}]}, {"code": "WG", "name": "Wild Geesemen", "abbrev": "WILD", "division": "Clemenza", "players": [{"pick_number": 3, "round": 1, "round_slot": 3, "pos": "QB", "name": "Lamar Jackson", "nfl_team": "BAL", "bye": 13}, {"pick_number": 14, "round": 2, "round_slot": 6, "pos": "QB", "name": "Patrick Mahomes II", "nfl_team": "KC", "bye": 5}, {"pick_number": 16, "round": 2, "round_slot": 8, "pos": "QB", "name": "Kyler Murray", "nfl_team": "MIN", "bye": 6}, {"pick_number": 18, "round": 3, "round_slot": 2, "pos": "K", "name": "Cameron Dicker", "nfl_team": "LAC", "bye": 7}, {"pick_number": 19, "round": 3, "round_slot": 3, "pos": "K", "name": "Jason Myers", "nfl_team": "SEA", "bye": 11}, {"pick_number": 24, "round": 3, "round_slot": 8, "pos": "TE", "name": "Brock Bowers", "nfl_team": "LV", "bye": 13}, {"pick_number": 31, "round": 4, "round_slot": 7, "pos": "RB", "name": "De'Von Achane", "nfl_team": "MIA", "bye": 6}, {"pick_number": 34, "round": 5, "round_slot": 2, "pos": "RB", "name": "Chase Brown", "nfl_team": "CIN", "bye": 6}, {"pick_number": 35, "round": 5, "round_slot": 3, "pos": "RB", "name": "Omarion Hampton", "nfl_team": "LAC", "bye": 7}, {"pick_number": 44, "round": 6, "round_slot": 4, "pos": "RB", "name": "Saquon Barkley", "nfl_team": "PHI", "bye": 10}, {"pick_number": 46, "round": 6, "round_slot": 6, "pos": "RB", "name": "Kyren Williams", "nfl_team": "LAR", "bye": 11}, {"pick_number": 51, "round": 7, "round_slot": 3, "pos": "RB", "name": "Ashton Jeanty", "nfl_team": "LV", "bye": 13}, {"pick_number": 56, "round": 7, "round_slot": 8, "pos": "RB", "name": "Jonathon Brooks", "nfl_team": "CAR", "bye": 5}, {"pick_number": 62, "round": 8, "round_slot": 6, "pos": "WR", "name": "Nico Collins", "nfl_team": "HOU", "bye": 8}, {"pick_number": 67, "round": 9, "round_slot": 3, "pos": "WR", "name": "A.J. Brown", "nfl_team": "NE", "bye": 11}, {"pick_number": 78, "round": 10, "round_slot": 6, "pos": "WR", "name": "Wan'Dale Robinson", "nfl_team": "TEN", "bye": 9}, {"pick_number": 80, "round": 10, "round_slot": 8, "pos": "WR", "name": "Jameson Williams", "nfl_team": "DET", "bye": 6}, {"pick_number": 83, "round": 11, "round_slot": 3, "pos": "WR", "name": "Ladd McConkey", "nfl_team": "LAC", "bye": 7}, {"pick_number": 94, "round": 12, "round_slot": 6, "pos": "DB", "name": "Marlon Humphrey", "nfl_team": "BAL", "bye": 13}, {"pick_number": 99, "round": 13, "round_slot": 3, "pos": "WR", "name": "Josh Downs", "nfl_team": "IND", "bye": 13}, {"pick_number": 110, "round": 14, "round_slot": 6, "pos": "WR", "name": "Drake London", "nfl_team": "ATL", "bye": 11}, {"pick_number": 115, "round": 15, "round_slot": 3, "pos": "DB", "name": "Nick Emmanwori", "nfl_team": "SEA", "bye": 11}, {"pick_number": 126, "round": 16, "round_slot": 6, "pos": "DL/LB", "name": "Will Anderson Jr.", "nfl_team": "HOU", "bye": 8}, {"pick_number": 131, "round": 17, "round_slot": 3, "pos": "DL/LB", "name": "Trey Hendrickson", "nfl_team": "BAL", "bye": 13}]}, {"code": "FB", "name": "Fabricoh", "abbrev": "FB", "division": "Clemenza", "players": [{"pick_number": 1, "round": 1, "round_slot": 1, "pos": "QB", "name": "Josh Allen", "nfl_team": "BUF", "bye": 7}, {"pick_number": 17, "round": 3, "round_slot": 1, "pos": "QB", "name": "Baker Mayfield", "nfl_team": "TB", "bye": 10}, {"pick_number": 32, "round": 4, "round_slot": 8, "pos": "QB", "name": "Jordan Love", "nfl_team": "GB", "bye": 11}, {"pick_number": 33, "round": 5, "round_slot": 1, "pos": "K", "name": "Harrison Butker", "nfl_team": "KC", "bye": 5}, {"pick_number": 48, "round": 6, "round_slot": 8, "pos": "K", "name": "Cairo Santos", "nfl_team": "CHI", "bye": 10}, {"pick_number": 49, "round": 7, "round_slot": 1, "pos": "RB", "name": "Javonte Williams", "nfl_team": "DAL", "bye": 14}, {"pick_number": 64, "round": 8, "round_slot": 8, "pos": "TE", "name": "Dallas Goedert", "nfl_team": "PHI", "bye": 10}, {"pick_number": 65, "round": 9, "round_slot": 1, "pos": "RB", "name": "D'Andre Swift", "nfl_team": "CHI", "bye": 10}, {"pick_number": 81, "round": 11, "round_slot": 1, "pos": "RB", "name": "Quinshon Judkins", "nfl_team": "CLE", "bye": 11}, {"pick_number": 96, "round": 12, "round_slot": 8, "pos": "RB", "name": "Tony Pollard", "nfl_team": "TEN", "bye": 9}, {"pick_number": 97, "round": 13, "round_slot": 1, "pos": "WR", "name": "Harold Fannin Jr.", "nfl_team": "CLE", "bye": 11}, {"pick_number": 112, "round": 14, "round_slot": 8, "pos": "RB", "name": "Travis Etienne Jr.", "nfl_team": "NO", "bye": 8}, {"pick_number": 113, "round": 15, "round_slot": 1, "pos": "RB", "name": "David Montgomery", "nfl_team": "HOU", "bye": 8}, {"pick_number": 128, "round": 16, "round_slot": 8, "pos": "WR", "name": "Justin Jefferson", "nfl_team": "MIN", "bye": 6}, {"pick_number": 129, "round": 17, "round_slot": 1, "pos": "RB", "name": "Breece Hall", "nfl_team": "NYJ", "bye": 13}, {"pick_number": 144, "round": 18, "round_slot": 8, "pos": "WR", "name": "Rashee Rice", "nfl_team": "KC", "bye": 5}, {"pick_number": 145, "round": 19, "round_slot": 1, "pos": "WR", "name": "Xavier Worthy", "nfl_team": "KC", "bye": 5}, {"pick_number": 160, "round": 20, "round_slot": 8, "pos": "WR", "name": "Zay Flowers", "nfl_team": "BAL", "bye": 13}, {"pick_number": 161, "round": 21, "round_slot": 1, "pos": "WR", "name": "Chris Godwin Jr.", "nfl_team": "TB", "bye": 10}, {"pick_number": 176, "round": 22, "round_slot": 8, "pos": "WR", "name": "Tetairoa McMillan", "nfl_team": "CAR", "bye": 5}, {"pick_number": 177, "round": 23, "round_slot": 1, "pos": "DL/LB", "name": "Nik Bonitto", "nfl_team": "DEN", "bye": 10}, {"pick_number": 192, "round": 24, "round_slot": 8, "pos": "DL/LB", "name": "Maxx Crosby", "nfl_team": "LV", "bye": 13}, {"pick_number": 193, "round": 25, "round_slot": 1, "pos": "DB", "name": "Kamari Lassiter", "nfl_team": "HOU", "bye": 8}, {"pick_number": 208, "round": 26, "round_slot": 8, "pos": "DB", "name": "Jessie Bates III", "nfl_team": "ATL", "bye": 11}]}, {"code": "SV", "name": "Screaming Vikings", "abbrev": "SV", "division": "Tessio", "players": [{"pick_number": 8, "round": 1, "round_slot": 8, "pos": "QB", "name": "Caleb Williams", "nfl_team": "CHI", "bye": 10}, {"pick_number": 25, "round": 4, "round_slot": 1, "pos": "QB", "name": "Daniel Jones", "nfl_team": "IND", "bye": 13}, {"pick_number": 40, "round": 5, "round_slot": 8, "pos": "QB", "name": "Tyler Shough", "nfl_team": "NO", "bye": 8}, {"pick_number": 52, "round": 7, "round_slot": 4, "pos": "K", "name": "Wil Lutz", "nfl_team": "DEN", "bye": 10}, {"pick_number": 72, "round": 9, "round_slot": 8, "pos": "K", "name": "Chris Boswell", "nfl_team": "PIT", "bye": 9}, {"pick_number": 73, "round": 10, "round_slot": 1, "pos": "RB", "name": "Kenny Gainwell", "nfl_team": "TB", "bye": 10}, {"pick_number": 88, "round": 11, "round_slot": 8, "pos": "RB", "name": "RJ Harvey", "nfl_team": "DEN", "bye": 10}, {"pick_number": 89, "round": 12, "round_slot": 1, "pos": "RB", "name": "Aaron Jones Sr.", "nfl_team": "MIN", "bye": 6}, {"pick_number": 104, "round": 13, "round_slot": 8, "pos": "TE", "name": "George Kittle", "nfl_team": "SF", "bye": 8}, {"pick_number": 105, "round": 14, "round_slot": 1, "pos": "RB", "name": "Kyle Monangai", "nfl_team": "CHI", "bye": 10}, {"pick_number": 120, "round": 15, "round_slot": 8, "pos": "RB", "name": "Rachaad White", "nfl_team": "WAS", "bye": 7}, {"pick_number": 121, "round": 16, "round_slot": 1, "pos": "RB", "name": "Zach Charbonnet", "nfl_team": "SEA", "bye": 11}, {"pick_number": 136, "round": 17, "round_slot": 8, "pos": "RB", "name": "Chris Rodriguez Jr.", "nfl_team": "JAX", "bye": 7}, {"pick_number": 137, "round": 18, "round_slot": 1, "pos": "WR", "name": "Jakobi Meyers", "nfl_team": "JAX", "bye": 7}, {"pick_number": 152, "round": 19, "round_slot": 8, "pos": "WR", "name": "Dalton Kincaid", "nfl_team": "BUF", "bye": 7}, {"pick_number": 153, "round": 20, "round_slot": 1, "pos": "WR", "name": "AJ Barner", "nfl_team": "SEA", "bye": 11}, {"pick_number": 168, "round": 21, "round_slot": 8, "pos": "WR", "name": "Michael Wilson", "nfl_team": "ARI", "bye": 14}, {"pick_number": 169, "round": 22, "round_slot": 1, "pos": "WR", "name": "Juwan Johnson", "nfl_team": "NO", "bye": 8}, {"pick_number": 184, "round": 23, "round_slot": 8, "pos": "WR", "name": "Michael Pittman Jr", "nfl_team": "PIT", "bye": 9}, {"pick_number": 185, "round": 24, "round_slot": 1, "pos": "WR", "name": "Hunter Henry", "nfl_team": "NE", "bye": 11}, {"pick_number": 200, "round": 25, "round_slot": 8, "pos": "DB", "name": "Mike Jackson", "nfl_team": "CAR", "bye": 5}, {"pick_number": 201, "round": 26, "round_slot": 1, "pos": "DB", "name": "Tyrique Stevenson", "nfl_team": "CHI", "bye": 10}, {"pick_number": 216, "round": 27, "round_slot": 8, "pos": "DL/LB", "name": "Nick Bosa", "nfl_team": "SF", "bye": 8}, {"pick_number": 217, "round": 28, "round_slot": 1, "pos": "DL/LB", "name": "Dallas Turner", "nfl_team": "MIN", "bye": 6}]}, {"code": "RH", "name": "Red Hot Revenge", "abbrev": "RHR", "division": "Tessio", "players": [{"pick_number": 5, "round": 1, "round_slot": 5, "pos": "QB", "name": "Joe Burrow", "nfl_team": "CIN", "bye": 6}, {"pick_number": 12, "round": 2, "round_slot": 4, "pos": "QB", "name": "Brock Purdy", "nfl_team": "SF", "bye": 8}, {"pick_number": 21, "round": 3, "round_slot": 5, "pos": "QB", "name": "Matthew Stafford", "nfl_team": "LAR", "bye": 11}, {"pick_number": 28, "round": 4, "round_slot": 4, "pos": "K", "name": "Chase McLaughlin", "nfl_team": "TB", "bye": 10}, {"pick_number": 30, "round": 4, "round_slot": 6, "pos": "TE", "name": "Tyler Warren", "nfl_team": "IND", "bye": 13}, {"pick_number": 37, "round": 5, "round_slot": 5, "pos": "K", "name": "Jake Bates", "nfl_team": "DET", "bye": 6}, {"pick_number": 53, "round": 7, "round_slot": 5, "pos": "RB", "name": "Bucky Irving", "nfl_team": "TB", "bye": 10}, {"pick_number": 60, "round": 8, "round_slot": 4, "pos": "RB", "name": "Cam Skattebo", "nfl_team": "NYG", "bye": 8}, {"pick_number": 69, "round": 9, "round_slot": 5, "pos": "RB", "name": "Jeremiyah Love", "nfl_team": "ARI", "bye": 14}, {"pick_number": 76, "round": 10, "round_slot": 4, "pos": "RB", "name": "Rhamondre Stevenson", "nfl_team": "NE", "bye": 11}, {"pick_number": 85, "round": 11, "round_slot": 5, "pos": "RB", "name": "Jadarian Price", "nfl_team": "SEA", "bye": 11}, {"pick_number": 92, "round": 12, "round_slot": 4, "pos": "RB", "name": "TreVeyon Henderson", "nfl_team": "NE", "bye": 11}, {"pick_number": 101, "round": 13, "round_slot": 5, "pos": "RB", "name": "Jaylen Warren", "nfl_team": "PIT", "bye": 9}, {"pick_number": 108, "round": 14, "round_slot": 4, "pos": "WR", "name": "Marvin Harrison Jr", "nfl_team": "ARI", "bye": 14}, {"pick_number": 117, "round": 15, "round_slot": 5, "pos": "WR", "name": "DeVonta Smith", "nfl_team": "PHI", "bye": 10}, {"pick_number": 124, "round": 16, "round_slot": 4, "pos": "WR", "name": "Tucker Kraft", "nfl_team": "GB", "bye": 11}, {"pick_number": 133, "round": 17, "round_slot": 5, "pos": "WR", "name": "DJ Moore", "nfl_team": "BUF", "bye": 7}, {"pick_number": 140, "round": 18, "round_slot": 4, "pos": "WR", "name": "Luther Burden III", "nfl_team": "CHI", "bye": 10}, {"pick_number": 149, "round": 19, "round_slot": 5, "pos": "WR", "name": "Kenyon Sadiq", "nfl_team": "NYJ", "bye": 13}, {"pick_number": 156, "round": 20, "round_slot": 4, "pos": "WR", "name": "Jaylen Waddle", "nfl_team": "DEN", "bye": 10}, {"pick_number": 165, "round": 21, "round_slot": 5, "pos": "DL/LB", "name": "Brian Burns", "nfl_team": "NYG", "bye": 8}, {"pick_number": 172, "round": 22, "round_slot": 4, "pos": "DB", "name": "Calen Bullock", "nfl_team": "HOU", "bye": 8}, {"pick_number": 181, "round": 23, "round_slot": 5, "pos": "DB", "name": "Cam Bynum", "nfl_team": "IND", "bye": 13}, {"pick_number": 188, "round": 24, "round_slot": 4, "pos": "DL/LB", "name": "Tuli Tuipulotu", "nfl_team": "LAC", "bye": 7}]}, {"code": "IR", "name": "The Ironnuts", "abbrev": "NUTS", "division": "Tessio", "players": [{"pick_number": 2, "round": 1, "round_slot": 2, "pos": "QB", "name": "Drake Maye", "nfl_team": "NE", "bye": 11}, {"pick_number": 9, "round": 2, "round_slot": 1, "pos": "QB", "name": "Justin Herbert", "nfl_team": "LAC", "bye": 7}, {"pick_number": 10, "round": 2, "round_slot": 2, "pos": "QB", "name": "Jack Strand", "nfl_team": "ATL", "bye": 11}, {"pick_number": 13, "round": 2, "round_slot": 5, "pos": "K", "name": "Brandon Aubrey", "nfl_team": "DAL", "bye": 14}, {"pick_number": 20, "round": 3, "round_slot": 4, "pos": "K", "name": "Ka'imi Fairbairn", "nfl_team": "HOU", "bye": 8}, {"pick_number": 26, "round": 4, "round_slot": 2, "pos": "TE", "name": "Trey McBride", "nfl_team": "ARI", "bye": 14}, {"pick_number": 29, "round": 4, "round_slot": 5, "pos": "RB", "name": "Jahmyr Gibbs", "nfl_team": "DET", "bye": 6}, {"pick_number": 36, "round": 5, "round_slot": 4, "pos": "RB", "name": "Bijan Robinson", "nfl_team": "ATL", "bye": 11}, {"pick_number": 38, "round": 5, "round_slot": 6, "pos": "RB", "name": "Christian McCaffrey", "nfl_team": "SF", "bye": 8}, {"pick_number": 41, "round": 6, "round_slot": 1, "pos": "RB", "name": "Jonathan Taylor", "nfl_team": "IND", "bye": 13}, {"pick_number": 43, "round": 6, "round_slot": 3, "pos": "RB", "name": "Derrick Henry", "nfl_team": "BAL", "bye": 13}, {"pick_number": 45, "round": 6, "round_slot": 5, "pos": "RB", "name": "Ken Walker III", "nfl_team": "SEA", "bye": 11}, {"pick_number": 55, "round": 7, "round_slot": 7, "pos": "RB", "name": "Chuba Hubbard", "nfl_team": "CAR", "bye": 5}, {"pick_number": 61, "round": 8, "round_slot": 5, "pos": "WR", "name": "Ja'Marr Chase", "nfl_team": "CIN", "bye": 6}, {"pick_number": 68, "round": 9, "round_slot": 4, "pos": "WR", "name": "Puka Nacua", "nfl_team": "LAR", "bye": 11}, {"pick_number": 77, "round": 10, "round_slot": 5, "pos": "WR", "name": "Stefon Diggs", "nfl_team": "WAS", "bye": 7}, {"pick_number": 84, "round": 11, "round_slot": 4, "pos": "DB", "name": "Derwin James Jr.", "nfl_team": "LAC", "bye": 7}, {"pick_number": 86, "round": 11, "round_slot": 6, "pos": "DB", "name": "Derek Stingley Jr", "nfl_team": "HOU", "bye": 8}, {"pick_number": 93, "round": 12, "round_slot": 5, "pos": "DL/LB", "name": "Myles Garrett", "nfl_team": "LAR", "bye": 11}, {"pick_number": 100, "round": 13, "round_slot": 4, "pos": "WR", "name": "Jaxon Smith-Njigba", "nfl_team": "SEA", "bye": 11}, {"pick_number": 109, "round": 14, "round_slot": 5, "pos": "WR", "name": "Amon-Ra St. Brown", "nfl_team": "DET", "bye": 6}, {"pick_number": 116, "round": 15, "round_slot": 4, "pos": "WR", "name": "CeeDee Lamb", "nfl_team": "DAL", "bye": 14}, {"pick_number": 125, "round": 16, "round_slot": 5, "pos": "WR", "name": "George Pickens", "nfl_team": "DAL", "bye": 14}, {"pick_number": 132, "round": 17, "round_slot": 4, "pos": "DL/LB", "name": "Aidan Hutchinson", "nfl_team": "DET", "bye": 6}]}, {"code": "CM", "name": "The Commandos", "abbrev": "COM", "division": "Tessio", "players": [{"pick_number": 4, "round": 1, "round_slot": 4, "pos": "QB", "name": "Jalen Hurts", "nfl_team": "PHI", "bye": 10}, {"pick_number": 11, "round": 2, "round_slot": 3, "pos": "QB", "name": "Trevor Lawrence", "nfl_team": "JAX", "bye": 7}, {"pick_number": 47, "round": 6, "round_slot": 7, "pos": "QB", "name": "Bo Nix", "nfl_team": "DEN", "bye": 10}, {"pick_number": 50, "round": 7, "round_slot": 2, "pos": "K", "name": "Cam Little", "nfl_team": "JAX", "bye": 7}, {"pick_number": 63, "round": 8, "round_slot": 7, "pos": "K", "name": "Will Reichard", "nfl_team": "MIN", "bye": 6}, {"pick_number": 66, "round": 9, "round_slot": 2, "pos": "RB", "name": "Braelon Allen", "nfl_team": "NYJ", "bye": 13}, {"pick_number": 79, "round": 10, "round_slot": 7, "pos": "RB", "name": "Jonah Coleman", "nfl_team": "DEN", "bye": 10}, {"pick_number": 82, "round": 11, "round_slot": 2, "pos": "RB", "name": "Justice Hill", "nfl_team": "BAL", "bye": 13}, {"pick_number": 95, "round": 12, "round_slot": 7, "pos": "RB", "name": "Malik Davis", "nfl_team": "DAL", "bye": 14}, {"pick_number": 98, "round": 13, "round_slot": 2, "pos": "TE", "name": "Mark Andrews", "nfl_team": "BAL", "bye": 13}, {"pick_number": 111, "round": 14, "round_slot": 7, "pos": "WR", "name": "Garrett Wilson", "nfl_team": "NYJ", "bye": 13}, {"pick_number": 114, "round": 15, "round_slot": 2, "pos": "DL/LB", "name": "Danielle Hunter", "nfl_team": "HOU", "bye": 8}, {"pick_number": 127, "round": 16, "round_slot": 7, "pos": "RB", "name": "Dylan Sampson", "nfl_team": "CLE", "bye": 11}, {"pick_number": 130, "round": 17, "round_slot": 2, "pos": "RB", "name": "Samaje Perine", "nfl_team": "CIN", "bye": 6}, {"pick_number": 143, "round": 18, "round_slot": 7, "pos": "WR", "name": "Tee Higgins", "nfl_team": "CIN", "bye": 6}, {"pick_number": 146, "round": 19, "round_slot": 2, "pos": "WR", "name": "Malik Nabers", "nfl_team": "NYG", "bye": 8}, {"pick_number": 159, "round": 20, "round_slot": 7, "pos": "WR", "name": "Isaiah Likely", "nfl_team": "NYG", "bye": 8}, {"pick_number": 162, "round": 21, "round_slot": 2, "pos": "RB", "name": "Najee Harris", "nfl_team": "NYG", "bye": 8}, {"pick_number": 175, "round": 22, "round_slot": 7, "pos": "WR", "name": "Terry McLaurin", "nfl_team": "WAS", "bye": 7}, {"pick_number": 178, "round": 23, "round_slot": 2, "pos": "WR", "name": "Mike Evans", "nfl_team": "SF", "bye": 8}, {"pick_number": 191, "round": 24, "round_slot": 7, "pos": "WR", "name": "Chris Olave", "nfl_team": "NO", "bye": 8}, {"pick_number": 194, "round": 25, "round_slot": 2, "pos": "DB", "name": "Xavier McKinney", "nfl_team": "GB", "bye": 11}, {"pick_number": 207, "round": 26, "round_slot": 7, "pos": "DB", "name": "Xavier Watts", "nfl_team": "NO", "bye": 8}, {"pick_number": 210, "round": 27, "round_slot": 2, "pos": "DL/LB", "name": "Laiatu Latu", "nfl_team": "IND", "bye": 13}]}]};
+
+  const DIVISIONS = [
+    { name: "Clemenza", color: "var(--clemenza)", tint: "var(--clemenza-tint)", codes: ["OS","PD","WG","FB"] },
+    { name: "Tessio", color: "var(--tessio)", tint: "var(--tessio-tint)", codes: ["SV","RH","IR","CM"] },
+  ];
+  const POS_ORDER = ["QB","RB","WR","TE","K","DEF"];
+
+  function teamByCode(code) {
+    return ROSTER_DATA.teams.find(t => t.code === code);
+  }
+
+  function renderTeamCard(team, divColor, divTint) {
+    const groups = {};
+    team.players.forEach(p => { const key = p.name ? p.pos : "EMPTY"; (groups[key] = groups[key] || []).push(p); });
+    const order = POS_ORDER.filter(p => groups[p]).concat(Object.keys(groups).filter(p => !POS_ORDER.includes(p) && p !== "EMPTY"));
+    if (groups["EMPTY"]) order.push("EMPTY");
+
+    const groupsHtml = order.map(pos => {
+      const rows = groups[pos].map(p => p.name ? `
+        <li class="player-row" data-name="${p.name.toLowerCase()}" data-pos="${p.pos}">
+          <span class="pick-no">${p.round}.${String(p.round_slot).padStart(2,'0')}</span>
+          <span class="player-name">${p.name}</span>
+          <span class="nfl-team">${p.nfl_team || '&mdash;'}</span>
+          <span class="bye-tag">${p.bye ? 'Bye ' + p.bye : '&mdash;'}</span>
+        </li>` : `
+        <li class="player-row" data-name="" data-pos="EMPTY">
+          <span class="pick-no">${p.round}.${String(p.round_slot).padStart(2,'0')}</span>
+          <span class="player-name" style="color:var(--ink-soft); font-style:italic;">not yet drafted</span>
+          <span class="nfl-team">&mdash;</span>
+          <span class="bye-tag">&mdash;</span>
+        </li>`).join('');
+      const label = pos === "EMPTY" ? "OPEN" : pos;
+      return `
+        <div class="pos-group" data-group-pos="${pos}">
+          <div class="pos-label">${label} <span class="pos-count">(${groups[pos].length})</span></div>
+          <ul class="player-list">${rows}</ul>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="team-card" data-team="${team.code.toLowerCase()}" data-team-name="${team.name.toLowerCase()}" style="--div-color:${divColor}; --div-tint:${divTint}">
+        <div class="team-card-head">
+          <div class="team-name-row">
+            <span class="team-name">${team.name}</span>
+            <span class="team-abbrev-badge">${team.abbrev}</span>
+          </div>
+        </div>
+        <div class="roster-body">${groupsHtml}</div>
+        <div class="team-card-foot">
+          <span>${team.players.length} picks on the board</span>
+        </div>
+      </div>`;
+  }
+
+  function renderAll() {
+    const el = document.getElementById('divisions');
+    el.innerHTML = DIVISIONS.map(div => {
+      const cards = div.codes.map(code => renderTeamCard(teamByCode(code), div.color, div.tint)).join('');
+      return `
+        <section class="division">
+          <div class="division-head" style="--div-color:${div.color}">
+            <h2>${div.name}</h2>
+            <span>${div.codes.length} teams</span>
+          </div>
+          <div class="team-grid">${cards}</div>
+        </section>`;
+    }).join('');
+  }
+
+  function renderChips() {
+    const wrap = document.getElementById('pos-chips');
+    const chips = ["ALL", ...POS_ORDER];
+    wrap.innerHTML = chips.map(p => `<span class="chip ${p==='ALL'?'active':''}" data-pos="${p}">${p}</span>`).join('');
+    wrap.addEventListener('click', e => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      wrap.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      applyFilter();
+    });
+  }
+
+  function renderStats() {
+    const totalPicks = ROSTER_DATA.teams.reduce((n,t) => n + t.players.length, 0);
+    document.getElementById('stat-strip').innerHTML = `
+      <span><b>${ROSTER_DATA.teams.length}</b> teams</span>
+      <span><b>${totalPicks}</b> real picks</span>
+      <span><b>${64}</b> roster-full slots</span>`;
+  }
+
+  function applyFilter() {
+    const term = document.getElementById('search').value.trim().toLowerCase();
+    const activePos = document.querySelector('.chip.active')?.dataset.pos || 'ALL';
+    let anyVisible = false;
+
+    document.querySelectorAll('.team-card').forEach(card => {
+      let cardHasVisible = false;
+      card.querySelectorAll('.pos-group').forEach(group => {
+        const groupPos = group.dataset.groupPos;
+        const posOk = activePos === 'ALL' || groupPos === activePos;
+        let groupHasVisible = false;
+        group.querySelectorAll('.player-row').forEach(row => {
+          const nameMatch = !term || row.dataset.name.includes(term);
+          const teamMatch = !term || card.dataset.teamName.includes(term) || card.dataset.team.includes(term);
+          const visible = posOk && (nameMatch || teamMatch);
+          row.classList.toggle('is-hidden', !visible);
+          row.classList.toggle('is-match', term.length > 1 && nameMatch);
+          if (visible) groupHasVisible = true;
+        });
+        group.style.display = groupHasVisible ? '' : 'none';
+        if (groupHasVisible) cardHasVisible = true;
+      });
+      card.classList.toggle('is-hidden', !cardHasVisible);
+      if (cardHasVisible) anyVisible = true;
+    });
+
+    document.getElementById('no-results').style.display = anyVisible ? 'none' : 'block';
+    document.getElementById('no-results-term').textContent = document.getElementById('search').value.trim();
+  }
+
+  renderChips();
+  renderStats();
+  renderAll();
+  document.getElementById('search').addEventListener('input', applyFilter);
+</script>

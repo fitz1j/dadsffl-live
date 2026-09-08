@@ -1,10 +1,13 @@
 name: DadsFFL live scoring
 
-# Publishes web/index.html (title/landing page) and web/live.html (the page that
+# Publishes web/index.html (title/landing page), web/live.html (the page that
 # reads live scores client-side from Supabase, via the fetch-and-score Edge
 # Function + PostgREST) to GitHub Pages. All score-fetching now happens
 # server-side on a Supabase pg_cron schedule, not here, so this workflow only
-# needs to run when either page itself changes. (Superseded the old GitHub
+# needs to run when one of these pages itself changes. web/rosters.html is a
+# static, owner-name-stripped draft roster page (team names only, no real
+# person names) so this public repo stays free of league personal data per
+# its README. (Superseded the old GitHub
 # Actions `schedule:`-triggered Python pipeline that rendered live.html itself
 # every 5 minutes — see src/live_score.py, now unused for the live page.)
 
@@ -15,6 +18,7 @@ on:
     paths:
       - 'web/index.html'
       - 'web/live.html'
+      - 'web/rosters.html'
       - '.github/workflows/live-scoring.yml'
 
 concurrency:
@@ -40,6 +44,7 @@ jobs:
           mkdir -p _site
           cp web/index.html _site/index.html
           cp web/live.html _site/live.html
+          cp web/rosters.html _site/rosters.html
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
