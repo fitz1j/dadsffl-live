@@ -147,20 +147,28 @@
     if (!games.length) return { games: [], generated: null };
 
     const gameIds = games.map(g => g.id);
-    const statLines = await getJSON(
-      "/stat_lines?game_id=in.(" + gameIds.join(",") + ")" +
-      "&select=game_id,player_id,pass_yards,rush_yards,rec_yards,fantasy_points,summary"
-    );
-
-    const playerIds = [...new Set(statLines.map(s => s.player_id))];
-    const players = playerIds.length
-      ? await getJSON("/players?id=in.(" + playerIds.join(",") + ")&select=id,name,nfl_team,inferred_position")
-      : [];
-    const playersById = new Map(players.map(p => [p.id, p]));
+    // PostgREST caps any response at 1000 rows, and a week is now ~1,500 stat
+    // lines (every defender gets one, for the IDP display line), so this MUST
+    // page — without it the last games of a week silently came back with no
+    // players and rendered empty. The player row is embedded rather than
+    // fetched with a second in.(...) query: ~1,400 ids would blow the URL
+    // length limit.
+    const PAGE = 1000;
+    const statLines = [];
+    for (let offset = 0; offset < 20000; offset += PAGE) {
+      const page = await getJSON(
+        "/stat_lines?game_id=in.(" + gameIds.join(",") + ")" +
+        "&select=game_id,player_id,pass_yards,rush_yards,rec_yards,fantasy_points,summary," +
+        "players(name,nfl_team,inferred_position)" +
+        "&order=id&limit=" + PAGE + "&offset=" + offset
+      );
+      statLines.push(...page);
+      if (page.length < PAGE) break;
+    }
 
     const rowsByGame = new Map();
     for (const s of statLines) {
-      const p = playersById.get(s.player_id);
+      const p = s.players;
       if (!p) continue;
       const pts = Number(s.fantasy_points) || 0;
       const summary = s.summary || "";
