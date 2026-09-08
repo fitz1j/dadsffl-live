@@ -59,6 +59,9 @@ ARCHIVE_STAT_KEYS = [
     "pat_made", "fg_yards", "pass_yards", "pass_td", "rush_yards", "rush_td",
     "receptions", "rec_yards", "rec_td", "def_td", "fumble_td", "return_td",
     "two_pt_conv", "sacks", "interceptions", "safeties",
+    # display-only (no scoring impact)
+    "pass_att", "pass_cmp", "pass_int", "rush_att", "targets",
+    "tackles_solo", "tackles_assist",
 ]
 SEASON_TYPE_LABEL = {1: "pre", 2: "reg", 3: "post"}
 
@@ -153,33 +156,52 @@ def game_meta(path: Path) -> dict:
 def infer_pos(s: dict) -> str:
     if s.get("fg_yards") or s.get("pat_made"):
         return "K"
-    if s.get("sacks") or s.get("interceptions") or s.get("def_td") or s.get("safeties"):
+    if (s.get("sacks") or s.get("interceptions") or s.get("def_td")
+            or s.get("safeties")):
         return "DEF"
     if s.get("return_td"):
         return "RET"
-    if s.get("pass_yards") or s.get("pass_td"):
+    if s.get("pass_yards") or s.get("pass_td") or s.get("pass_att"):
         return "QB"
     if s.get("rush_yards", 0) >= s.get("rec_yards", 0) and s.get("rush_yards"):
         return "RB"
-    if s.get("rec_yards") or s.get("receptions"):
+    if s.get("rec_yards") or s.get("receptions") or s.get("targets"):
         return "WR"
+    # Tackles alone are checked LAST: offensive players pick up the occasional
+    # tackle (e.g. a QB after his own interception) and shouldn't read as DEF.
+    if s.get("tackles_solo") or s.get("tackles_assist"):
+        return "DEF"
     return "—"
 
 
 def stat_summary(s: dict) -> str:
+    """One-line display summary. Includes stats that score AND stats that
+    don't (att/cmp, carries, targets, tackles) -- the league wants to see the
+    full line even where it earns nothing."""
     parts = []
-    if s.get("pass_yards") or s.get("pass_td"):
-        seg = f"{s['pass_yards']} pass yd"
+    if s.get("pass_yards") or s.get("pass_td") or s.get("pass_att"):
+        seg = ""
+        if s.get("pass_att"):
+            seg += f"{s.get('pass_cmp', 0)}/{s['pass_att']}, "
+        seg += f"{s.get('pass_yards', 0)} pass yd"
         if s.get("pass_td"):
             seg += f", {s['pass_td']} TD"
+        if s.get("pass_int"):
+            seg += f", {s['pass_int']} INT"
         parts.append(seg)
-    if s.get("rush_yards") or s.get("rush_td"):
-        seg = f"{s['rush_yards']} rush yd"
+    if s.get("rush_yards") or s.get("rush_td") or s.get("rush_att"):
+        seg = ""
+        if s.get("rush_att"):
+            seg += f"{s['rush_att']} car, "
+        seg += f"{s.get('rush_yards', 0)} rush yd"
         if s.get("rush_td"):
             seg += f", {s['rush_td']} TD"
         parts.append(seg)
-    if s.get("receptions") or s.get("rec_yards") or s.get("rec_td"):
-        seg = f"{s.get('receptions',0)} rec/{s.get('rec_yards',0)} yd"
+    if (s.get("receptions") or s.get("rec_yards") or s.get("rec_td")
+            or s.get("targets")):
+        rec = s.get("receptions", 0)
+        seg = f"{rec}/{s['targets']} rec" if s.get("targets") else f"{rec} rec"
+        seg += f", {s.get('rec_yards', 0)} yd"
         if s.get("rec_td"):
             seg += f", {s['rec_td']} TD"
         parts.append(seg)
@@ -187,8 +209,12 @@ def stat_summary(s: dict) -> str:
         parts.append("FG " + ", ".join(f"{y}" for y in s["fg_yards"]))
     if s.get("pat_made"):
         parts.append(f"{s['pat_made']} XP")
-    if s.get("sacks"):
-        parts.append(f"{s['sacks']:g} sk")
+    if s.get("tackles_solo") or s.get("tackles_assist") or s.get("sacks"):
+        # IDP line: solo tackles - assists - sacks (sacks also score).
+        parts.append(
+            f"IDP {s.get('tackles_solo', 0)}-{s.get('tackles_assist', 0)}"
+            f"-{s.get('sacks', 0):g}"
+        )
     if s.get("interceptions"):
         parts.append(f"{s['interceptions']} INT")
     if s.get("def_td") or s.get("fumble_td"):

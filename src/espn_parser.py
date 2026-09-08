@@ -12,6 +12,12 @@ same play. Naively summing both would double-count a pick-six. This parser
 uses 'defensive'.TD as the sole source for def_td and does NOT add
 'interceptions'.TD on top of it.
 
+Beyond the scoring stats, this parser also pulls DISPLAY-ONLY counting stats
+that carry no points in this league (passing attempts/completions and INTs
+thrown, rushing attempts, receiving targets, and solo/assist tackles for the
+IDP line). They are stored alongside the scoring stats so the page can show a
+complete stat line.
+
 Two fields are NOT available as structured per-player columns anywhere in
 this endpoint and are recovered from `scoringPlays[].text` instead:
   - Field goal distance (needed for our distance-bucketed FG scoring) --
@@ -77,6 +83,14 @@ def _blank_stat_line() -> dict:
         "sacks": 0.0,
         "interceptions": 0,
         "safeties": 0,
+        # ---- display-only stats (no scoring impact; see scoring-rules.md) ----
+        "pass_att": 0,
+        "pass_cmp": 0,
+        "pass_int": 0,       # interceptions THROWN (no negatives in this league)
+        "rush_att": 0,
+        "targets": 0,
+        "tackles_solo": 0,
+        "tackles_assist": 0,  # ESPN gives TOT and SOLO; assists = TOT - SOLO
     }
 
 
@@ -108,16 +122,28 @@ def parse_box_score(path: Path) -> dict:
                 if cat_name == "passing":
                     line["pass_yards"] += _to_int(stat_map.get("YDS"))
                     line["pass_td"] += _to_int(stat_map.get("TD"))
+                    # "C/ATT" e.g. "21/34". Display only.
+                    cmp_, att = _split_made_attempts(stat_map.get("C/ATT", "0/0"))
+                    line["pass_cmp"] += cmp_
+                    line["pass_att"] += att
+                    line["pass_int"] += _to_int(stat_map.get("INT"))
                 elif cat_name == "rushing":
                     line["rush_yards"] += _to_int(stat_map.get("YDS"))
                     line["rush_td"] += _to_int(stat_map.get("TD"))
+                    line["rush_att"] += _to_int(stat_map.get("CAR"))
                 elif cat_name == "receiving":
                     line["receptions"] += _to_int(stat_map.get("REC"))
                     line["rec_yards"] += _to_int(stat_map.get("YDS"))
                     line["rec_td"] += _to_int(stat_map.get("TD"))
+                    line["targets"] += _to_int(stat_map.get("TGTS"))
                 elif cat_name == "defensive":
                     line["def_td"] += _to_int(stat_map.get("TD"))
                     line["sacks"] += _to_float(stat_map.get("SACKS"))
+                    # IDP display line: solo tackles - assists - sacks.
+                    solo = _to_int(stat_map.get("SOLO"))
+                    total = _to_int(stat_map.get("TOT"))
+                    line["tackles_solo"] += solo
+                    line["tackles_assist"] += max(0, total - solo)
                     defensive_ids.add(aid)
                 elif cat_name == "interceptions":
                     # INT count only -- do NOT add this category's TD column,
