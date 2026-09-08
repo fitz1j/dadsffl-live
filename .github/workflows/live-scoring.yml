@@ -7,7 +7,8 @@ name: DadsFFL live scoring
 # needs to run when one of these pages itself changes. web/rosters.html is a
 # static, owner-name-stripped draft roster page (team names only, no real
 # person names) so this public repo stays free of league personal data per
-# its README. (Superseded the old GitHub
+# its README. web/matchups.html is a static preseason simulation page
+# (team names only, same privacy rules). (Superseded the old GitHub
 # Actions `schedule:`-triggered Python pipeline that rendered live.html itself
 # every 5 minutes — see src/live_score.py, now unused for the live page.)
 
@@ -19,6 +20,7 @@ on:
       - 'web/index.html'
       - 'web/live.html'
       - 'web/rosters.html'
+      - 'web/matchups.html'
       - '.github/workflows/live-scoring.yml'
 
 concurrency:
@@ -45,6 +47,7 @@ jobs:
           cp web/index.html _site/index.html
           cp web/live.html _site/live.html
           cp web/rosters.html _site/rosters.html
+          cp web/matchups.html _site/matchups.html
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
