@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 Post-Draft Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #f6f3e9;
+    --paper-raised: #fffdf7;
+    --paper-sunk: #efeadb;
+    --ink: #1c2621;
+    --ink-soft: #4a544d;
+    --ink-faint: #7d867f;
+    --line: #ddd6c4;
+    --line-soft: #e8e2d2;
+    --turf: #2f6f4e;
+    --turf-deep: #1c4531;
+    --turf-tint: #e3ede6;
+    --gold: #ad8a1e;
+    --gold-tint: #f3ead0;
+    --flag: #a03a2a;
+    --flag-tint: #f6e0da;
+    --clemenza: #ad5a2d;
+    --clemenza-tint: #f2e3d8;
+    --tessio: #2f6180;
+    --tessio-tint: #dfe9ee;
+    --on-div: #fffdf7;
+    --shadow: 0 1px 2px rgba(28,38,33,0.06), 0 6px 20px -8px rgba(28,38,33,0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14201a;
+      --paper-raised: #1b2a22;
+      --paper-sunk: #101a15;
+      --ink: #eef2ec;
+      --ink-soft: #a8b6ac;
+      --ink-faint: #7d8d82;
+      --line: #2c3a30;
+      --line-soft: #243029;
+      --turf: #6bbd91;
+      --turf-deep: #9fdcb9;
+      --turf-tint: #1e352a;
+      --gold: #e0bc55;
+      --gold-tint: #33301c;
+      --flag: #e8907c;
+      --flag-tint: #3a221c;
+      --clemenza: #e08a55;
+      --clemenza-tint: #3a2a1f;
+      --tessio: #7fb8d6;
+      --tessio-tint: #1f3038;
+      --on-div: #101a15;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14201a;
+    --paper-raised: #1b2a22;
+    --paper-sunk: #101a15;
+    --ink: #eef2ec;
+    --ink-soft: #a8b6ac;
+    --ink-faint: #7d8d82;
+    --line: #2c3a30;
+    --line-soft: #243029;
+    --turf: #6bbd91;
+    --turf-deep: #9fdcb9;
+    --turf-tint: #1e352a;
+    --gold: #e0bc55;
+    --gold-tint: #33301c;
+    --flag: #e8907c;
+    --flag-tint: #3a221c;
+    --clemenza: #e08a55;
+    --clemenza-tint: #3a2a1f;
+    --tessio: #7fb8d6;
+    --tessio-tint: #1f3038;
+    --on-div: #101a15;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 26px 20px 64px; }
+
+  /* masthead */
+  .masthead {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 14px; padding-bottom: 14px; border-bottom: 3px double var(--line);
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; }
+  .home {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint); text-decoration: none; margin-bottom: 4px;
+    align-self: flex-start;
+  }
+  .home:hover { color: var(--turf); }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--turf);
+  }
+  h1 {
+    font-family: Oswald, "Libre Franklin", sans-serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 44px); line-height: 1.02; margin: 0;
+    letter-spacing: -0.01em; text-transform: uppercase; text-wrap: balance;
+  }
+  .masthead .sub { color: var(--ink-soft); font-size: 13.5px; max-width: 52ch; margin: 5px 0 0; }
+  .theme-btn {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; cursor: pointer;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--turf); }
+
+  /* stat strip */
+  .strip {
+    display: flex; flex-wrap: wrap; gap: 0 28px; margin-top: 14px;
+    font-family: "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .strip b { font-family: Oswald, sans-serif; font-size: 15px; color: var(--ink); margin-right: 5px; letter-spacing: 0; }
+
+  /* controls */
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin: 18px 0 0; padding: 12px 0; border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft); position: sticky; top: 0; z-index: 5;
+    background: var(--paper);
+  }
+  .search {
+    display: flex; align-items: center; gap: 7px; background: var(--paper-raised);
+    border: 1px solid var(--line); border-radius: 3px; padding: 6px 11px; min-width: 210px; flex: 0 1 280px;
+  }
+  .search input {
+    border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 13.5px;
+    width: 100%; outline: none;
+  }
+  .search svg { color: var(--ink-faint); flex: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    padding: 5px 11px; border-radius: 999px; cursor: pointer;
+    background: var(--paper-raised); color: var(--ink-soft); border: 1px solid var(--line);
+  }
+  .chip:hover { border-color: var(--turf); color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--turf); border-color: var(--turf); color: var(--on-div); }
+  .count { margin-left: auto; font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-faint); }
+
+  /* notes */
+  .note {
+    margin: 18px 0 0; padding: 13px 16px; background: var(--gold-tint);
+    border-left: 3px solid var(--gold); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .note b { color: var(--ink); font-weight: 600; }
+  .note.alert { background: var(--flag-tint); border-left-color: var(--flag); }
+  .note ul { margin: 7px 0 0; padding-left: 19px; }
+  .note li { margin: 3px 0; }
+
+  /* divisions */
+  .div-head {
+    display: flex; align-items: baseline; gap: 12px; margin: 34px 0 14px;
+  }
+  .div-head h2 {
+    font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.12em; font-size: 15px; margin: 0; white-space: nowrap;
+  }
+  .div-head.clem h2 { color: var(--clemenza); }
+  .div-head.tess h2 { color: var(--tessio); }
+  .div-head .rule { flex: 1; height: 2px; }
+  .div-head.clem .rule { background: var(--clemenza-tint); }
+  .div-head.tess .rule { background: var(--tessio-tint); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(272px, 1fr)); gap: 18px; align-items: start; }
+
+  .team { background: var(--paper-raised); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .team.clem { border-top: 3px solid var(--clemenza); }
+  .team.tess { border-top: 3px solid var(--tessio); }
+  .team-head { padding: 11px 14px 9px; border-bottom: 1px solid var(--line-soft); }
+  .team-head .nm {
+    font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase;
+    font-size: 17px; letter-spacing: 0.01em; line-height: 1.15;
+  }
+  .team-head .cd {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600;
+    color: var(--ink-faint); letter-spacing: 0.08em; margin-left: 7px;
+  }
+  .mix {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-faint);
+    letter-spacing: 0.03em; margin-top: 4px;
+  }
+  .teamflag {
+    display: block; margin: 8px 14px 0; padding: 7px 10px; background: var(--flag-tint);
+    border-left: 3px solid var(--flag); font-size: 11.5px; color: var(--ink-soft); line-height: 1.45;
+  }
+
+  .byes { display: flex; flex-wrap: wrap; gap: 4px; padding: 9px 14px; background: var(--paper-sunk); border-bottom: 1px solid var(--line-soft); }
+  .byes .lbl { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); width: 100%; margin-bottom: 1px; }
+  .bye-pill {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; padding: 2px 6px; border-radius: 2px;
+    background: var(--paper-raised); border: 1px solid var(--line-soft); color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .bye-pill.heavy { background: var(--gold-tint); border-color: var(--gold); color: var(--gold); font-weight: 600; }
+  .bye-pill b { color: var(--ink); font-weight: 600; }
+  .bye-pill.heavy b { color: var(--gold); }
+
+  .group-lbl {
+    font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-faint); padding: 8px 14px 3px; background: var(--paper-raised);
+  }
+  .plr {
+    display: grid; grid-template-columns: 46px minmax(0,1fr); gap: 9px; align-items: baseline;
+    padding: 6px 14px; border-bottom: 1px solid var(--line-soft);
+  }
+  .plr:last-child { border-bottom: none; }
+  .badge {
+    font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.04em;
+    text-align: center; padding: 2px 0; border-radius: 2px;
+  }
+  .badge.qb { background: var(--turf-tint); color: var(--turf-deep); }
+  .badge.rb { background: var(--turf-tint); color: var(--turf-deep); }
+  .badge.wr, .badge.te { background: var(--turf-tint); color: var(--turf-deep); }
+  .badge.k  { background: var(--gold-tint); color: var(--gold); }
+  .badge.def { background: var(--tessio-tint); color: var(--tessio); }
+  .who { min-width: 0; }
+  .who .n { display: block; font-weight: 600; font-size: 13.5px; line-height: 1.3; }
+  .who .n .fix { color: var(--gold); cursor: help; font-weight: 700; }
+  .meta {
+    display: block; font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+    color: var(--ink-faint); letter-spacing: 0.03em; font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+  }
+  .meta .bw { color: var(--ink-soft); }
+  .plr.dim { display: none; }
+
+  .empty { padding: 22px 14px; color: var(--ink-faint); font-size: 13px; font-style: italic; }
+
+  footer {
+    margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: 12.5px; color: var(--ink-faint); line-height: 1.7;
+  }
+  footer h3 {
+    font-family: Oswald, sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft); margin: 18px 0 6px;
+  }
+  footer code { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-soft); }
+  .fixlist {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2px 20px;
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; margin-top: 4px;
+  }
+  .fixlist span s { color: var(--ink-faint); text-decoration-color: var(--flag); }
+  .fixlist span b { color: var(--ink-soft); font-weight: 600; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">
+      <a class="home" href="./">&larr; DadsFFL</a>
+      <div class="eyebrow">2026 Season &middot; Draft Complete</div>
+      <h1>Post-Draft Rosters</h1>
+      <p class="sub">All eight rosters exactly as they came off the commissioner's draft board, 24 players apiece, with each player's NFL team and bye week.</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
+  </div>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="controls">
+    <label class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="Find a player, NFL team or position&hellip;" autocomplete="off" aria-label="Search players">
+    </label>
+    <div class="chips" id="chips"></div>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div id="flagNote"></div>
+
+  <div id="divisions"></div>
+
+  <footer>
+    <h3>Where this comes from</h3>
+    Parsed from the <b>Draft</b> tab of the commissioner's live workbook (<code>2026draftrosters090626 live.xlsx</code>, updated 9/6/26) &mdash; 256 numbered slots, <b>192 real picks</b> across 32 rounds, 64 &ldquo;Roster Full&rdquo; no-ops, every team exactly 24, no duplicate players. Bye weeks come from the bye chart inside that same workbook.
+    <br><br>
+    The draft board records no NFL team, so each player's team is joined from three sources in order: the handful of picks that carry a <code>(TEAM)</code> note in the cell, then a verified 2026 player-team map, then the workbook's own roster tabs. Two of the workbook's entries were left out in favour of the verified value: <b>Maxx Crosby</b> (sheet says BAL &mdash; the Raiders&ndash;Ravens trade was called off, he is still a Raider) and <b>Rachaad White</b> (sheet says TB &mdash; he signed with Washington in March). Everything else agrees.
+
+    <h3 id="fixhead">Spelling corrected on this page</h3>
+    <div class="fixlist" id="fixlist"></div>
+  </footer>
+</div>
+
+<script>
+  const DATA = {"teams":[{"code":"WG","name":"Wild Geesemen","abbrev":"WILD","division":"Clemenza","players":[{"pos":"QB","name":"Lamar Jackson","nfl":"BAL","bye":13,"rd":5,"raw":null},{"pos":"QB","name":"Joe Burrow","nfl":"CIN","bye":6,"rd":7,"raw":null},{"pos":"QB","name":"Trevor Lawrence","nfl":"JAX","bye":7,"rd":8,"raw":null},{"pos":"RB","name":"Saquon Barkley","nfl":"PHI","bye":10,"rd":1,"raw":null},{"pos":"RB","name":"Omarion Hampton","nfl":"LAC","bye":7,"rd":1,"raw":null},{"pos":"RB","name":"Ja'Marr Chase","nfl":"CIN","bye":6,"rd":4,"raw":null},{"pos":"RB","name":"De'Von Achane","nfl":"MIA","bye":6,"rd":6,"raw":null},{"pos":"RB","name":"Jaylen Warren","nfl":"PIT","bye":9,"rd":7,"raw":null},{"pos":"RB","name":"Blake Corum","nfl":"LAR","bye":11,"rd":10,"raw":null},{"pos":"RB","name":"Tyler Allgeier","nfl":"ARI","bye":14,"rd":11,"raw":null},{"pos":"RB","name":"Tank Bigsby","nfl":"PHI","bye":10,"rd":12,"raw":null},{"pos":"WR","name":"AJ Brown","nfl":"NE","bye":11,"rd":2,"raw":null},{"pos":"WR","name":"Nico Collins","nfl":"HOU","bye":8,"rd":3,"raw":null},{"pos":"WR","name":"DJ Moore","nfl":"BUF","bye":7,"rd":6,"raw":null},{"pos":"WR","name":"Carnell Tate","nfl":"TEN","bye":9,"rd":9,"raw":null},{"pos":"WR","name":"De'Zhaun Stribling","nfl":"SF","bye":8,"rd":10,"raw":null},{"pos":"TE","name":"Colston Loveland","nfl":"CHI","bye":10,"rd":3,"raw":null},{"pos":"TE","name":"Tyler Warren","nfl":"IND","bye":13,"rd":5,"raw":null},{"pos":"K","name":"Cam Little","nfl":"JAX","bye":7,"rd":14,"raw":null},{"pos":"K","name":"Tyler Loop","nfl":"BAL","bye":13,"rd":16,"raw":null},{"pos":"DL/LB","name":"Aidan Hutchinson","nfl":"DET","bye":6,"rd":13,"raw":null},{"pos":"DL/LB","name":"Maxx Crosby","nfl":"LV","bye":13,"rd":15,"raw":null},{"pos":"DB","name":"Kevin Byard III","nfl":"NE","bye":11,"rd":17,"raw":null},{"pos":"DB","name":"Minkah Fitzpatrick","nfl":"NYJ","bye":13,"rd":18,"raw":"Minka Fitzpatrick"}],"counts":{"QB":3,"RB":8,"WR":5,"TE":2,"K":2,"DL/LB":2,"DB":2},"flags":["8 RB (template has 7)","5 WR + 2 TE = 7 receivers (template has 8: 6 WR + 2 TE/WR)"],"byes":{"6":4,"7":4,"8":2,"9":2,"10":3,"11":3,"13":5,"14":1}},{"code":"FB","name":"Fabricoh","abbrev":"FB","division":"Clemenza","players":[{"pos":"QB","name":"Justin Herbert","nfl":"LAC","bye":7,"rd":12,"raw":null},{"pos":"QB","name":"Kyler Murray","nfl":"MIN","bye":6,"rd":18,"raw":null},{"pos":"QB","name":"Michael Penix Jr.","nfl":"ATL","bye":11,"rd":22,"raw":"Michael Penix Jr"},{"pos":"RB","name":"Jahmyr Gibbs","nfl":"DET","bye":6,"rd":1,"raw":null},{"pos":"RB","name":"Bucky Irving","nfl":"TB","bye":10,"rd":4,"raw":null},{"pos":"RB","name":"Javonte Williams","nfl":"DAL","bye":14,"rd":8,"raw":null},{"pos":"RB","name":"Rico Dowdle","nfl":"PIT","bye":9,"rd":11,"raw":null},{"pos":"RB","name":"Chuba Hubbard","nfl":"CAR","bye":5,"rd":14,"raw":null},{"pos":"RB","name":"Mike Washington Jr.","nfl":"LV","bye":13,"rd":16,"raw":"Mike Washington Jr"},{"pos":"RB","name":"Tyjae Spears","nfl":"TEN","bye":9,"rd":20,"raw":null},{"pos":"WR","name":"Drake London","nfl":"ATL","bye":11,"rd":3,"raw":null},{"pos":"WR","name":"DeVonta Smith","nfl":"PHI","bye":10,"rd":5,"raw":"Devonta Smith"},{"pos":"WR","name":"Davante Adams","nfl":"LAR","bye":11,"rd":6,"raw":null},{"pos":"WR","name":"DK Metcalf","nfl":"PIT","bye":9,"rd":13,"raw":null},{"pos":"WR","name":"Michael Wilson","nfl":"ARI","bye":14,"rd":17,"raw":null},{"pos":"WR","name":"Josh Downs","nfl":"IND","bye":13,"rd":19,"raw":null},{"pos":"TE","name":"Brock Bowers","nfl":"LV","bye":13,"rd":7,"raw":null},{"pos":"TE","name":"Kyle Pitts Sr.","nfl":"ATL","bye":11,"rd":9,"raw":"Kyle Pitts"},{"pos":"K","name":"Eddy Pi\u00f1eiro","nfl":"SF","bye":8,"rd":15,"raw":"Eddy Pineiro"},{"pos":"DL/LB","name":"T.J. Watt","nfl":"PIT","bye":9,"rd":21,"raw":"TJ Watt"},{"pos":"DL/LB","name":"Tuli Tuipulotu","nfl":"LAC","bye":7,"rd":25,"raw":null},{"pos":"DL/LB","name":"Andrew Van Ginkel","nfl":"MIN","bye":6,"rd":26,"raw":"Andrew Van Dinkel"},{"pos":"DB","name":"Jordan Battle","nfl":"CIN","bye":6,"rd":23,"raw":null},{"pos":"DB","name":"Tykee Smith","nfl":"TB","bye":10,"rd":24,"raw":null}],"counts":{"QB":3,"RB":7,"WR":6,"TE":2,"K":1,"DL/LB":3,"DB":2},"flags":["1 K (template has 2)","3 DL/LB (template has 2)"],"byes":{"5":1,"6":4,"7":2,"8":1,"9":4,"10":3,"11":4,"13":3,"14":2}},{"code":"OS","name":"Odds & Sods","abbrev":"O&S","division":"Clemenza","players":[{"pos":"QB","name":"Jayden Daniels","nfl":"WAS","bye":7,"rd":10,"raw":null},{"pos":"QB","name":"Bo Nix","nfl":"DEN","bye":10,"rd":14,"raw":null},{"pos":"QB","name":"Jordan Love","nfl":"GB","bye":11,"rd":19,"raw":null},{"pos":"RB","name":"Christian McCaffrey","nfl":"SF","bye":8,"rd":1,"raw":null},{"pos":"RB","name":"Jadarian Price","nfl":"SEA","bye":11,"rd":2,"raw":null},{"pos":"RB","name":"Jacory Croskey-Merritt","nfl":"WAS","bye":7,"rd":9,"raw":"Jacoby Croskey-Merritt"},{"pos":"RB","name":"J.K. Dobbins","nfl":"DEN","bye":10,"rd":12,"raw":"JK Dobbins"},{"pos":"RB","name":"Zach Charbonnet","nfl":"SEA","bye":11,"rd":16,"raw":null},{"pos":"RB","name":"Kyle Monangai","nfl":"CHI","bye":10,"rd":17,"raw":"Kyle Moangai"},{"pos":"RB","name":"Keaton Mitchell","nfl":"LAC","bye":7,"rd":18,"raw":null},{"pos":"WR","name":"Jaxon Smith-Njigba","nfl":"SEA","bye":11,"rd":3,"raw":null},{"pos":"WR","name":"Garrett Wilson","nfl":"NYJ","bye":13,"rd":5,"raw":null},{"pos":"WR","name":"Emeka Egbuka","nfl":"TB","bye":10,"rd":6,"raw":null},{"pos":"WR","name":"Luther Burden III","nfl":"CHI","bye":10,"rd":8,"raw":null},{"pos":"WR","name":"Alec Pierce","nfl":"IND","bye":13,"rd":11,"raw":null},{"pos":"WR","name":"Chris Godwin Jr.","nfl":"TB","bye":10,"rd":13,"raw":"Chris Godwin"},{"pos":"TE","name":"Harold Fannin Jr.","nfl":"CLE","bye":11,"rd":8,"raw":"Harold Fannin Jr"},{"pos":"TE","name":"Juwan Johnson","nfl":"NO","bye":8,"rd":20,"raw":null},{"pos":"K","name":"Cameron Dicker","nfl":"LAC","bye":7,"rd":15,"raw":"Cam Dicker"},{"pos":"K","name":"Evan McPherson","nfl":"CIN","bye":6,"rd":21,"raw":null},{"pos":"DL/LB","name":"Micah Parsons","nfl":"GB","bye":11,"rd":22,"raw":null},{"pos":"DL/LB","name":"Trey Hendrickson","nfl":"BAL","bye":13,"rd":23,"raw":null},{"pos":"DB","name":"Quentin Lake","nfl":"LAR","bye":11,"rd":24,"raw":null},{"pos":"DB","name":"Budda Baker","nfl":"ARI","bye":14,"rd":25,"raw":null}],"counts":{"QB":3,"RB":7,"WR":6,"TE":2,"K":2,"DL/LB":2,"DB":2},"flags":[],"byes":{"6":1,"7":4,"8":2,"10":6,"11":7,"13":3,"14":1}},{"code":"PD","name":"Predetermined Destination","abbrev":"PD","division":"Clemenza","players":[{"pos":"QB","name":"Matthew Stafford","nfl":"LAR","bye":11,"rd":9,"raw":null},{"pos":"QB","name":"Jared Goff","nfl":"DET","bye":6,"rd":16,"raw":null},{"pos":"QB","name":"Malik Willis","nfl":"MIA","bye":6,"rd":22,"raw":null},{"pos":"RB","name":"D'Andre Swift","nfl":"CHI","bye":10,"rd":3,"raw":null},{"pos":"RB","name":"Travis Etienne Jr.","nfl":"NO","bye":8,"rd":4,"raw":"Travis Etienne Jr"},{"pos":"RB","name":"Rhamondre Stevenson","nfl":"NE","bye":11,"rd":7,"raw":null},{"pos":"RB","name":"Jonah Coleman","nfl":"DEN","bye":10,"rd":13,"raw":null},{"pos":"RB","name":"Ray Davis","nfl":"BUF","bye":7,"rd":14,"raw":null},{"pos":"RB","name":"Malik Davis","nfl":"DAL","bye":14,"rd":19,"raw":null},{"pos":"RB","name":"George Holani","nfl":"SEA","bye":11,"rd":20,"raw":null},{"pos":"WR","name":"Jameson Williams","nfl":"DET","bye":6,"rd":2,"raw":null},{"pos":"WR","name":"George Pickens","nfl":"DAL","bye":14,"rd":8,"raw":null},{"pos":"WR","name":"Parker Washington","nfl":"JAX","bye":7,"rd":10,"raw":null},{"pos":"WR","name":"Mike Evans","nfl":"SF","bye":8,"rd":12,"raw":null},{"pos":"WR","name":"Michael Pittman Jr.","nfl":"PIT","bye":9,"rd":15,"raw":"Michael Pittman Jr"},{"pos":"WR","name":"Chris Bell","nfl":"MIA","bye":6,"rd":18,"raw":null},{"pos":"TE","name":"Trey McBride","nfl":"ARI","bye":14,"rd":3,"raw":null},{"pos":"TE","name":"Brenton Strange","nfl":"JAX","bye":7,"rd":25,"raw":null},{"pos":"K","name":"Harrison Mevis","nfl":"LAR","bye":11,"rd":17,"raw":null},{"pos":"K","name":"Wil Lutz","nfl":"DEN","bye":10,"rd":24,"raw":null},{"pos":"DL/LB","name":"Jared Verse","nfl":"CLE","bye":11,"rd":23,"raw":null},{"pos":"DL/LB","name":"Byron Young","nfl":"LAR","bye":11,"rd":26,"raw":null},{"pos":"DB","name":"Marcus Jones","nfl":"NE","bye":11,"rd":21,"raw":null},{"pos":"DB","name":"DaRon Bland","nfl":"DAL","bye":14,"rd":27,"raw":null}],"counts":{"QB":3,"RB":7,"WR":6,"TE":2,"K":2,"DL/LB":2,"DB":2},"flags":[],"byes":{"6":4,"7":3,"8":2,"9":1,"10":3,"11":7,"14":4}},{"code":"SV","name":"Screaming Vikings","abbrev":"SV","division":"Tessio","players":[{"pos":"QB","name":"Baker Mayfield","nfl":"TB","bye":10,"rd":14,"raw":null},{"pos":"QB","name":"Tyler Shough","nfl":"NO","bye":8,"rd":18,"raw":null},{"pos":"QB","name":"Sam Darnold","nfl":"SEA","bye":11,"rd":24,"raw":null},{"pos":"RB","name":"Ken Walker III","nfl":"SEA","bye":11,"rd":4,"raw":"Kenneth Walker"},{"pos":"RB","name":"Chase Brown","nfl":"CIN","bye":6,"rd":7,"raw":null},{"pos":"RB","name":"Tony Pollard","nfl":"TEN","bye":9,"rd":9,"raw":null},{"pos":"RB","name":"Jonathon Brooks","nfl":"CAR","bye":5,"rd":12,"raw":"Jonathan Brooks"},{"pos":"RB","name":"Kenny Gainwell","nfl":"TB","bye":10,"rd":13,"raw":"Kenneth Gainwell"},{"pos":"RB","name":"Chris Rodriguez Jr.","nfl":"JAX","bye":7,"rd":19,"raw":"Chris Rodriguez"},{"pos":"RB","name":"Rachaad White","nfl":"WAS","bye":7,"rd":23,"raw":null},{"pos":"WR","name":"Justin Jefferson","nfl":"MIN","bye":6,"rd":1,"raw":null},{"pos":"WR","name":"Amon-Ra St. Brown","nfl":"DET","bye":6,"rd":5,"raw":"Amon Ra St. Brown"},{"pos":"WR","name":"Tetairoa McMillan","nfl":"CAR","bye":5,"rd":10,"raw":null},{"pos":"WR","name":"Wan'Dale Robinson","nfl":"TEN","bye":9,"rd":15,"raw":"Wan'dale Robinson"},{"pos":"WR","name":"Malik Washington","nfl":"MIA","bye":6,"rd":16,"raw":null},{"pos":"WR","name":"Marvin Harrison Jr","nfl":"ARI","bye":14,"rd":17,"raw":null},{"pos":"TE","name":"Dalton Kincaid","nfl":"BUF","bye":7,"rd":11,"raw":null},{"pos":"TE","name":"Travis Kelce","nfl":"KC","bye":5,"rd":20,"raw":null},{"pos":"K","name":"Trey Smack","nfl":"GB","bye":11,"rd":21,"raw":null},{"pos":"K","name":"Chase McLaughlin","nfl":"TB","bye":10,"rd":26,"raw":null},{"pos":"DL/LB","name":"Danielle Hunter","nfl":"HOU","bye":8,"rd":22,"raw":null},{"pos":"DL/LB","name":"Josh Sweat","nfl":"ARI","bye":14,"rd":28,"raw":null},{"pos":"DB","name":"Kamari Lassiter","nfl":"HOU","bye":8,"rd":25,"raw":"Kwami Lassiter"},{"pos":"DB","name":"Mike Jackson","nfl":"CAR","bye":5,"rd":27,"raw":null}],"counts":{"QB":3,"RB":7,"WR":6,"TE":2,"K":2,"DL/LB":2,"DB":2},"flags":[],"byes":{"5":4,"6":4,"7":3,"8":3,"9":2,"10":3,"11":3,"14":2}},{"code":"RH","name":"Red Hot Revenge","abbrev":"RHR","division":"Tessio","players":[{"pos":"QB","name":"Drake Maye","nfl":"NE","bye":11,"rd":5,"raw":null},{"pos":"QB","name":"Dak Prescott","nfl":"DAL","bye":14,"rd":9,"raw":null},{"pos":"QB","name":"Patrick Mahomes II","nfl":"KC","bye":5,"rd":16,"raw":"Patrick Mahomes III"},{"pos":"RB","name":"Kyren Williams","nfl":"LAR","bye":11,"rd":1,"raw":null},{"pos":"RB","name":"James Cook","nfl":"BUF","bye":7,"rd":2,"raw":null},{"pos":"RB","name":"Breece Hall","nfl":"NYJ","bye":13,"rd":3,"raw":null},{"pos":"RB","name":"MarShawn Lloyd","nfl":"GB","bye":11,"rd":11,"raw":null},{"pos":"RB","name":"TreVeyon Henderson","nfl":"NE","bye":11,"rd":13,"raw":null},{"pos":"RB","name":"Kaytron Allen","nfl":"WAS","bye":7,"rd":19,"raw":null},{"pos":"RB","name":"Emmett Johnson","nfl":"KC","bye":5,"rd":20,"raw":"Emmet Johnson"},{"pos":"WR","name":"Ladd McConkey","nfl":"LAC","bye":7,"rd":4,"raw":null},{"pos":"WR","name":"Puka Nacua","nfl":"LAR","bye":11,"rd":4,"raw":null},{"pos":"WR","name":"Zay Flowers","nfl":"BAL","bye":13,"rd":8,"raw":null},{"pos":"WR","name":"Brian Thomas Jr.","nfl":"JAX","bye":7,"rd":12,"raw":"Brian Thomas Jr"},{"pos":"WR","name":"Jayden Reed","nfl":"GB","bye":11,"rd":15,"raw":null},{"pos":"WR","name":"Matthew Golden","nfl":"GB","bye":11,"rd":17,"raw":null},{"pos":"TE","name":"Mark Andrews","nfl":"BAL","bye":13,"rd":7,"raw":null},{"pos":"TE","name":"George Kittle","nfl":"SF","bye":8,"rd":10,"raw":null},{"pos":"K","name":"Ka'imi Fairbairn","nfl":"HOU","bye":8,"rd":14,"raw":null},{"pos":"K","name":"Harrison Butker","nfl":"KC","bye":5,"rd":18,"raw":null},{"pos":"DL/LB","name":"Nick Bosa","nfl":"SF","bye":8,"rd":21,"raw":null},{"pos":"DL/LB","name":"Josh Hines-Allen","nfl":"JAX","bye":7,"rd":24,"raw":null},{"pos":"DB","name":"Derek Stingley Jr.","nfl":"HOU","bye":8,"rd":22,"raw":"Derek Stingley Jr"},{"pos":"DB","name":"Derwin James Jr.","nfl":"LAC","bye":7,"rd":23,"raw":"Derwin James"}],"counts":{"QB":3,"RB":7,"WR":6,"TE":2,"K":2,"DL/LB":2,"DB":2},"flags":[],"byes":{"5":3,"7":6,"8":4,"11":7,"13":3,"14":1}},{"code":"CM","name":"The Commandos","abbrev":"COM","division":"Tessio","players":[{"pos":"QB","name":"Jalen Hurts","nfl":"PHI","bye":10,"rd":10,"raw":null},{"pos":"QB","name":"Brock Purdy","nfl":"SF","bye":8,"rd":17,"raw":null},{"pos":"QB","name":"Daniel Jones","nfl":"IND","bye":13,"rd":27,"raw":null},{"pos":"RB","name":"Derrick Henry","nfl":"BAL","bye":13,"rd":1,"raw":null},{"pos":"RB","name":"Jonathan Taylor","nfl":"IND","bye":13,"rd":6,"raw":null},{"pos":"RB","name":"David Montgomery","nfl":"HOU","bye":8,"rd":7,"raw":null},{"pos":"RB","name":"Josh Jacobs","nfl":"GB","bye":11,"rd":13,"raw":null},{"pos":"RB","name":"Aaron Jones Sr.","nfl":"MIN","bye":6,"rd":18,"raw":"Aaron Jones"},{"pos":"RB","name":"Justice Hill","nfl":"BAL","bye":13,"rd":19,"raw":null},{"pos":"RB","name":"Kaelon Black","nfl":"SF","bye":8,"rd":20,"raw":null},{"pos":"WR","name":"Tee Higgins","nfl":"CIN","bye":6,"rd":2,"raw":null},{"pos":"WR","name":"Jaylen Waddle","nfl":"DEN","bye":10,"rd":8,"raw":null},{"pos":"WR","name":"Christian Watson","nfl":"GB","bye":11,"rd":9,"raw":null},{"pos":"WR","name":"Terry McLaurin","nfl":"WAS","bye":7,"rd":12,"raw":null},{"pos":"WR","name":"Quentin Johnston","nfl":"LAC","bye":7,"rd":15,"raw":"Quentin Johnson"},{"pos":"WR","name":"Dontayvion Wicks","nfl":"PHI","bye":10,"rd":21,"raw":null},{"pos":"WR","name":"Courtland Sutton","nfl":"DEN","bye":10,"rd":22,"raw":null},{"pos":"TE","name":"Sam LaPorta","nfl":"DET","bye":6,"rd":11,"raw":null},{"pos":"K","name":"Jake Bates","nfl":"DET","bye":6,"rd":14,"raw":null},{"pos":"K","name":"Cairo Santos","nfl":"CHI","bye":10,"rd":25,"raw":null},{"pos":"DL/LB","name":"Brian Burns","nfl":"NYG","bye":8,"rd":16,"raw":null},{"pos":"DL/LB","name":"Nik Bonitto","nfl":"DEN","bye":10,"rd":26,"raw":null},{"pos":"DB","name":"Jessie Bates III","nfl":"ATL","bye":11,"rd":23,"raw":null},{"pos":"DB","name":"Antoine Winfield Jr.","nfl":"TB","bye":10,"rd":24,"raw":"Antoine Winfield"}],"counts":{"QB":3,"RB":7,"WR":7,"TE":1,"K":2,"DL/LB":2,"DB":2},"flags":[],"byes":{"6":4,"7":2,"8":4,"10":7,"11":3,"13":4}},{"code":"IR","name":"The Ironnuts","abbrev":"NUTS","division":"Tessio","players":[{"pos":"QB","name":"Josh Allen","nfl":"BUF","bye":7,"rd":4,"raw":null},{"pos":"QB","name":"Caleb Williams","nfl":"CHI","bye":10,"rd":12,"raw":null},{"pos":"QB","name":"Jaxson Dart","nfl":"NYG","bye":8,"rd":14,"raw":null},{"pos":"RB","name":"Bijan Robinson","nfl":"ATL","bye":11,"rd":1,"raw":null},{"pos":"RB","name":"Ashton Jeanty","nfl":"LV","bye":13,"rd":2,"raw":null},{"pos":"RB","name":"Jeremiyah Love","nfl":"ARI","bye":14,"rd":2,"raw":"Jerermiyah Love"},{"pos":"RB","name":"Quinshon Judkins","nfl":"CLE","bye":11,"rd":4,"raw":null},{"pos":"RB","name":"Bhayshul Tuten","nfl":"JAX","bye":7,"rd":5,"raw":null},{"pos":"RB","name":"Jordan Mason","nfl":"MIN","bye":6,"rd":6,"raw":null},{"pos":"RB","name":"Cam Skattebo","nfl":"NYG","bye":8,"rd":7,"raw":null},{"pos":"WR","name":"CeeDee Lamb","nfl":"DAL","bye":14,"rd":2,"raw":null},{"pos":"WR","name":"Malik Nabers","nfl":"NYG","bye":8,"rd":3,"raw":null},{"pos":"WR","name":"Rashee Rice","nfl":"KC","bye":5,"rd":5,"raw":null},{"pos":"WR","name":"Chris Olave","nfl":"NO","bye":8,"rd":8,"raw":null},{"pos":"WR","name":"Rome Odunze","nfl":"CHI","bye":10,"rd":11,"raw":null},{"pos":"WR","name":"KC Concepcion","nfl":"CLE","bye":11,"rd":11,"raw":null},{"pos":"TE","name":"Tucker Kraft","nfl":"GB","bye":11,"rd":6,"raw":null},{"pos":"TE","name":"Isaiah Likely","nfl":"NYG","bye":8,"rd":13,"raw":"Isiah Likely"},{"pos":"K","name":"Brandon Aubrey","nfl":"DAL","bye":14,"rd":9,"raw":null},{"pos":"K","name":"Jason Myers","nfl":"SEA","bye":11,"rd":15,"raw":null},{"pos":"DL/LB","name":"Myles Garrett","nfl":"LAR","bye":11,"rd":10,"raw":null},{"pos":"DL/LB","name":"Will Anderson Jr.","nfl":"HOU","bye":8,"rd":16,"raw":"Will Anderson Jr"},{"pos":"DB","name":"Travis Hunter","nfl":"JAX","bye":7,"rd":6,"raw":null},{"pos":"DB","name":"Kyle Hamilton","nfl":"BAL","bye":13,"rd":17,"raw":null}],"counts":{"QB":3,"RB":7,"WR":6,"TE":2,"K":2,"DL/LB":2,"DB":2},"flags":[],"byes":{"5":1,"6":1,"7":3,"8":6,"10":2,"11":6,"13":2,"14":3}}],"corrections":[{"from":"Aaron Jones","to":"Aaron Jones Sr."},{"from":"Amon Ra St. Brown","to":"Amon-Ra St. Brown"},{"from":"Andrew Van Dinkel","to":"Andrew Van Ginkel"},{"from":"Antoine Winfield","to":"Antoine Winfield Jr."},{"from":"Brian Thomas Jr","to":"Brian Thomas Jr."},{"from":"Cam Dicker","to":"Cameron Dicker"},{"from":"Chris Godwin","to":"Chris Godwin Jr."},{"from":"Chris Rodriguez","to":"Chris Rodriguez Jr."},{"from":"Devonta Smith","to":"DeVonta Smith"},{"from":"Derek Stingley Jr","to":"Derek Stingley Jr."},{"from":"Derwin James","to":"Derwin James Jr."},{"from":"Eddy Pineiro","to":"Eddy Pi\u00f1eiro"},{"from":"Emmet Johnson","to":"Emmett Johnson"},{"from":"Harold Fannin Jr","to":"Harold Fannin Jr."},{"from":"Isiah Likely","to":"Isaiah Likely"},{"from":"JK Dobbins","to":"J.K. Dobbins"},{"from":"Jacoby Croskey-Merritt","to":"Jacory Croskey-Merritt"},{"from":"Jerermiyah Love","to":"Jeremiyah Love"},{"from":"Jonathan Brooks","to":"Jonathon Brooks"},{"from":"Kwami Lassiter","to":"Kamari Lassiter"},{"from":"Kenneth Walker","to":"Ken Walker III"},{"from":"Kenneth Gainwell","to":"Kenny Gainwell"},{"from":"Kyle Moangai","to":"Kyle Monangai"},{"from":"Kyle Pitts","to":"Kyle Pitts Sr."},{"from":"Michael Penix Jr","to":"Michael Penix Jr."},{"from":"Michael Pittman Jr","to":"Michael Pittman Jr."},{"from":"Mike Washington Jr","to":"Mike Washington Jr."},{"from":"Minka Fitzpatrick","to":"Minkah Fitzpatrick"},{"from":"Patrick Mahomes III","to":"Patrick Mahomes II"},{"from":"Quentin Johnson","to":"Quentin Johnston"},{"from":"TJ Watt","to":"T.J. Watt"},{"from":"Travis Etienne Jr","to":"Travis Etienne Jr."},{"from":"Wan'dale Robinson","to":"Wan'Dale Robinson"},{"from":"Will Anderson Jr","to":"Will Anderson Jr."}],"bye_weeks":["5","6","7","8","9","10","11","13","14"]};
+
+  /* theme */
+  const themeBtn = document.getElementById('themeBtn');
+  const MODES = ['auto', 'light', 'dark'];
+  let mode = 'auto';
+  try { mode = localStorage.getItem('ffl-pd-theme') || 'auto'; } catch (e) {}
+  function applyTheme() {
+    if (mode === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', mode);
+    themeBtn.textContent = 'Theme: ' + mode;
+  }
+  themeBtn.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    try { localStorage.setItem('ffl-pd-theme', mode); } catch (e) {}
+    applyTheme();
+  });
+  applyTheme();
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const POS_ORDER = ['QB', 'RB', 'WR', 'TE', 'K', 'DL/LB', 'DB'];
+  const POS_LABEL = { 'QB':'Quarterbacks', 'RB':'Running backs', 'WR':'Wide receivers', 'TE':'Tight ends', 'K':'Kickers', 'DL/LB':'Line & linebacker', 'DB':'Secondary' };
+  function badgeClass(p) {
+    if (p === 'K') return 'k';
+    if (p === 'DB' || p === 'DL/LB') return 'def';
+    return p.toLowerCase();
+  }
+
+  /* stat strip */
+  const nPlayers = DATA.teams.reduce((a, t) => a + t.players.length, 0);
+  const flagged = DATA.teams.filter(t => t.flags.length);
+  document.getElementById('strip').innerHTML =
+    `<span><b>${nPlayers}</b> picks</span>` +
+    `<span><b>${DATA.teams.length}</b> teams</span>` +
+    `<span><b>24</b> each</span>` +
+    `<span><b>0</b> duplicates</span>` +
+    `<span><b>${DATA.corrections.length}</b> spellings fixed</span>` +
+    `<span><b>${flagged.length}</b> rosters off template</span>`;
+
+  /* template anomalies */
+  if (flagged.length) {
+    document.getElementById('flagNote').innerHTML =
+      `<div class="note alert"><b>Two rosters don't match the 24-slot template.</b> Shown here exactly as the board has them &mdash; worth a word with the commissioner rather than a quiet fix.
+        <ul>${flagged.map(t => `<li><b>${esc(t.name)}</b> &mdash; ${t.flags.map(esc).join('; ')}.${
+          t.code === 'WG' ? ' Ja&rsquo;Marr Chase is entered as an <code>RB</code> at 4.7, which accounts for both.' : ''}</li>`).join('')}</ul>
+      </div>`;
+  }
+
+  /* position chips */
+  let activePos = null;
+  const chips = document.getElementById('chips');
+  chips.innerHTML = POS_ORDER.map(p =>
+    `<button class="chip" type="button" data-pos="${esc(p)}" aria-pressed="false">${esc(p)}</button>`).join('');
+  chips.addEventListener('click', e => {
+    const b = e.target.closest('.chip');
+    if (!b) return;
+    activePos = (activePos === b.dataset.pos) ? null : b.dataset.pos;
+    chips.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.pos === activePos));
+    filter();
+  });
+
+  /* render */
+  const DIVS = [{ key: 'Clemenza', cls: 'clem' }, { key: 'Tessio', cls: 'tess' }];
+  document.getElementById('divisions').innerHTML = DIVS.map(d => {
+    const teams = DATA.teams.filter(t => t.division === d.key);
+    return `<div class="div-head ${d.cls}"><h2>${d.key} Division</h2><div class="rule"></div></div>
+      <div class="grid">${teams.map(t => teamCard(t, d.cls)).join('')}</div>`;
+  }).join('');
+
+  function teamCard(t, cls) {
+    let body = '';
+    POS_ORDER.forEach(pos => {
+      const list = t.players.filter(p => p.pos === pos);
+      if (!list.length) return;
+      body += `<div class="group-lbl" data-group="${esc(pos)}">${POS_LABEL[pos]} &middot; ${list.length}</div>`;
+      body += list.map(p => `<div class="plr" data-pos="${esc(p.pos)}" data-s="${esc((p.name + ' ' + p.nfl + ' ' + p.pos).toLowerCase())}">
+          <span class="badge ${badgeClass(p.pos)}">${esc(p.pos)}</span>
+          <span class="who"><span class="n">${esc(p.name)}${p.raw ? `<span class="fix" title="Board says &quot;${esc(p.raw)}&quot;">&nbsp;&lowast;</span>` : ''}</span><span class="meta">${esc(p.nfl)} &middot; <span class="bw">bye ${esc(p.bye)}</span> &middot; round ${esc(p.rd)}</span></span>
+        </div>`).join('');
+    });
+    const byePills = Object.keys(t.byes).sort((a, b) => a - b).map(w =>
+      `<span class="bye-pill${t.byes[w] >= 5 ? ' heavy' : ''}">wk ${esc(w)} <b>${t.byes[w]}</b></span>`).join('');
+    const mix = POS_ORDER.map(p => `${p} ${t.counts[p]}`).join(' &middot; ');
+    return `<section class="team ${cls}" data-team="${esc(t.code)}">
+        <div class="team-head">
+          <div class="nm">${esc(t.name)}<span class="cd">${esc(t.abbrev)}</span></div>
+          <div class="mix">${mix}</div>
+        </div>
+        ${t.flags.length ? `<div class="teamflag">${t.flags.map(esc).join('<br>')}</div>` : ''}
+        <div class="byes"><span class="lbl">Players on bye</span>${byePills}</div>
+        ${body}
+        <div class="empty" hidden>Nothing here matches.</div>
+      </section>`;
+  }
+
+  document.getElementById('fixlist').innerHTML = DATA.corrections.map(c =>
+    `<span><s>${esc(c.from)}</s> &rarr; <b>${esc(c.to)}</b></span>`).join('');
+
+  /* filtering */
+  const searchEl = document.getElementById('search');
+  const countEl = document.getElementById('count');
+  function filter() {
+    const q = searchEl.value.trim().toLowerCase();
+    let shown = 0;
+    document.querySelectorAll('.team').forEach(card => {
+      let visibleInCard = 0;
+      card.querySelectorAll('.plr').forEach(row => {
+        const ok = (!activePos || row.dataset.pos === activePos) && (!q || row.dataset.s.includes(q));
+        row.classList.toggle('dim', !ok);
+        if (ok) { visibleInCard++; shown++; }
+      });
+      card.querySelectorAll('.group-lbl').forEach(lbl => {
+        const pos = lbl.dataset.group;
+        const any = card.querySelector(`.plr[data-pos="${CSS.escape(pos)}"]:not(.dim)`);
+        lbl.hidden = !any;
+      });
+      card.querySelector('.empty').hidden = visibleInCard > 0;
+      card.querySelector('.byes').hidden = visibleInCard === 0;
+    });
+    countEl.textContent = (activePos || q) ? `${shown} of ${nPlayers} shown` : `${nPlayers} players`;
+  }
+  searchEl.addEventListener('input', filter);
+  filter();
+</script>
+
+</body>
+</html>
