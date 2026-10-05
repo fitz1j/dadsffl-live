@@ -284,6 +284,18 @@
     color: var(--gold); margin-left: 6px; text-transform: uppercase;
   }
   .status { margin-top: 18px; font-size: 13.5px; color: var(--ink-faint); }
+  .plr.pick { grid-template-columns: 22px 50px minmax(0,1fr) 46px; }
+  .plr.pick input {
+    width: 16px; height: 16px; margin: 0; align-self: center; cursor: pointer;
+    accent-color: var(--turf);
+  }
+  .plr.pick input:disabled { cursor: progress; }
+  .plr.pick.out .p { color: var(--ink-faint); font-weight: 500; text-decoration: line-through; text-decoration-color: var(--line); }
+  .plr.pick.out.zero .p { text-decoration: none; }
+  .plr.pick.in { background: var(--turf-tint); }
+  .plr.pick.in .badge { border-color: transparent; }
+  .col-head .cnt b { color: var(--turf-deep); font-weight: 600; }
+  .side .sub-pts { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.04em; }
 </style>
 </head>
 <body>
@@ -299,12 +311,13 @@
     <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
   </div>
 
-  <p class="note"><b>Every rostered player counts.</b> Lineup rules are not applied yet &mdash; all 24 players on a team's roster for that week score, with no 11-man starting lineup and no bench. Rosters follow the waiver wire: a player claimed after week N counts from week N+1, and the player dropped stops counting.</p>
+  <p class="note"><b>Only checked players count.</b> Tick the box next to a player to put him in that team's lineup &mdash; a team's score is the sum of its checked players, and a team with nothing checked scores 0. Checks are saved for everyone who views the page. No lineup rules are enforced yet (any number of players, any positions). Rosters follow the waiver wire: a player claimed after week N is on the roster from week N+1.</p>
+  <div id="pickWarn"></div>
 
   <div class="sec-head">
     <h2>Season record</h2>
     <div class="rule"></div>
-    <div class="hint" id="standHint">all-24 scoring · completed weeks</div>
+    <div class="hint" id="standHint">checked players only · completed weeks</div>
   </div>
   <div class="standings" id="standings"><div class="status">Loading…</div></div>
 
@@ -316,7 +329,7 @@
   <div id="weekWarn"></div>
   <div class="toolbar">
     <div class="wk-meta" id="wkMeta"></div>
-    <button class="toggle" id="filterBtn" type="button">Showing: all 24</button>
+    <button class="toggle" id="filterBtn" type="button">Showing: full roster</button>
   </div>
   <div class="games" id="games"><div class="status">Loading…</div></div>
 
@@ -325,6 +338,7 @@
     Rosters: <code>Pre-Season Rosters</code> tab of the commissioner's 2026 roster workbook for week 1, then the <code>2026 Waiver Wires</code> log applied week by week (this reproduces the <code>Current Rosters</code> tab exactly for week 4).
     Schedule: the commissioner's 2026 weekly stats workbook.
     Players are matched to box scores by name, with NFL team used to break ties.
+    Lineup checks are stored in the league's Supabase database (<code>lineup_picks</code>) and re-read every 60 seconds.
   </footer>
 </div>
 
@@ -423,6 +437,35 @@
   /* ---------------- data loading ---------------- */
   let WEEKS = [];          // [{n, id, label, title}]
   const cache = {};        // week number -> {games, lines, at}
+  const picks = {};        // week number -> Set of "TEAM|player name"
+  let picksOK = true;      // false if the lineup_picks table isn't reachable
+  const pickKey = (team, name) => team + "|" + name;
+
+  async function loadPicks(w) {
+    try {
+      const rows = await getJSON("/lineup_picks?week_id=eq." + w.id + "&select=team,player&limit=1000");
+      picks[w.n] = new Set(rows.map(r => pickKey(r.team, r.player)));
+      if (!picksOK) { picksOK = true; showPickWarn(""); }
+    } catch (e) {
+      picksOK = false;
+      if (!picks[w.n]) picks[w.n] = new Set();
+      showPickWarn("<b>Lineup checks can't be saved right now.</b> The page couldn't reach the lineup table (" + esc(e.message) + "), so every team shows 0 and the boxes are disabled.");
+    }
+  }
+  function showPickWarn(html) {
+    document.getElementById("pickWarn").innerHTML = html ? '<p class="warn">' + html + "</p>" : "";
+  }
+
+  async function writePick(w, team, name, on) {
+    const base = REST_BASE + "/lineup_picks";
+    const res = on
+      ? await fetch(base, { method: "POST",
+          headers: Object.assign({ "Content-Type": "application/json", Prefer: "resolution=ignore-duplicates,return=minimal" }, REST_HEADERS),
+          body: JSON.stringify({ week_id: w.id, team, player: name }) })
+      : await fetch(base + "?week_id=eq." + w.id + "&team=eq." + encodeURIComponent(team) +
+          "&player=eq." + encodeURIComponent(name), { method: "DELETE", headers: Object.assign({ Prefer: "return=minimal" }, REST_HEADERS) });
+    if (!res.ok) throw new Error("save failed (" + res.status + ")");
+  }
 
   async function loadWeekStats(w) {
     const games = await getJSON("/games?week_id=eq." + w.id +
@@ -475,13 +518,16 @@
 
   function scoreWeek(n, stats) {
     const rosters = rostersFor(n);
+    const chosen = picks[n] || new Set();
     const teams = {};
     for (const code in rosters) {
-      const players = rosters[code].map(p => Object.assign({}, p, lookup(stats, p)))
+      const players = rosters[code].map(p => Object.assign({}, p, lookup(stats, p), { on: chosen.has(pickKey(code, p.name)) }))
         .sort((a, b) => (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9) || b.pts - a.pts);
-      const pts = players.reduce((a, p) => a + p.pts, 0);
-      const left = players.filter(p => p.game && p.game.state !== "post").length;
-      teams[code] = { players, pts, scored: players.filter(p => p.pts > 0).length, left };
+      const lineup = players.filter(p => p.on);
+      const pts = lineup.reduce((a, p) => a + p.pts, 0);
+      const all = players.reduce((a, p) => a + p.pts, 0);
+      const left = lineup.filter(p => p.game && p.game.state !== "post").length;
+      teams[code] = { players, pts, all, picked: lineup.length, left };
     }
     const allFinal = stats.games.length > 0 && stats.games.every(g => g.state === "post");
     const started = stats.games.some(g => g.state !== "pre");
@@ -495,10 +541,13 @@
     let done = 0;
     for (const w of WEEKS) {
       if (!cache[w.n]) cache[w.n] = await loadWeekStats(w);
+      if (!picks[w.n]) await loadPicks(w);
       const sc = scoreWeek(w.n, cache[w.n]);
       if (!sc.allFinal) continue;
       done++;
       for (const [a, b] of SCHEDULE[w.n] || []) {
+        // A game counts only once both teams have a lineup checked.
+        if (!sc.teams[a].picked || !sc.teams[b].picked) continue;
         const ap = sc.teams[a].pts, bp = sc.teams[b].pts;
         S[a].pf += ap; S[a].pa += bp; S[b].pf += bp; S[b].pa += ap;
         if (Math.abs(ap - bp) < 1e-9) { S[a].t++; S[b].t++; }
@@ -506,7 +555,7 @@
       }
     }
     document.getElementById("standHint").textContent =
-      "all-24 scoring · " + done + " completed week" + (done === 1 ? "" : "s");
+      "checked players only · games with both lineups set · " + done + " completed week" + (done === 1 ? "" : "s");
     const groups = [{ key: "Clemenza", cls: "clem" }, { key: "Tessio", cls: "tess" }];
     document.getElementById("standings").innerHTML = groups.map(g => {
       const rows = Object.keys(TEAMS).filter(c => TEAMS[c].division === g.key)
@@ -527,7 +576,7 @@
   try { showAll = localStorage.getItem("ffl-wk-all") !== "0"; } catch (e) {}
   const filterBtn = document.getElementById("filterBtn");
 
-  function playerLine(p) {
+  function playerLine(p, code) {
     let s;
     if (p.sum) s = esc(p.sum);
     else if (p.team === "FA") s = "free agent — no NFL team";
@@ -536,7 +585,9 @@
     else if (p.found) s = "no scoring stats · " + esc(gameLabel(p.game));
     else if (p.game) s = "not in box score · " + esc(gameLabel(p.game));
     else s = "did not play";
-    return `<div class="plr${p.pts > 0 ? "" : " zero"}">
+    return `<div class="plr pick ${p.on ? "in" : "out"}${p.pts > 0 ? "" : " zero"}">
+        <input type="checkbox" data-team="${esc(code)}" data-player="${esc(p.name)}"${p.on ? " checked" : ""}${picksOK ? "" : " disabled"}
+          aria-label="Count ${esc(p.name)} for ${esc(TEAMS[code].abbrev)}">
         <span class="badge ${badgeClass(p.pos)}">${esc(p.pos)}</span>
         <span class="who">
           <span class="n">${esc(p.name)}<span class="nfl">${esc(p.team)}</span>${p.added === cur ? '<span class="chg">waiver add</span>' : ""}</span>
@@ -547,11 +598,11 @@
   }
 
   function rosterCol(code, t) {
-    const list = showAll ? t.players : t.players.filter(p => p.pts > 0);
+    const list = showAll ? t.players : t.players.filter(p => p.on);
     const left = t.left ? ` · ${t.left} still to play` : "";
     return `<div class="col">
-        <div class="col-head"><span>${esc(TEAMS[code].abbrev)} roster</span><span>${t.scored} of ${t.players.length} scored${left}</span></div>
-        ${list.map(playerLine).join("") || '<div class="plr zero"><span></span><span class="who"><span class="s none">Nobody has scored yet.</span></span><span></span></div>'}
+        <div class="col-head"><span>${esc(TEAMS[code].abbrev)} roster</span><span class="cnt"><b>${t.picked}</b> of ${t.players.length} checked${left}</span></div>
+        ${list.map(p => playerLine(p, code)).join("") || '<div class="plr zero"><span></span><span class="who"><span class="s none">No players checked yet.</span></span><span></span></div>'}
       </div>`;
   }
 
@@ -560,7 +611,7 @@
     document.querySelectorAll("#tabs .tab").forEach(t => t.setAttribute("aria-selected", +t.dataset.n === cur ? "true" : "false"));
     document.getElementById("title").textContent = "Week " + cur + " Head-to-Head";
     document.title = "DadsFFL Week " + cur;
-    filterBtn.textContent = showAll ? "Showing: all 24" : "Showing: scorers only";
+    filterBtn.textContent = showAll ? "Showing: full roster" : "Showing: checked only";
     document.getElementById("weekWarn").innerHTML = cur > ROSTERS_THROUGH
       ? `<p class="warn"><b>Rosters not yet updated for week ${cur}.</b> Waiver moves are entered through week ${ROSTERS_THROUGH}, so this week is using week-${ROSTERS_THROUGH} rosters.</p>` : "";
     const stats = cache[cur];
@@ -577,11 +628,13 @@
       return `<div class="game">
           <div class="score">
             <div class="side${cls(aw)}"><span class="meta">${esc(TEAMS[a].division)}</span>
-              <span class="nm">${esc(TEAMS[a].name)}</span><span class="pts">${fmt(A.pts)}</span></div>
+              <span class="nm">${esc(TEAMS[a].name)}</span><span class="pts">${fmt(A.pts)}</span>
+              <span class="sub-pts">${A.picked} checked · ${fmt(A.all)} if all 24</span></div>
             <div class="vs"><span class="v">VS</span>${pill}
               <span class="marg">${diff ? (sc.allFinal ? "by " : "up ") + fmt(Math.abs(diff)) : "tied"}</span></div>
             <div class="side right${cls(bw)}"><span class="meta">${esc(TEAMS[b].division)}</span>
-              <span class="nm">${esc(TEAMS[b].name)}</span><span class="pts">${fmt(B.pts)}</span></div>
+              <span class="nm">${esc(TEAMS[b].name)}</span><span class="pts">${fmt(B.pts)}</span>
+              <span class="sub-pts">${B.picked} checked · ${fmt(B.all)} if all 24</span></div>
           </div>
           <div class="rosters">${rosterCol(a, A)}${rosterCol(b, B)}</div>
         </div>`;
@@ -592,15 +645,48 @@
     cur = n;
     if (push) history.replaceState(null, "", "?week=" + n);
     renderWeek();
-    if (!cache[n]) { cache[n] = await loadWeekStats(WEEKS.find(x => x.n === n)); renderWeek(); }
+    const w = WEEKS.find(x => x.n === n);
+    if (!cache[n] || !picks[n]) {
+      await Promise.all([cache[n] ? null : loadWeekStats(w).then(st => { cache[n] = st; }), picks[n] ? null : loadPicks(w)]);
+      renderWeek();
+    }
   }
 
-  // Re-pull the open week every 60s while any of its games isn't final.
+  // Every 60s: re-read lineup checks (other people may have changed them) and,
+  // while any game in the open week isn't final, re-pull its scores.
+  let saving = 0;
   setInterval(async () => {
-    if (cur == null || !cache[cur] || cache[cur].games.every(g => g.state === "post")) return;
-    try { cache[cur] = await loadWeekStats(WEEKS.find(x => x.n === cur)); renderWeek(); renderStandings(); }
-    catch (e) { console.warn(e); }
+    if (cur == null || !cache[cur] || saving) return;
+    const w = WEEKS.find(x => x.n === cur);
+    try {
+      const jobs = [loadPicks(w)];
+      if (!cache[cur].games.every(g => g.state === "post")) jobs.push(loadWeekStats(w).then(st => { cache[cur] = st; }));
+      await Promise.all(jobs);
+      if (!saving) { renderWeek(); renderStandings(); }
+    } catch (e) { console.warn(e); }
   }, 60000);
+
+  // Checking / unchecking a player: update on screen right away, save, roll back on failure.
+  document.getElementById("games").addEventListener("change", async e => {
+    const box = e.target.closest('input[type="checkbox"][data-team]');
+    if (!box) return;
+    const n = cur, w = WEEKS.find(x => x.n === n);
+    const team = box.dataset.team, name = box.dataset.player, on = box.checked;
+    const set = picks[n] || (picks[n] = new Set());
+    if (on) set.add(pickKey(team, name)); else set.delete(pickKey(team, name));
+    saving++;
+    renderWeek();
+    try {
+      await writePick(w, team, name, on);
+    } catch (err) {
+      if (on) set.delete(pickKey(team, name)); else set.add(pickKey(team, name));
+      showPickWarn("<b>That change wasn't saved.</b> " + esc(name) + " (" + esc(TEAMS[team].abbrev) + ") — " + esc(err.message) + ". Try again.");
+    } finally {
+      saving--;
+      if (cur === n) renderWeek();
+      renderStandings();
+    }
+  });
 
   /* ---------------- boot ---------------- */
   async function boot() {
