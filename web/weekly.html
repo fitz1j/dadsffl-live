@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DadsFFL Weekly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #f6f3e9;
+    --paper-raised: #fffdf7;
+    --paper-sunk: #efeadb;
+    --ink: #1c2621;
+    --ink-soft: #4a544d;
+    --ink-faint: #7d867f;
+    --line: #ddd6c4;
+    --line-soft: #e8e2d2;
+    --turf: #2f6f4e;
+    --turf-deep: #1c4531;
+    --turf-tint: #e3ede6;
+    --gold: #ad8a1e;
+    --gold-tint: #f3ead0;
+    --clemenza: #ad5a2d;
+    --clemenza-tint: #f2e3d8;
+    --tessio: #2f6180;
+    --tessio-tint: #dfe9ee;
+    --shadow: 0 1px 2px rgba(28,38,33,0.06), 0 6px 20px -8px rgba(28,38,33,0.18);
+    --on-div: #fffdf7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14201a;
+      --paper-raised: #1b2a22;
+      --paper-sunk: #101a15;
+      --ink: #eef2ec;
+      --ink-soft: #a8b6ac;
+      --ink-faint: #7d8d82;
+      --line: #2c3a30;
+      --line-soft: #243029;
+      --turf: #6bbd91;
+      --turf-deep: #9fdcb9;
+      --turf-tint: #1e352a;
+      --gold: #e0bc55;
+      --gold-tint: #33301c;
+      --clemenza: #e08a55;
+      --clemenza-tint: #3a2a1f;
+      --tessio: #7fb8d6;
+      --tessio-tint: #1f3038;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+      --on-div: #101a15;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14201a;
+    --paper-raised: #1b2a22;
+    --paper-sunk: #101a15;
+    --ink: #eef2ec;
+    --ink-soft: #a8b6ac;
+    --ink-faint: #7d8d82;
+    --line: #2c3a30;
+    --line-soft: #243029;
+    --turf: #6bbd91;
+    --turf-deep: #9fdcb9;
+    --turf-tint: #1e352a;
+    --gold: #e0bc55;
+    --gold-tint: #33301c;
+    --clemenza: #e08a55;
+    --clemenza-tint: #3a2a1f;
+    --tessio: #7fb8d6;
+    --tessio-tint: #1f3038;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+    --on-div: #101a15;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 16px; padding-bottom: 14px; border-bottom: 3px double var(--line);
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; }
+  .home {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint); text-decoration: none;
+    margin-bottom: 4px; align-self: flex-start;
+  }
+  .home:hover { color: var(--turf); }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--turf);
+  }
+  h1 {
+    font-family: Oswald, "Libre Franklin", sans-serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 44px); line-height: 1.02; margin: 0;
+    letter-spacing: -0.01em; text-transform: uppercase; text-wrap: balance;
+  }
+  .masthead .sub { color: var(--ink-soft); font-size: 13.5px; max-width: 46ch; margin: 4px 0 0; }
+  .theme-btn {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; cursor: pointer;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--turf); }
+
+  /* ---------- method note ---------- */
+  .note {
+    margin: 20px 0 0; padding: 13px 16px; background: var(--gold-tint);
+    border-left: 3px solid var(--gold); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .note b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- section heads ---------- */
+  .sec-head {
+    display: flex; align-items: baseline; gap: 12px; margin: 34px 0 14px;
+  }
+  .sec-head h2 {
+    font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; font-size: 17px; margin: 0; white-space: nowrap;
+  }
+  .sec-head .rule { flex: 1; height: 1px; background: var(--line); }
+  .sec-head .hint { font-size: 12px; color: var(--ink-faint); white-space: nowrap; }
+
+  /* ---------- standings ---------- */
+  .standings { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+  @media (max-width: 720px) { .standings { grid-template-columns: 1fr; } }
+  .div-block { background: var(--paper-raised); border: 1px solid var(--line); }
+  .div-title {
+    font-family: Oswald, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; padding: 8px 14px; color: var(--on-div);
+  }
+  .div-block.clem .div-title { background: var(--clemenza); }
+  .div-block.tess .div-title { background: var(--tessio); }
+  table.stand { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.stand th {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+    text-align: right; padding: 7px 14px 5px; border-bottom: 1px solid var(--line-soft);
+  }
+  table.stand th:first-child { text-align: left; }
+  table.stand td {
+    padding: 7px 14px; border-bottom: 1px solid var(--line-soft); text-align: right;
+    font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 13px;
+  }
+  table.stand td:first-child {
+    text-align: left; font-family: "Libre Franklin", sans-serif; font-weight: 600; font-size: 14px;
+  }
+  table.stand tr:last-child td { border-bottom: none; }
+  .tcode {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600;
+    color: var(--ink-faint); margin-left: 7px; letter-spacing: 0.06em;
+  }
+
+  /* ---------- week tabs ---------- */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 30px 0 0; }
+  .tab {
+    font-family: Oswald, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 9px 18px; cursor: pointer;
+    background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 2px;
+  }
+  .tab:hover { border-color: var(--turf); color: var(--ink); }
+  .tab[aria-selected="true"] { background: var(--turf); border-color: var(--turf); color: var(--on-div); }
+  .toolbar {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft);
+  }
+  .wk-meta { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-faint); letter-spacing: 0.03em; }
+  .toggle {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  }
+  .toggle:hover { color: var(--ink); border-color: var(--turf); }
+
+  /* ---------- matchup cards ---------- */
+  .games { display: flex; flex-direction: column; gap: 22px; margin-top: 20px; }
+  .game { background: var(--paper-raised); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .score {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch;
+    border-bottom: 1px solid var(--line);
+  }
+  .side { padding: 14px 18px; display: flex; flex-direction: column; gap: 3px; }
+  .side.right { text-align: right; align-items: flex-end; }
+  .side .nm {
+    font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase;
+    font-size: clamp(15px, 2.4vw, 20px); letter-spacing: 0.02em; line-height: 1.12;
+  }
+  .side .meta { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-faint); }
+  .side .pts {
+    font-family: Oswald, sans-serif; font-weight: 700; font-size: clamp(30px, 6vw, 42px);
+    line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink-faint); margin-top: 4px;
+  }
+  .side.won .pts { color: var(--turf-deep); }
+  .side.won .nm { color: var(--ink); }
+  .side.won { background: var(--turf-tint); }
+  .side.won .meta { color: var(--turf); }
+  .vs {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 0 14px; border-left: 1px solid var(--line-soft); border-right: 1px solid var(--line-soft);
+    background: var(--paper-sunk);
+  }
+  .vs .v { font-family: Oswald, sans-serif; font-size: 12px; letter-spacing: 0.16em; color: var(--ink-faint); }
+  .vs .marg { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--gold); font-weight: 600; margin-top: 3px; white-space: nowrap; }
+
+  .rosters { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 780px) { .rosters { grid-template-columns: 1fr; } }
+  .col { padding: 0; }
+  .col + .col { border-left: 1px solid var(--line-soft); }
+  @media (max-width: 780px) { .col + .col { border-left: none; border-top: 3px double var(--line); } }
+  .col-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    padding: 9px 16px; background: var(--paper-sunk); border-bottom: 1px solid var(--line-soft);
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+
+  .plr {
+    display: grid; grid-template-columns: 50px minmax(0,1fr) 46px; align-items: baseline;
+    gap: 10px; padding: 7px 16px; border-bottom: 1px solid var(--line-soft);
+  }
+  .plr:last-child { border-bottom: none; }
+  .plr.zero { opacity: 0.5; }
+  .badge {
+    font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; text-align: center; padding: 2px 0; border-radius: 2px;
+    background: var(--paper-sunk); color: var(--ink-soft); border: 1px solid var(--line-soft);
+  }
+  .badge.off { background: var(--turf-tint); color: var(--turf-deep); border-color: transparent; }
+  .badge.kick { background: var(--gold-tint); color: var(--gold); border-color: transparent; }
+  .badge.def { background: var(--tessio-tint); color: var(--tessio); border-color: transparent; }
+  .who { min-width: 0; }
+  .who .n { font-weight: 600; font-size: 13.5px; line-height: 1.25; }
+  .who .n .nfl {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 500;
+    color: var(--ink-faint); margin-left: 6px; letter-spacing: 0.04em;
+  }
+  .who .s {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-soft);
+    line-height: 1.4; word-break: break-word;
+  }
+  .who .s.none { color: var(--ink-faint); font-style: italic; }
+  .p {
+    font-family: Oswald, sans-serif; font-weight: 600; font-size: 17px; text-align: right;
+    font-variant-numeric: tabular-nums; color: var(--turf-deep);
+  }
+  .plr.zero .p { color: var(--ink-faint); font-weight: 500; }
+
+  footer {
+    margin-top: 46px; padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: 12.5px; color: var(--ink-faint); line-height: 1.7;
+  }
+  footer code { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-soft); }
+  [hidden] { display: none !important; }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  /* ---------- weekly page additions ---------- */
+  .pill {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+    background: var(--paper-sunk); color: var(--ink-faint); border: 1px solid var(--line-soft);
+  }
+  .pill.live { background: var(--gold-tint); color: var(--gold); border-color: transparent; }
+  .pill.final { background: var(--turf-tint); color: var(--turf-deep); border-color: transparent; }
+  .side.lead .pts { color: var(--gold); }
+  .warn {
+    margin: 16px 0 0; padding: 11px 16px; background: var(--clemenza-tint);
+    border-left: 3px solid var(--clemenza); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .warn b { color: var(--ink); }
+  .plr .chg {
+    font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.06em;
+    color: var(--gold); margin-left: 6px; text-transform: uppercase;
+  }
+  .status { margin-top: 18px; font-size: 13.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">
+      <a class="home" href="./">&larr; DadsFFL</a>
+      <div class="eyebrow">2026 Regular Season</div>
+      <h1 id="title">Weekly Head-to-Head</h1>
+      <p class="sub">Each week's four DADS matchups, scored live from ESPN box scores against the roster each team actually carried that week.</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
+  </div>
+
+  <p class="note"><b>Every rostered player counts.</b> Lineup rules are not applied yet &mdash; all 24 players on a team's roster for that week score, with no 11-man starting lineup and no bench. Rosters follow the waiver wire: a player claimed after week N counts from week N+1, and the player dropped stops counting.</p>
+
+  <div class="sec-head">
+    <h2>Season record</h2>
+    <div class="rule"></div>
+    <div class="hint" id="standHint">all-24 scoring · completed weeks</div>
+  </div>
+  <div class="standings" id="standings"><div class="status">Loading…</div></div>
+
+  <div class="sec-head">
+    <h2>Matchups</h2>
+    <div class="rule"></div>
+  </div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div id="weekWarn"></div>
+  <div class="toolbar">
+    <div class="wk-meta" id="wkMeta"></div>
+    <button class="toggle" id="filterBtn" type="button">Showing: all 24</button>
+  </div>
+  <div class="games" id="games"><div class="status">Loading…</div></div>
+
+  <footer>
+    Points: the league's scoring engine, run on ESPN box scores by the same Supabase feed as the <a href="live.html">live scoring page</a>; this page re-checks every 60 seconds while a game is on.
+    Rosters: <code>Pre-Season Rosters</code> tab of the commissioner's 2026 roster workbook for week 1, then the <code>2026 Waiver Wires</code> log applied week by week (this reproduces the <code>Current Rosters</code> tab exactly for week 4).
+    Schedule: the commissioner's 2026 weekly stats workbook.
+    Players are matched to box scores by name, with NFL team used to break ties.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const SUPABASE_URL = "https://lpcremgkmgumumboqjux.supabase.co";
+  const ANON_KEY = "sb_publishable_zOdIS--l6_TDNSlrOE_RhA_s3E54zsj";
+  const REST_BASE = SUPABASE_URL + "/rest/v1";
+  const REST_HEADERS = { apikey: ANON_KEY, Authorization: "Bearer " + ANON_KEY };
+
+  /* ---------------- league data (edit here) ---------------- */
+  const TEAMS = {
+    PD:   { name: "Predetermined Destination", abbrev: "PD",   division: "Clemenza" },
+    OS:   { name: "Odds & Sods",               abbrev: "O&S",  division: "Clemenza" },
+    FAB:  { name: "Fabricoh",                  abbrev: "FAB",  division: "Clemenza" },
+    WILD: { name: "Wild Geesemen",             abbrev: "WILD", division: "Clemenza" },
+    SV:   { name: "Screaming Vikings",         abbrev: "SV",   division: "Tessio" },
+    RHR:  { name: "Red Hot Revenge",           abbrev: "RHR",  division: "Tessio" },
+    COM:  { name: "The Commandos",             abbrev: "COM",  division: "Tessio" },
+    NUTS: { name: "The Ironnuts",              abbrev: "NUTS", division: "Tessio" }
+  };
+
+  // 2026 regular season (weeks 1-15), from the commissioner's weekly stats workbook.
+  const SCHEDULE = {
+    1:  [["PD","WILD"],["OS","FAB"],["SV","NUTS"],["RHR","COM"]],
+    2:  [["PD","FAB"],["OS","WILD"],["SV","COM"],["RHR","NUTS"]],
+    3:  [["PD","OS"],["FAB","WILD"],["SV","RHR"],["COM","NUTS"]],
+    4:  [["PD","SV"],["OS","RHR"],["FAB","COM"],["WILD","NUTS"]],
+    5:  [["PD","RHR"],["OS","NUTS"],["FAB","SV"],["WILD","COM"]],
+    6:  [["PD","COM"],["OS","SV"],["FAB","NUTS"],["WILD","RHR"]],
+    7:  [["PD","NUTS"],["OS","COM"],["FAB","RHR"],["WILD","SV"]],
+    8:  [["PD","SV"],["OS","RHR"],["FAB","COM"],["WILD","NUTS"]],
+    9:  [["PD","RHR"],["OS","NUTS"],["FAB","SV"],["WILD","COM"]],
+    10: [["PD","WILD"],["OS","FAB"],["SV","NUTS"],["RHR","COM"]],
+    11: [["PD","FAB"],["OS","WILD"],["SV","COM"],["RHR","NUTS"]],
+    12: [["PD","OS"],["FAB","WILD"],["SV","RHR"],["COM","NUTS"]],
+    13: [["PD","WILD"],["OS","FAB"],["SV","NUTS"],["RHR","COM"]],
+    14: [["PD","FAB"],["OS","WILD"],["SV","COM"],["RHR","NUTS"]],
+    15: [["PD","OS"],["FAB","WILD"],["SV","RHR"],["COM","NUTS"]]
+  };
+
+  // Week-1 rosters ([slot, player, NFL team]) and every waiver move since.
+  // WAIVERS rows: [first week the change counts, team, player dropped, slot, player claimed, NFL team]
+  // To roll rosters forward after a waiver run, append rows here and bump ROSTERS_THROUGH.
+  const ROSTER_DATA = {"base":{"WILD":[["DB","Kevin Byard III","NE"],["DB","Minkah Fitzpatrick","NYJ"],["DL/LB","Aidan Hutchinson","DET"],["DL/LB","Maxx Crosby","LV"],["K","Tyler Loop","BAL"],["K","Cam Little","JAX"],["QB","Lamar Jackson","BAL"],["QB","Joe Burrow","CIN"],["QB","Trevor Lawrence","JAX"],["RB","De'Von Achane","MIA"],["RB","Saquon Barkley","PHI"],["RB","Omarion Hampton","LAC"],["RB","Jaylen Warren","PIT"],["RB","Blake Corum","LAR"],["RB","Tyler Allgeier","ARI"],["RB","Tank Bigsby","PHI"],["TE/WR","Colston Loveland","CHI"],["TE/WR","Tyler Warren","IND"],["WR","Ja'Marr Chase","CIN"],["WR","AJ Brown","NE"],["WR","Nico Collins","HOU"],["WR","DJ Moore","BUF"],["WR","Carnell Tate","TEN"],["WR","De'Zhaun Stribling","SF"]],"FAB":[["DB","Jordan Battle","CIN"],["DB","Tykee Smith","TB"],["DL/LB","TJ Watt","PIT"],["DL/LB","Tuli Tuipulotu","LAC"],["K","Eddy Pineiro","SF"],["K","Will Reichard","MIN"],["QB","Justin Herbert","LAC"],["QB","Kyler Murray","MIN"],["QB","Michael Penix Jr","ATL"],["RB","Javonte Williams","DAL"],["RB","Jahmyr Gibbs","DET"],["RB","Bucky Irving","TB"],["RB","Rico Dowdle","PIT"],["RB","Chuba Hubbard","CAR"],["RB","Mike Washington Jr","LV"],["RB","Tyjae Spears","TEN"],["TE/WR","Brock Bowers","LV"],["TE/WR","Kyle Pitts","ATL"],["WR","Drake London","ATL"],["WR","DeVonta Smith","PHI"],["WR","Davante Adams","LAR"],["WR","DK Metcalf","PIT"],["WR","Michael Wilson","ARI"],["WR","Josh Downs","IND"]],"OS":[["DB","Quentin Lake","LAR"],["DB","Budda Baker","ARI"],["DL/LB","Micah Parsons","GB"],["DL/LB","Trey Hendrickson","BAL"],["K","Cameron Dicker","LAC"],["K","Evan McPherson","CIN"],["QB","Jayden Daniels","WAS"],["QB","Bo Nix","DEN"],["QB","Jordan Love","GB"],["RB","Christian McCaffrey","SF"],["RB","Jadarian Price","SEA"],["RB","Jacory Croskey-Merritt","WAS"],["RB","JK Dobbins","DEN"],["RB","Zach Charbonnet","SEA"],["RB","Kyle Monangai","CHI"],["RB","Keaton Mitchell","LAC"],["TE/WR","Harold Fannin Jr","CLE"],["TE/WR","Juwan Johnson","NO"],["WR","Jaxon Smith-Njigba","SEA"],["WR","Garrett Wilson","NYJ"],["WR","Emeka Egbuka","TB"],["WR","Luther Burden III","CHI"],["WR","Alec Pierce","IND"],["WR","Chris Godwin Jr","TB"]],"PD":[["DB","Marcus Jones","NE"],["DB","DaRon Bland","DAL"],["DL/LB","Jared Verse","CLE"],["DL/LB","Byron Young","LAR"],["K","Harrison Mevis","LAR"],["K","Wil Lutz","DEN"],["QB","Matthew Stafford","LAR"],["QB","Jared Goff","DET"],["QB","Malik Willis","MIA"],["RB","D'Andre Swift","CHI"],["RB","Travis Etienne Jr","NO"],["RB","Rhamondre Stevenson","NE"],["RB","Jonah Coleman","DEN"],["RB","Ray Davis","BUF"],["RB","Malik Davis","DAL"],["RB","George Holani","SEA"],["TE/WR","Trey McBride","ARI"],["TE/WR","Brenton Strange","JAX"],["WR","George Pickens","DAL"],["WR","Jameson Williams","DET"],["WR","Parker Washington","JAX"],["WR","Mike Evans","SF"],["WR","Michael Pittman Jr","PIT"],["WR","Chris Bell","MIA"]],"SV":[["DB","Kamari Lassiter","HOU"],["DB","Mike Jackson","CAR"],["DL/LB","Danielle Hunter","HOU"],["DL/LB","Josh Sweat","ARI"],["K","Trey Smack","GB"],["K","Chase McLaughlin","TB"],["QB","Baker Mayfield","TB"],["QB","Tyler Shough","NO"],["QB","Sam Darnold","SEA"],["RB","Ken Walker III","KC"],["RB","Chase Brown","CIN"],["RB","Tony Pollard","TEN"],["RB","Jonathon Brooks","CAR"],["RB","Kenny Gainwell","TB"],["RB","Chris Rodriguez Jr","JAX"],["RB","Rachaad White","WAS"],["TE/WR","Dalton Kincaid","BUF"],["TE/WR","Travis Kelce","KC"],["WR","Amon-Ra St. Brown","DET"],["WR","Justin Jefferson","MIN"],["WR","Tetairoa McMillan","CAR"],["WR","Wan'Dale Robinson","TEN"],["WR","Malik Washington","MIA"],["WR","Marvin Harrison Jr","ARI"]],"RHR":[["DB","Derek Stingley Jr","HOU"],["DB","Derwin James Jr","LAC"],["DL/LB","Nick Bosa","SF"],["DL/LB","Josh Hines-Allen","JAX"],["K","Ka'imi Fairbairn","HOU"],["K","Harrison Butker","KC"],["QB","Drake Maye","NE"],["QB","Dak Prescott","DAL"],["QB","Patrick Mahomes III","KC"],["RB","James Cook III","BUF"],["RB","Kyren Williams","LAR"],["RB","Breece Hall","NYJ"],["RB","MarShawn Lloyd","GB"],["RB","TreVeyon Henderson","NE"],["RB","Kaytron Allen","WAS"],["RB","Emmett Johnson","KC"],["TE/WR","Mark Andrews","BAL"],["TE/WR","George Kittle","SF"],["WR","Puka Nacua","LAR"],["WR","Ladd McConkey","LAC"],["WR","Zay Flowers","BAL"],["WR","Brian Thomas Jr","JAX"],["WR","Jayden Reed","GB"],["WR","Matthew Golden","GB"]],"COM":[["DB","Jessie Bates III","ATL"],["DB","Antoine Winfield Jr","TB"],["DL/LB","Brian Burns","NYG"],["DL/LB","Nik Bonitto","DEN"],["K","Jake Bates","DET"],["K","Cairo Santos","CHI"],["QB","Jalen Hurts","PHI"],["QB","Brock Purdy","SF"],["QB","Daniel Jones","IND"],["RB","Jonathan Taylor","IND"],["RB","Derrick Henry","BAL"],["RB","David Montgomery","HOU"],["RB","Josh Jacobs","GB"],["RB","Aaron Jones","MIN"],["RB","Justice Hill","BAL"],["RB","Kaelon Black","SF"],["TE/WR","Sam LaPorta","DET"],["WR","Courtland Sutton","DEN"],["WR","Jaylen Waddle","DEN"],["WR","Tee Higgins","CIN"],["WR","Christian Watson","GB"],["WR","Terry McLaurin","WAS"],["WR","Quentin Johnson","LAC"],["WR","Dontayvion Wicks","PHI"]],"NUTS":[["DB","Travis Hunter","JAX"],["DB","Kyle Hamilton","BAL"],["DL/LB","Myles Garrett","LAR"],["DL/LB","Will Anderson Jr","HOU"],["K","Brandon Aubrey","DAL"],["K","Jason Myers","SEA"],["QB","Josh Allen","BUF"],["QB","Caleb Williams","CHI"],["QB","Jaxson Dart","NYG"],["RB","Cam Skattebo","NYG"],["RB","Bijan Robinson","ATL"],["RB","Ashton Jeanty","LV"],["RB","Jeremiyah Love","ARI"],["RB","Quinshon Judkins","CLE"],["RB","Bhayshul Tuten","JAX"],["RB","Jordan Mason","MIN"],["TE/WR","Tucker Kraft","GB"],["TE/WR","Isaiah Likely","BAL"],["WR","Chris Olave","NO"],["WR","CeeDee Lamb","DAL"],["WR","Malik Nabers","NYG"],["WR","Rashee Rice","KC"],["WR","Rome Odunze","CHI"],["WR","KC Concepcion","CLE"]]},"waivers":[[2,"OS","Harold Fannin Jr","WR","Jalen Coker","CAR"],[2,"PD","Malik Davis","RB","Emari Demercado","DAL"],[2,"WILD","De'Zhaun Stribling","WR","Devaughn Vele","NO"],[2,"RHR","Brian Thomas Jr","WR","Deebo Samuel","SF"],[2,"FAB","Michael Wilson","WR","Caleb Douglas","MIA"],[2,"SV","Chris Rodriguez Jr","RB","Alvin Kamara","NO"],[2,"COM","Courtland Sutton","TE/WR","Dallas Goedert","PHI"],[3,"OS","Bo Nix","QB","Bryce Young","CAR"],[3,"PD","Michael Pittman Jr","WR","Denzel Boston","CLE"],[3,"FAB","Jordan Battle","DB","Julian Love","SEA"],[3,"SV","Marvin Harrison Jr","WR","Adonai Mitchell","NYJ"],[3,"COM","Quentin Johnson","WR","Romeo Doubs","NE"],[3,"NUTS","Jaxson Dart","QB","CJ Stroud","HOU"],[4,"WILD","De'Von Achane","RB","Braelon Allen","NYJ"],[4,"PD","Emari Demercado","RB","Woody Marks","HOU"],[4,"OS","JK Dobbins","RB","Ollie Gordon II","MIA"],[4,"RHR","Nick Bosa","DL/LB","Greg Rousseau","BUF"],[4,"SV","Josh Sweat","DL/LB","Dallas Turner","MIN"],[4,"FAB","Caleb Douglas","WR","Michael Wilson","ARI"],[4,"COM","Brian Burns","DL/LB","Alex Highsmith","PIT"],[4,"NUTS","KC Concepcion","WR","Tyreek Hill","FA"]]};
+  const ROSTERS_THROUGH = 4;   // waivers are entered through the post-week-3 run
+
+  // Spellings in the roster sheet that differ from ESPN's.
+  const ALIASES = {
+    "ken walker": "kenneth walker",
+    "kenny gainwell": "kenneth gainwell",
+    "quentin johnson": "quentin johnston",
+    "omarion hamption": "omarion hampton",
+    "tyler allegeier": "tyler allgeier",
+    "michael piuttman": "michael pittman"
+  };
+  const TEAM_ALIASES = { WAS: "WSH" };
+
+  /* ---------------- helpers ---------------- */
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const fmt = n => (Math.round(n * 10) / 10).toString();
+  const norm = s => {
+    let k = String(s).normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
+      .replace(/[.'’\-]/g, "").replace(/\b(jr|sr|ii|iii|iv|v)\b/g, "").replace(/\s+/g, " ").trim();
+    return ALIASES[k] || k;
+  };
+  const nfl = t => TEAM_ALIASES[t] || t;
+  function badgeClass(pos) {
+    if (pos === "K") return "kick";
+    if (pos === "DB" || pos === "DL/LB") return "def";
+    return "off";
+  }
+  const POS_ORDER = { QB: 0, RB: 1, WR: 2, "TE/WR": 3, TE: 3, K: 4, "DL/LB": 5, DB: 6 };
+
+  async function getJSON(path) {
+    const res = await fetch(REST_BASE + path, { headers: REST_HEADERS });
+    if (!res.ok) throw new Error("Supabase query failed (" + res.status + ")");
+    return res.json();
+  }
+
+  function rostersFor(week) {
+    const r = {};
+    for (const code in ROSTER_DATA.base)
+      r[code] = ROSTER_DATA.base[code].map(([pos, name, team]) => ({ pos, name, team, added: 0 }));
+    for (const [eff, code, drop, pos, name, team] of ROSTER_DATA.waivers) {
+      if (eff > week) continue;
+      const i = r[code].findIndex(p => norm(p.name) === norm(drop));
+      if (i < 0) { console.warn("waiver drop not found", code, drop); continue; }
+      r[code][i] = { pos, name, team, added: eff };
+    }
+    return r;
+  }
+
+  /* ---------------- data loading ---------------- */
+  let WEEKS = [];          // [{n, id, label, title}]
+  const cache = {};        // week number -> {games, lines, at}
+
+  async function loadWeekStats(w) {
+    const games = await getJSON("/games?week_id=eq." + w.id +
+      "&select=id,home_abbrev,away_abbrev,home_score,away_score,state,status_detail");
+    let lines = [];
+    if (games.length) {
+      const ids = games.map(g => g.id).join(",");
+      for (let off = 0; ; off += 1000) {
+        const page = await getJSON("/stat_lines?game_id=in.(" + ids + ")" +
+          "&select=id,game_id,fantasy_points,summary,players(name,nfl_team)" +
+          "&order=id&limit=1000&offset=" + off);
+        lines = lines.concat(page);
+        if (page.length < 1000) break;
+      }
+    }
+    const byGame = {};
+    for (const g of games) byGame[g.id] = g;
+    const byTeam = {};       // NFL team -> game (bye detection + status)
+    for (const g of games) { byTeam[g.home_abbrev] = g; byTeam[g.away_abbrev] = g; }
+    const byName = {};
+    for (const s of lines) {
+      if (!s.players) continue;
+      (byName[norm(s.players.name)] ||= []).push({
+        team: s.players.nfl_team, pts: Number(s.fantasy_points) || 0,
+        sum: s.summary || "", game: byGame[s.game_id]
+      });
+    }
+    return { games, byName, byTeam, at: Date.now() };
+  }
+
+  function lookup(stats, p) {
+    const c = stats.byName[norm(p.name)];
+    if (c && c.length) {
+      const same = c.filter(x => x.team === nfl(p.team));
+      const pick = same.length ? same : (new Set(c.map(x => x.team)).size === 1 ? c : []);
+      if (pick.length) {
+        // a player has one stat line per game; sum defensively in case of duplicates across games
+        return { pts: pick.reduce((a, x) => a + x.pts, 0), sum: pick.map(x => x.sum).filter(Boolean).join(" · "),
+                 game: pick[0].game, team: pick[0].team, found: true };
+      }
+    }
+    const g = stats.byTeam[nfl(p.team)];
+    return { pts: 0, sum: "", game: g || null, team: p.team, found: false, bye: !g && p.team !== "FA" };
+  }
+
+  function gameLabel(g) {
+    if (!g) return "";
+    return g.away_abbrev + " " + (g.away_score ?? "") + " @ " + g.home_abbrev + " " + (g.home_score ?? "");
+  }
+
+  function scoreWeek(n, stats) {
+    const rosters = rostersFor(n);
+    const teams = {};
+    for (const code in rosters) {
+      const players = rosters[code].map(p => Object.assign({}, p, lookup(stats, p)))
+        .sort((a, b) => (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9) || b.pts - a.pts);
+      const pts = players.reduce((a, p) => a + p.pts, 0);
+      const left = players.filter(p => p.game && p.game.state !== "post").length;
+      teams[code] = { players, pts, scored: players.filter(p => p.pts > 0).length, left };
+    }
+    const allFinal = stats.games.length > 0 && stats.games.every(g => g.state === "post");
+    const started = stats.games.some(g => g.state !== "pre");
+    return { teams, allFinal, started };
+  }
+
+  /* ---------------- standings (completed weeks only) ---------------- */
+  async function renderStandings() {
+    const S = {};
+    for (const c in TEAMS) S[c] = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+    let done = 0;
+    for (const w of WEEKS) {
+      if (!cache[w.n]) cache[w.n] = await loadWeekStats(w);
+      const sc = scoreWeek(w.n, cache[w.n]);
+      if (!sc.allFinal) continue;
+      done++;
+      for (const [a, b] of SCHEDULE[w.n] || []) {
+        const ap = sc.teams[a].pts, bp = sc.teams[b].pts;
+        S[a].pf += ap; S[a].pa += bp; S[b].pf += bp; S[b].pa += ap;
+        if (Math.abs(ap - bp) < 1e-9) { S[a].t++; S[b].t++; }
+        else if (ap > bp) { S[a].w++; S[b].l++; } else { S[b].w++; S[a].l++; }
+      }
+    }
+    document.getElementById("standHint").textContent =
+      "all-24 scoring · " + done + " completed week" + (done === 1 ? "" : "s");
+    const groups = [{ key: "Clemenza", cls: "clem" }, { key: "Tessio", cls: "tess" }];
+    document.getElementById("standings").innerHTML = groups.map(g => {
+      const rows = Object.keys(TEAMS).filter(c => TEAMS[c].division === g.key)
+        .sort((a, b) => (S[b].w - S[a].w) || (S[b].pf - S[a].pf))
+        .map(c => `<tr>
+            <td>${esc(TEAMS[c].name)}<span class="tcode">${esc(TEAMS[c].abbrev)}</span></td>
+            <td>${S[c].w}&#8209;${S[c].l}${S[c].t ? "&#8209;" + S[c].t : ""}</td>
+            <td>${fmt(S[c].pf)}</td><td>${fmt(S[c].pa)}</td></tr>`).join("");
+      return `<div class="div-block ${g.cls}"><div class="div-title">${g.key} Division</div>
+        <table class="stand"><thead><tr><th>Team</th><th>W&#8209;L</th><th>PF</th><th>PA</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`;
+    }).join("");
+  }
+
+  /* ---------------- week view ---------------- */
+  let cur = null;
+  let showAll = true;
+  try { showAll = localStorage.getItem("ffl-wk-all") !== "0"; } catch (e) {}
+  const filterBtn = document.getElementById("filterBtn");
+
+  function playerLine(p) {
+    let s;
+    if (p.sum) s = esc(p.sum);
+    else if (p.team === "FA") s = "free agent — no NFL team";
+    else if (p.bye) s = "bye week";
+    else if (p.game && p.game.state === "pre") s = "game not started · " + esc(gameLabel(p.game));
+    else if (p.found) s = "no scoring stats · " + esc(gameLabel(p.game));
+    else if (p.game) s = "not in box score · " + esc(gameLabel(p.game));
+    else s = "did not play";
+    return `<div class="plr${p.pts > 0 ? "" : " zero"}">
+        <span class="badge ${badgeClass(p.pos)}">${esc(p.pos)}</span>
+        <span class="who">
+          <span class="n">${esc(p.name)}<span class="nfl">${esc(p.team)}</span>${p.added === cur ? '<span class="chg">waiver add</span>' : ""}</span>
+          <span class="s${p.sum ? "" : " none"}">${s}</span>
+        </span>
+        <span class="p">${fmt(p.pts)}</span>
+      </div>`;
+  }
+
+  function rosterCol(code, t) {
+    const list = showAll ? t.players : t.players.filter(p => p.pts > 0);
+    const left = t.left ? ` · ${t.left} still to play` : "";
+    return `<div class="col">
+        <div class="col-head"><span>${esc(TEAMS[code].abbrev)} roster</span><span>${t.scored} of ${t.players.length} scored${left}</span></div>
+        ${list.map(playerLine).join("") || '<div class="plr zero"><span></span><span class="who"><span class="s none">Nobody has scored yet.</span></span><span></span></div>'}
+      </div>`;
+  }
+
+  function renderWeek() {
+    const w = WEEKS.find(x => x.n === cur);
+    document.querySelectorAll("#tabs .tab").forEach(t => t.setAttribute("aria-selected", +t.dataset.n === cur ? "true" : "false"));
+    document.getElementById("title").textContent = "Week " + cur + " Head-to-Head";
+    document.title = "DadsFFL Week " + cur;
+    filterBtn.textContent = showAll ? "Showing: all 24" : "Showing: scorers only";
+    document.getElementById("weekWarn").innerHTML = cur > ROSTERS_THROUGH
+      ? `<p class="warn"><b>Rosters not yet updated for week ${cur}.</b> Waiver moves are entered through week ${ROSTERS_THROUGH}, so this week is using week-${ROSTERS_THROUGH} rosters.</p>` : "";
+    const stats = cache[cur];
+    if (!stats) { document.getElementById("games").innerHTML = '<div class="status">Loading…</div>'; return; }
+    const sc = scoreWeek(cur, stats);
+    const fin = stats.games.filter(g => g.state === "post").length, live = stats.games.filter(g => g.state === "in").length;
+    document.getElementById("wkMeta").textContent = "NFL " + w.title + " · " + stats.games.length + " games · " +
+      fin + " final" + (live ? " · " + live + " live" : "") + " · updated " + new Date(stats.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    const pill = sc.allFinal ? '<span class="pill final">Final</span>' : (sc.started ? '<span class="pill live">In progress</span>' : '<span class="pill">Not started</span>');
+    document.getElementById("games").innerHTML = (SCHEDULE[cur] || []).map(([a, b]) => {
+      const A = sc.teams[a], B = sc.teams[b];
+      const diff = A.pts - B.pts, aw = diff > 0, bw = diff < 0;
+      const cls = (won) => won ? (sc.allFinal ? " won" : " lead") : "";
+      return `<div class="game">
+          <div class="score">
+            <div class="side${cls(aw)}"><span class="meta">${esc(TEAMS[a].division)}</span>
+              <span class="nm">${esc(TEAMS[a].name)}</span><span class="pts">${fmt(A.pts)}</span></div>
+            <div class="vs"><span class="v">VS</span>${pill}
+              <span class="marg">${diff ? (sc.allFinal ? "by " : "up ") + fmt(Math.abs(diff)) : "tied"}</span></div>
+            <div class="side right${cls(bw)}"><span class="meta">${esc(TEAMS[b].division)}</span>
+              <span class="nm">${esc(TEAMS[b].name)}</span><span class="pts">${fmt(B.pts)}</span></div>
+          </div>
+          <div class="rosters">${rosterCol(a, A)}${rosterCol(b, B)}</div>
+        </div>`;
+    }).join("");
+  }
+
+  async function selectWeek(n, push) {
+    cur = n;
+    if (push) history.replaceState(null, "", "?week=" + n);
+    renderWeek();
+    if (!cache[n]) { cache[n] = await loadWeekStats(WEEKS.find(x => x.n === n)); renderWeek(); }
+  }
+
+  // Re-pull the open week every 60s while any of its games isn't final.
+  setInterval(async () => {
+    if (cur == null || !cache[cur] || cache[cur].games.every(g => g.state === "post")) return;
+    try { cache[cur] = await loadWeekStats(WEEKS.find(x => x.n === cur)); renderWeek(); renderStandings(); }
+    catch (e) { console.warn(e); }
+  }, 60000);
+
+  /* ---------------- boot ---------------- */
+  async function boot() {
+    try {
+      const all = await getJSON("/weeks?select=id,season_id,season_type,week_number,label,title" +
+        "&season_type=eq.2&order=season_id.desc,week_number.asc");
+      const season = all.length ? Math.max(...all.map(w => w.season_id)) : null;
+      WEEKS = all.filter(w => w.season_id === season && SCHEDULE[w.week_number])
+        .map(w => ({ n: w.week_number, id: w.id, label: w.label, title: w.title }));
+      if (!WEEKS.length) { document.getElementById("games").innerHTML = '<div class="status">No regular-season weeks yet.</div>'; return; }
+      document.getElementById("tabs").innerHTML = WEEKS.map(w =>
+        `<button class="tab" type="button" role="tab" data-n="${w.n}">Week ${w.n}</button>`).join("");
+      const q = +new URLSearchParams(location.search).get("week");
+      const start = WEEKS.some(w => w.n === q) ? q : WEEKS[WEEKS.length - 1].n;
+      await selectWeek(start, false);
+      renderStandings();
+    } catch (e) {
+      document.getElementById("games").innerHTML = '<div class="status">Could not load scores right now (' + esc(e.message) + ').</div>';
+    }
+  }
+  document.getElementById("tabs").addEventListener("click", e => {
+    const b = e.target.closest(".tab"); if (b) selectWeek(+b.dataset.n, true);
+  });
+  filterBtn.addEventListener("click", () => {
+    showAll = !showAll;
+    try { localStorage.setItem("ffl-wk-all", showAll ? "1" : "0"); } catch (e) {}
+    renderWeek();
+  });
+
+  /* ---- theme (same as the other pages) ---- */
+  const themeBtn = document.getElementById("themeBtn");
+  const MODES = ["auto", "light", "dark"];
+  let mode = "auto";
+  try { mode = localStorage.getItem("ffl-sim-theme") || "auto"; } catch (e) {}
+  function applyTheme() {
+    if (mode === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", mode);
+    themeBtn.textContent = "Theme: " + mode;
+  }
+  themeBtn.addEventListener("click", () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    try { localStorage.setItem("ffl-sim-theme", mode); } catch (e) {}
+    applyTheme();
+  });
+  applyTheme();
+
+  boot();
+})();
+</script>
+
+</body>
+</html>
