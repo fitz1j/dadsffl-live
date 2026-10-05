@@ -10,7 +10,8 @@ name: DadsFFL live scoring
 # its README. web/matchups.html is a static preseason simulation page
 # (team names only, same privacy rules). web/post-draft-rosters.html is the
 # league's real 2026 rosters from the completed draft (team names only, no
-# owner names). (Superseded the old GitHub
+# owner names). web/weekly.html is the 2026 weekly head-to-head page (team
+# names only; reads scores from Supabase). (Superseded the old GitHub
 # Actions `schedule:`-triggered Python pipeline that rendered live.html itself
 # every 5 minutes — see src/live_score.py, now unused for the live page.)
 
@@ -24,6 +25,7 @@ on:
       - 'web/rosters.html'
       - 'web/matchups.html'
       - 'web/post-draft-rosters.html'
+      - 'web/weekly.html'
       - '.github/workflows/live-scoring.yml'
 
 concurrency:
@@ -52,6 +54,7 @@ jobs:
           cp web/rosters.html _site/rosters.html
           cp web/matchups.html _site/matchups.html
           cp web/post-draft-rosters.html _site/post-draft-rosters.html
+          cp web/weekly.html _site/weekly.html
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
