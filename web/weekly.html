@@ -290,6 +290,8 @@
     accent-color: var(--turf);
   }
   .plr.pick input:disabled { cursor: progress; }
+  .plr.pick.bye input:disabled { cursor: not-allowed; }
+  .plr.bye .s { font-style: italic; }
   .plr.pick.out .p { color: var(--ink-faint); font-weight: 500; text-decoration: line-through; text-decoration-color: var(--line); }
   .plr.pick.out.zero .p { text-decoration: none; }
   .plr.pick.in { background: var(--turf-tint); }
@@ -387,6 +389,10 @@
   // To roll rosters forward after a waiver run, append rows here and bump ROSTERS_THROUGH.
   const ROSTER_DATA = {"base":{"WILD":[["DB","Kevin Byard III","NE"],["DB","Minkah Fitzpatrick","NYJ"],["DL/LB","Aidan Hutchinson","DET"],["DL/LB","Maxx Crosby","LV"],["K","Tyler Loop","BAL"],["K","Cam Little","JAX"],["QB","Lamar Jackson","BAL"],["QB","Joe Burrow","CIN"],["QB","Trevor Lawrence","JAX"],["RB","De'Von Achane","MIA"],["RB","Saquon Barkley","PHI"],["RB","Omarion Hampton","LAC"],["RB","Jaylen Warren","PIT"],["RB","Blake Corum","LAR"],["RB","Tyler Allgeier","ARI"],["RB","Tank Bigsby","PHI"],["TE/WR","Colston Loveland","CHI"],["TE/WR","Tyler Warren","IND"],["WR","Ja'Marr Chase","CIN"],["WR","AJ Brown","NE"],["WR","Nico Collins","HOU"],["WR","DJ Moore","BUF"],["WR","Carnell Tate","TEN"],["WR","De'Zhaun Stribling","SF"]],"FAB":[["DB","Jordan Battle","CIN"],["DB","Tykee Smith","TB"],["DL/LB","TJ Watt","PIT"],["DL/LB","Tuli Tuipulotu","LAC"],["K","Eddy Pineiro","SF"],["K","Will Reichard","MIN"],["QB","Justin Herbert","LAC"],["QB","Kyler Murray","MIN"],["QB","Michael Penix Jr","ATL"],["RB","Javonte Williams","DAL"],["RB","Jahmyr Gibbs","DET"],["RB","Bucky Irving","TB"],["RB","Rico Dowdle","PIT"],["RB","Chuba Hubbard","CAR"],["RB","Mike Washington Jr","LV"],["RB","Tyjae Spears","TEN"],["TE/WR","Brock Bowers","LV"],["TE/WR","Kyle Pitts","ATL"],["WR","Drake London","ATL"],["WR","DeVonta Smith","PHI"],["WR","Davante Adams","LAR"],["WR","DK Metcalf","PIT"],["WR","Michael Wilson","ARI"],["WR","Josh Downs","IND"]],"OS":[["DB","Quentin Lake","LAR"],["DB","Budda Baker","ARI"],["DL/LB","Micah Parsons","GB"],["DL/LB","Trey Hendrickson","BAL"],["K","Cameron Dicker","LAC"],["K","Evan McPherson","CIN"],["QB","Jayden Daniels","WAS"],["QB","Bo Nix","DEN"],["QB","Jordan Love","GB"],["RB","Christian McCaffrey","SF"],["RB","Jadarian Price","SEA"],["RB","Jacory Croskey-Merritt","WAS"],["RB","JK Dobbins","DEN"],["RB","Zach Charbonnet","SEA"],["RB","Kyle Monangai","CHI"],["RB","Keaton Mitchell","LAC"],["TE/WR","Harold Fannin Jr","CLE"],["TE/WR","Juwan Johnson","NO"],["WR","Jaxon Smith-Njigba","SEA"],["WR","Garrett Wilson","NYJ"],["WR","Emeka Egbuka","TB"],["WR","Luther Burden III","CHI"],["WR","Alec Pierce","IND"],["WR","Chris Godwin Jr","TB"]],"PD":[["DB","Marcus Jones","NE"],["DB","DaRon Bland","DAL"],["DL/LB","Jared Verse","CLE"],["DL/LB","Byron Young","LAR"],["K","Harrison Mevis","LAR"],["K","Wil Lutz","DEN"],["QB","Matthew Stafford","LAR"],["QB","Jared Goff","DET"],["QB","Malik Willis","MIA"],["RB","D'Andre Swift","CHI"],["RB","Travis Etienne Jr","NO"],["RB","Rhamondre Stevenson","NE"],["RB","Jonah Coleman","DEN"],["RB","Ray Davis","BUF"],["RB","Malik Davis","DAL"],["RB","George Holani","SEA"],["TE/WR","Trey McBride","ARI"],["TE/WR","Brenton Strange","JAX"],["WR","George Pickens","DAL"],["WR","Jameson Williams","DET"],["WR","Parker Washington","JAX"],["WR","Mike Evans","SF"],["WR","Michael Pittman Jr","PIT"],["WR","Chris Bell","MIA"]],"SV":[["DB","Kamari Lassiter","HOU"],["DB","Mike Jackson","CAR"],["DL/LB","Danielle Hunter","HOU"],["DL/LB","Josh Sweat","ARI"],["K","Trey Smack","GB"],["K","Chase McLaughlin","TB"],["QB","Baker Mayfield","TB"],["QB","Tyler Shough","NO"],["QB","Sam Darnold","SEA"],["RB","Ken Walker III","KC"],["RB","Chase Brown","CIN"],["RB","Tony Pollard","TEN"],["RB","Jonathon Brooks","CAR"],["RB","Kenny Gainwell","TB"],["RB","Chris Rodriguez Jr","JAX"],["RB","Rachaad White","WAS"],["TE/WR","Dalton Kincaid","BUF"],["TE/WR","Travis Kelce","KC"],["WR","Amon-Ra St. Brown","DET"],["WR","Justin Jefferson","MIN"],["WR","Tetairoa McMillan","CAR"],["WR","Wan'Dale Robinson","TEN"],["WR","Malik Washington","MIA"],["WR","Marvin Harrison Jr","ARI"]],"RHR":[["DB","Derek Stingley Jr","HOU"],["DB","Derwin James Jr","LAC"],["DL/LB","Nick Bosa","SF"],["DL/LB","Josh Hines-Allen","JAX"],["K","Ka'imi Fairbairn","HOU"],["K","Harrison Butker","KC"],["QB","Drake Maye","NE"],["QB","Dak Prescott","DAL"],["QB","Patrick Mahomes III","KC"],["RB","James Cook III","BUF"],["RB","Kyren Williams","LAR"],["RB","Breece Hall","NYJ"],["RB","MarShawn Lloyd","GB"],["RB","TreVeyon Henderson","NE"],["RB","Kaytron Allen","WAS"],["RB","Emmett Johnson","KC"],["TE/WR","Mark Andrews","BAL"],["TE/WR","George Kittle","SF"],["WR","Puka Nacua","LAR"],["WR","Ladd McConkey","LAC"],["WR","Zay Flowers","BAL"],["WR","Brian Thomas Jr","JAX"],["WR","Jayden Reed","GB"],["WR","Matthew Golden","GB"]],"COM":[["DB","Jessie Bates III","ATL"],["DB","Antoine Winfield Jr","TB"],["DL/LB","Brian Burns","NYG"],["DL/LB","Nik Bonitto","DEN"],["K","Jake Bates","DET"],["K","Cairo Santos","CHI"],["QB","Jalen Hurts","PHI"],["QB","Brock Purdy","SF"],["QB","Daniel Jones","IND"],["RB","Jonathan Taylor","IND"],["RB","Derrick Henry","BAL"],["RB","David Montgomery","HOU"],["RB","Josh Jacobs","GB"],["RB","Aaron Jones","MIN"],["RB","Justice Hill","BAL"],["RB","Kaelon Black","SF"],["TE/WR","Sam LaPorta","DET"],["WR","Courtland Sutton","DEN"],["WR","Jaylen Waddle","DEN"],["WR","Tee Higgins","CIN"],["WR","Christian Watson","GB"],["WR","Terry McLaurin","WAS"],["WR","Quentin Johnson","LAC"],["WR","Dontayvion Wicks","PHI"]],"NUTS":[["DB","Travis Hunter","JAX"],["DB","Kyle Hamilton","BAL"],["DL/LB","Myles Garrett","LAR"],["DL/LB","Will Anderson Jr","HOU"],["K","Brandon Aubrey","DAL"],["K","Jason Myers","SEA"],["QB","Josh Allen","BUF"],["QB","Caleb Williams","CHI"],["QB","Jaxson Dart","NYG"],["RB","Cam Skattebo","NYG"],["RB","Bijan Robinson","ATL"],["RB","Ashton Jeanty","LV"],["RB","Jeremiyah Love","ARI"],["RB","Quinshon Judkins","CLE"],["RB","Bhayshul Tuten","JAX"],["RB","Jordan Mason","MIN"],["TE/WR","Tucker Kraft","GB"],["TE/WR","Isaiah Likely","BAL"],["WR","Chris Olave","NO"],["WR","CeeDee Lamb","DAL"],["WR","Malik Nabers","NYG"],["WR","Rashee Rice","KC"],["WR","Rome Odunze","CHI"],["WR","KC Concepcion","CLE"]]},"waivers":[[2,"OS","Harold Fannin Jr","WR","Jalen Coker","CAR"],[2,"PD","Malik Davis","RB","Emari Demercado","DAL"],[2,"WILD","De'Zhaun Stribling","WR","Devaughn Vele","NO"],[2,"RHR","Brian Thomas Jr","WR","Deebo Samuel","SF"],[2,"FAB","Michael Wilson","WR","Caleb Douglas","MIA"],[2,"SV","Chris Rodriguez Jr","RB","Alvin Kamara","NO"],[2,"COM","Courtland Sutton","TE/WR","Dallas Goedert","PHI"],[3,"OS","Bo Nix","QB","Bryce Young","CAR"],[3,"PD","Michael Pittman Jr","WR","Denzel Boston","CLE"],[3,"FAB","Jordan Battle","DB","Julian Love","SEA"],[3,"SV","Marvin Harrison Jr","WR","Adonai Mitchell","NYJ"],[3,"COM","Quentin Johnson","WR","Romeo Doubs","NE"],[3,"NUTS","Jaxson Dart","QB","CJ Stroud","HOU"],[4,"WILD","De'Von Achane","RB","Braelon Allen","NYJ"],[4,"PD","Emari Demercado","RB","Woody Marks","HOU"],[4,"OS","JK Dobbins","RB","Ollie Gordon II","MIA"],[4,"RHR","Nick Bosa","DL/LB","Greg Rousseau","BUF"],[4,"SV","Josh Sweat","DL/LB","Dallas Turner","MIN"],[4,"FAB","Caleb Douglas","WR","Michael Wilson","ARI"],[4,"COM","Brian Burns","DL/LB","Alex Highsmith","PIT"],[4,"NUTS","KC Concepcion","WR","Tyreek Hill","FA"],[5,"PD","Ray Davis","RB","Emanuel Wilson","SEA"],[5,"WILD","DJ Moore","WR","KC Concepcion","CLE"],[5,"OS","Chris Godwin Jr","WR","Keon Coleman","BUF"],[5,"SV","Baker Mayfield","QB","Jacoby Brissett","ARI"],[5,"FAB","Justin Herbert","QB","Kirk Cousins","LV"],[5,"COM","Dontayvion Wicks","WR","Dohnte Meyers","CIN"]]};
   const ROSTERS_THROUGH = 5;   // waivers are entered through the post-week-4 run
+  // 2026 NFL bye weeks (from the bye chart on the roster workbook's Current Rosters tab).
+  const NFL_BYES = {"ARI":14,"ATL":11,"BAL":13,"BUF":7,"CAR":5,"CHI":10,"CIN":6,"CLE":11,"DAL":14,"DEN":10,"DET":6,"GB":11,"HOU":8,"IND":13,"JAX":7,"KC":5,"LAC":7,"LAR":11,"LV":13,"MIA":6,"MIN":6,"NE":11,"NO":8,"NYG":8,"NYJ":13,"PHI":10,"PIT":9,"SEA":11,"SF":8,"TB":10,"TEN":9,"WAS":7};
+  const BYE_ALIASES = { WSH: "WAS", LVR: "LV", JAC: "JAX", ARZ: "ARI", LA: "LAR" };
+  const onBye = (team, week) => NFL_BYES[BYE_ALIASES[team] || team] === week;
 
   // Spellings in the roster sheet that differ from ESPN's.
   const ALIASES = {
@@ -508,7 +514,7 @@
       }
     }
     const g = stats.byTeam[nfl(p.team)];
-    return { pts: 0, sum: "", game: g || null, team: p.team, found: false, bye: !g && p.team !== "FA" };
+    return { pts: 0, sum: "", game: g || null, team: p.team, found: false };
   }
 
   function gameLabel(g) {
@@ -521,7 +527,11 @@
     const chosen = picks[n] || new Set();
     const teams = {};
     for (const code in rosters) {
-      const players = rosters[code].map(p => Object.assign({}, p, lookup(stats, p), { on: chosen.has(pickKey(code, p.name)) }))
+      const players = rosters[code].map(p => {
+          const bye = onBye(p.team, n);
+          // A player on a real bye can't be in the lineup, even if a pick row exists for him.
+          return Object.assign({}, p, lookup(stats, p), { bye, on: !bye && chosen.has(pickKey(code, p.name)) });
+        })
         .sort((a, b) => (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9) || b.pts - a.pts);
       const lineup = players.filter(p => p.on);
       const pts = lineup.reduce((a, p) => a + p.pts, 0);
@@ -584,9 +594,14 @@
     else if (p.game && p.game.state === "pre") s = "game not started · " + esc(gameLabel(p.game));
     else if (p.found) s = "no scoring stats · " + esc(gameLabel(p.game));
     else if (p.game) s = "not in box score · " + esc(gameLabel(p.game));
-    else s = "did not play";
-    return `<div class="plr pick ${p.on ? "in" : "out"}${p.pts > 0 ? "" : " zero"}">
-        <input type="checkbox" data-team="${esc(code)}" data-player="${esc(p.name)}"${p.on ? " checked" : ""}${picksOK ? "" : " disabled"}
+    else {
+      // No game row for his NFL team yet: before the week is played that just means no stats yet.
+      const wk = cache[cur];
+      const weekDone = wk && wk.games.length > 0 && wk.games.every(g => g.state === "post");
+      s = weekDone ? "did not play" : "no stats yet";
+    }
+    return `<div class="plr pick ${p.on ? "in" : "out"}${p.pts > 0 ? "" : " zero"}${p.bye ? " bye" : ""}">
+        <input type="checkbox" data-team="${esc(code)}" data-player="${esc(p.name)}"${p.on ? " checked" : ""}${picksOK && !p.bye ? "" : " disabled"}${p.bye ? ' title="On bye this week"' : ""}
           aria-label="Count ${esc(p.name)} for ${esc(TEAMS[code].abbrev)}">
         <span class="badge ${badgeClass(p.pos)}">${esc(p.pos)}</span>
         <span class="who">
