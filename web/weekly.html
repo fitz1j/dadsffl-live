@@ -290,8 +290,15 @@
     accent-color: var(--turf);
   }
   .plr.pick input:disabled { cursor: progress; }
-  .plr.pick.bye input:disabled { cursor: not-allowed; }
-  .plr.bye .s { font-style: italic; }
+  /* Real NFL bye: no checkbox, a red BYE tag in its place, name struck through. */
+  .plr .byetag {
+    align-self: center; justify-self: center; width: 22px; padding: 2px 0; border-radius: 2px;
+    font-family: "IBM Plex Mono", monospace; font-size: 8px; font-weight: 700; letter-spacing: 0.02em;
+    text-align: center; color: #fff; background: var(--clemenza); cursor: not-allowed;
+  }
+  .plr.bye { opacity: 1; background: repeating-linear-gradient(-45deg, transparent 0 6px, var(--paper-sunk) 6px 12px); }
+  .plr.bye .who .n { text-decoration: line-through; text-decoration-color: var(--clemenza); text-decoration-thickness: 2px; color: var(--ink-faint); }
+  .plr.bye .s { font-style: italic; color: var(--clemenza); }
   .plr.pick.out .p { color: var(--ink-faint); font-weight: 500; text-decoration: line-through; text-decoration-color: var(--line); }
   .plr.pick.out.zero .p { text-decoration: none; }
   .plr.pick.in { background: var(--turf-tint); }
@@ -601,8 +608,10 @@
       s = weekDone ? "did not play" : "no stats yet";
     }
     return `<div class="plr pick ${p.on ? "in" : "out"}${p.pts > 0 ? "" : " zero"}${p.bye ? " bye" : ""}">
-        <input type="checkbox" data-team="${esc(code)}" data-player="${esc(p.name)}"${p.on ? " checked" : ""}${picksOK && !p.bye ? "" : " disabled"}${p.bye ? ' title="On bye this week"' : ""}
-          aria-label="Count ${esc(p.name)} for ${esc(TEAMS[code].abbrev)}">
+        ${p.bye
+          ? `<span class="byetag" title="${esc(p.team)} is on bye — can't be selected" aria-label="${esc(p.name)} is on bye this week">BYE</span>`
+          : `<input type="checkbox" data-team="${esc(code)}" data-player="${esc(p.name)}"${p.on ? " checked" : ""}${picksOK ? "" : " disabled"}
+          aria-label="Count ${esc(p.name)} for ${esc(TEAMS[code].abbrev)}">`}
         <span class="badge ${badgeClass(p.pos)}">${esc(p.pos)}</span>
         <span class="who">
           <span class="n">${esc(p.name)}<span class="nfl">${esc(p.team)}</span>${p.added === cur ? '<span class="chg">waiver add</span>' : ""}</span>
