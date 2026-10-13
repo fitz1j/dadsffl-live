@@ -426,7 +426,7 @@
     if (pos === "DB" || pos === "DL/LB") return "def";
     return "off";
   }
-  const POS_ORDER = { QB: 0, RB: 1, WR: 2, "TE/WR": 3, TE: 3, K: 4, "DL/LB": 5, DB: 6 };
+  const POS_ORDER = { K: 0, QB: 1, RB: 2, WR: 3, "TE/WR": 4, TE: 4, "DL/LB": 5, DB: 6 };
 
   async function getJSON(path) {
     const res = await fetch(REST_BASE + path, { headers: REST_HEADERS });
