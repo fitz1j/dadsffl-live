@@ -539,7 +539,8 @@
           // A player on a real bye can't be in the lineup, even if a pick row exists for him.
           return Object.assign({}, p, lookup(stats, p), { bye, on: !bye && chosen.has(pickKey(code, p.name)) });
         })
-        .sort((a, b) => (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9) || b.pts - a.pts);
+        // Checked players first, then by position, then by points.
+        .sort((a, b) => b.on - a.on || (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9) || b.pts - a.pts);
       const lineup = players.filter(p => p.on);
       const pts = lineup.reduce((a, p) => a + p.pts, 0);
       const all = players.reduce((a, p) => a + p.pts, 0);
