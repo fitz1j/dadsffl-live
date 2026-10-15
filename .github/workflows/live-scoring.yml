@@ -14,7 +14,8 @@ name: DadsFFL live scoring
 # names only; reads scores from Supabase). web/lineups.html is the lineup
 # efficiency report; it reads rosters from weekly.html, starters from
 # web/lineup-starters.json (built by src/build_lineup_starters.py from the
-# commissioner's weekly stats workbook) and scores from Supabase. (Superseded the old GitHub
+# commissioner's weekly stats workbook) and scores from Supabase. web/players.html
+# is the player averages page (same three sources). (Superseded the old GitHub
 # Actions `schedule:`-triggered Python pipeline that rendered live.html itself
 # every 5 minutes — see src/live_score.py, now unused for the live page.)
 
@@ -31,6 +32,7 @@ on:
       - 'web/weekly.html'
       - 'web/lineups.html'
       - 'web/lineup-starters.json'
+      - 'web/players.html'
       - '.github/workflows/live-scoring.yml'
 
 concurrency:
@@ -62,6 +64,7 @@ jobs:
           cp web/weekly.html _site/weekly.html
           cp web/lineups.html _site/lineups.html
           cp web/lineup-starters.json _site/lineup-starters.json
+          cp web/players.html _site/players.html
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

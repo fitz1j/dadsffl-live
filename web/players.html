@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DadsFFL Player Averages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #f6f3e9;
+    --paper-raised: #fffdf7;
+    --paper-sunk: #efeadb;
+    --ink: #1c2621;
+    --ink-soft: #4a544d;
+    --ink-faint: #7d867f;
+    --line: #ddd6c4;
+    --line-soft: #e8e2d2;
+    --turf: #2f6f4e;
+    --turf-deep: #1c4531;
+    --turf-tint: #e3ede6;
+    --gold: #ad8a1e;
+    --gold-tint: #f3ead0;
+    --clemenza: #ad5a2d;
+    --clemenza-tint: #f2e3d8;
+    --tessio: #2f6180;
+    --tessio-tint: #dfe9ee;
+    --shadow: 0 1px 2px rgba(28,38,33,0.06), 0 6px 20px -8px rgba(28,38,33,0.18);
+    --on-div: #fffdf7;
+    --heat: 173, 90, 45;          /* clemenza, as rgb, for the points-left heat cells */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14201a;
+      --paper-raised: #1b2a22;
+      --paper-sunk: #101a15;
+      --ink: #eef2ec;
+      --ink-soft: #a8b6ac;
+      --ink-faint: #7d8d82;
+      --line: #2c3a30;
+      --line-soft: #243029;
+      --turf: #6bbd91;
+      --turf-deep: #9fdcb9;
+      --turf-tint: #1e352a;
+      --gold: #e0bc55;
+      --gold-tint: #33301c;
+      --clemenza: #e08a55;
+      --clemenza-tint: #3a2a1f;
+      --tessio: #7fb8d6;
+      --tessio-tint: #1f3038;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+      --on-div: #101a15;
+      --heat: 224, 138, 85;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14201a;
+    --paper-raised: #1b2a22;
+    --paper-sunk: #101a15;
+    --ink: #eef2ec;
+    --ink-soft: #a8b6ac;
+    --ink-faint: #7d8d82;
+    --line: #2c3a30;
+    --line-soft: #243029;
+    --turf: #6bbd91;
+    --turf-deep: #9fdcb9;
+    --turf-tint: #1e352a;
+    --gold: #e0bc55;
+    --gold-tint: #33301c;
+    --clemenza: #e08a55;
+    --clemenza-tint: #3a2a1f;
+    --tessio: #7fb8d6;
+    --tessio-tint: #1f3038;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+    --on-div: #101a15;
+    --heat: 224, 138, 85;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+  @media (min-width: 720px) { .wrap { padding: 28px 20px 64px; } }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 16px; padding-bottom: 14px; border-bottom: 3px double var(--line);
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; }
+  .home {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint); text-decoration: none;
+    margin-bottom: 4px; align-self: flex-start;
+  }
+  .home:hover { color: var(--turf); }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--turf);
+  }
+  h1 {
+    font-family: Oswald, "Libre Franklin", sans-serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 44px); line-height: 1.02; margin: 0;
+    letter-spacing: -0.01em; text-transform: uppercase; text-wrap: balance;
+  }
+  .masthead .sub { color: var(--ink-soft); font-size: 13.5px; max-width: 52ch; margin: 4px 0 0; }
+  .theme-btn {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; cursor: pointer;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--turf); }
+
+  .note {
+    margin: 20px 0 0; padding: 13px 16px; background: var(--gold-tint);
+    border-left: 3px solid var(--gold); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .note b { color: var(--ink); font-weight: 600; }
+  .warn {
+    margin: 16px 0 0; padding: 11px 16px; background: var(--clemenza-tint);
+    border-left: 3px solid var(--clemenza); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .warn b { color: var(--ink); }
+  .status { margin-top: 18px; font-size: 13.5px; color: var(--ink-faint); }
+  /* ---------- section heads ---------- */
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 14px; }
+  .sec-head h2 {
+    font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; font-size: 17px; margin: 0; white-space: nowrap;
+  }
+  .sec-head .rule { flex: 1; height: 1px; background: var(--line); }
+  .sec-head .hint { font-size: 12px; color: var(--ink-faint); }
+  @media (max-width: 560px) { .sec-head { flex-wrap: wrap; } .sec-head .rule { display: none; } .sec-head .hint { flex-basis: 100%; } }
+
+  /* ---------- tables ---------- */
+  .scroll { overflow-x: auto; background: var(--paper-raised); border: 1px solid var(--line); }
+  table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.t th {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+    text-align: right; padding: 9px 12px 6px; border-bottom: 1px solid var(--line);
+    white-space: nowrap; background: var(--paper-sunk);
+  }
+  table.t th.l, table.t td.l { text-align: left; }
+  table.t td {
+    padding: 9px 12px; border-bottom: 1px solid var(--line-soft); text-align: right;
+    font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 13px;
+    white-space: nowrap;
+  }
+  table.t tr:last-child td { border-bottom: none; }
+  .rk { font-family: Oswald, sans-serif !important; font-size: 16px !important; color: var(--ink-faint); width: 34px; }
+  .team { font-family: "Libre Franklin", sans-serif !important; font-weight: 600; font-size: 14px !important; }
+  .team .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+  .dot.clem { background: var(--clemenza); }
+  .dot.tess { background: var(--tessio); }
+  .tcode { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600; color: var(--ink-faint); margin-left: 7px; letter-spacing: 0.06em; }
+  .eff { display: flex; align-items: center; gap: 10px; justify-content: flex-end; min-width: 170px; }
+  .bar { flex: 1; max-width: 120px; height: 8px; background: var(--paper-sunk); border: 1px solid var(--line-soft); position: relative; }
+  .bar i { position: absolute; inset: 0 auto 0 0; background: var(--turf); }
+  .effv { font-weight: 600; color: var(--ink); min-width: 48px; }
+  .left { color: var(--clemenza); font-weight: 600; }
+  .muted { color: var(--ink-faint); }
+
+  /* ---------- filters ---------- */
+  .filters {
+    position: sticky; top: 0; z-index: 5; margin-top: 22px; padding: 12px 0;
+    background: var(--paper); border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: "IBM Plex Mono", monospace; font-size: 11.5px; font-weight: 600; letter-spacing: 0.05em;
+    padding: 6px 11px; cursor: pointer; border-radius: 999px;
+    background: var(--paper-raised); color: var(--ink-soft); border: 1px solid var(--line);
+  }
+  .chip:hover { border-color: var(--turf); color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--turf); border-color: var(--turf); color: var(--on-div); }
+  .ctl {
+    font-family: "Libre Franklin", sans-serif; font-size: 13.5px; color: var(--ink);
+    background: var(--paper-raised); border: 1px solid var(--line); border-radius: 2px; padding: 6px 9px;
+  }
+  .ctl:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+  input.ctl { min-width: 0; width: 190px; }
+  .ctl-lbl { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-right: 6px; }
+  .count { font-size: 12.5px; color: var(--ink-faint); margin-left: auto; }
+  @media (max-width: 640px) { input.ctl { width: 100%; } .count { margin-left: 0; } }
+
+  table.t th.sort { cursor: pointer; user-select: none; }
+  table.t th.sort:hover { color: var(--ink); }
+  table.t th.sort[aria-sort="descending"]::after { content: " ▼"; color: var(--turf); }
+  table.t th.sort[aria-sort="ascending"]::after { content: " ▲"; color: var(--turf); }
+  td.pname { font-family: "Libre Franklin", sans-serif !important; font-weight: 600; font-size: 14px !important; }
+  td.pname .nt { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 500; color: var(--ink-faint); margin-left: 6px; }
+  td.owner { font-family: "Libre Franklin", sans-serif !important; font-size: 13px !important; color: var(--ink-soft); }
+  td.owner.gone { color: var(--ink-faint); font-style: italic; }
+  .badge {
+    display: inline-block; min-width: 42px; font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase; text-align: center; padding: 2px 4px; border-radius: 2px;
+    background: var(--turf-tint); color: var(--turf-deep);
+  }
+  .badge.kick { background: var(--gold-tint); color: var(--gold); }
+  .badge.def { background: var(--tessio-tint); color: var(--tessio); }
+  td.avg { font-weight: 600; color: var(--ink); font-size: 14px !important; }
+  tr.dim td { color: var(--ink-faint); }
+
+  /* weekly strip */
+  .strip { display: inline-flex; align-items: flex-end; gap: 2px; height: 26px; vertical-align: middle; }
+  .strip span { width: 9px; background: var(--turf); opacity: 0.85; min-height: 2px; }
+  .strip span.st { background: var(--gold); opacity: 1; }
+  .strip span.z { background: var(--line); }
+  .strip span.bye { background: none; border-bottom: 2px dotted var(--ink-faint); height: 0 !important; min-height: 0; }
+  .strip span.dnp { background: none; height: 0 !important; min-height: 0; border-bottom: 1px solid var(--line); }
+  .legend { display: inline-flex; gap: 12px; align-items: center; }
+  .legend i { display: inline-block; width: 9px; height: 9px; margin-right: 4px; vertical-align: -1px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">
+      <a class="home" href="./">&larr; DadsFFL</a>
+      <div class="eyebrow" id="eyebrow">2026 Regular Season</div>
+      <h1>Player Averages</h1>
+      <p class="sub">Every DADS player's points this season, games played, and what he averages &mdash; plus how often his owner actually started him.</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
+  </div>
+
+  <p class="note"><b>How to read it.</b> <b>Avg</b> is total points &divide; <b>GP</b>, the NFL games he's played this season (a game counts once it's final). <b>Starts</b> is how many weeks his DADS owner had him in the lineup, and <b>Avg / start</b> is what he scored in those weeks. Click any column heading to sort; position buttons can be combined (QB + WR, say).</p>
+  <div id="warn"></div>
+
+  <div class="headline" id="headline"></div>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="posChips" role="group" aria-label="Positions"></div>
+    <label><span class="ctl-lbl">Team</span><select class="ctl" id="teamSel"></select></label>
+    <label><span class="ctl-lbl">Min GP</span><select class="ctl" id="gpSel">
+      <option value="0">Any</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
+    </select></label>
+    <input class="ctl" id="search" type="search" placeholder="Search players" aria-label="Search players">
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="scroll" style="margin-top:14px"><table class="t" id="players"><tbody><tr><td class="l"><span class="status">Loading…</span></td></tr></tbody></table></div>
+  <p class="status legend" id="legend" hidden>
+    <span><i style="background:var(--turf)"></i>points that week</span>
+    <span><i style="background:var(--gold)"></i>started by his DADS owner</span>
+    <span><i style="border-bottom:2px dotted var(--ink-faint);height:0"></i>bye</span>
+  </p>
+
+  <footer>
+    Players: everyone on a DADS roster this season, read from the <a href="weekly.html">weekly head-to-head page</a> (pre-season rosters plus the waiver wire), with each player's current owner. Players since released are listed as "released" with the team that dropped him.
+    Points: the league's scoring engine on ESPN box scores, from the same Supabase feed as the <a href="live.html">live scoring page</a>; points count once a game is final. A player is credited with a game played when he appears in that game's box score.
+    Starts: the commissioner's weekly lineups, the same source as the <a href="lineups.html">Lineup Report</a>, source <code id="srcFile">…</code>.
+    Position is the roster slot; a "TE/WR" slot is a tight end.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const SUPABASE_URL = "https://lpcremgkmgumumboqjux.supabase.co";
+  const ANON_KEY = "sb_publishable_zOdIS--l6_TDNSlrOE_RhA_s3E54zsj";
+  const REST_BASE = SUPABASE_URL + "/rest/v1";
+  const REST_HEADERS = { apikey: ANON_KEY, Authorization: "Bearer " + ANON_KEY };
+
+  const TEAMS = {
+    PD:   { name: "Predetermined Destination", abbrev: "PD",   division: "Clemenza" },
+    OS:   { name: "Odds & Sods",               abbrev: "O&S",  division: "Clemenza" },
+    FAB:  { name: "Fabricoh",                  abbrev: "FAB",  division: "Clemenza" },
+    WILD: { name: "Wild Geesemen",             abbrev: "WILD", division: "Clemenza" },
+    SV:   { name: "Screaming Vikings",         abbrev: "SV",   division: "Tessio" },
+    RHR:  { name: "Red Hot Revenge",           abbrev: "RHR",  division: "Tessio" },
+    COM:  { name: "The Commandos",             abbrev: "COM",  division: "Tessio" },
+    NUTS: { name: "The Ironnuts",              abbrev: "NUTS", division: "Tessio" }
+  };
+  const divClass = code => TEAMS[code].division === "Clemenza" ? "clem" : "tess";
+
+  // Same name normalization, spelling map and NFL-team aliases as weekly.html / lineups.html.
+  const ALIASES = {
+    "ken walker": "kenneth walker",
+    "kenny gainwell": "kenneth gainwell",
+    "quentin johnson": "quentin johnston",
+    "omarion hamption": "omarion hampton",
+    "tyler allegeier": "tyler allgeier",
+    "michael piuttman": "michael pittman"
+  };
+  const TEAM_ALIASES = { WAS: "WSH" };
+  const BYE_ALIASES = { WSH: "WAS", LVR: "LV", JAC: "JAX", ARZ: "ARI", LA: "LAR" };
+  const norm = s => {
+    let k = String(s).normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
+      .replace(/[.'’\-]/g, "").replace(/\b(jr|sr|ii|iii|iv|v)\b/g, "").replace(/\s+/g, " ").trim();
+    return ALIASES[k] || k;
+  };
+  const nfl = t => TEAM_ALIASES[t] || t;
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const fmt = n => (Math.round(n * 10) / 10).toString();
+
+  const POSITIONS = ["QB", "RB", "WR", "TE", "K", "DL/LB", "DB"];
+  const posOf = slot => slot === "TE/WR" ? "TE" : slot;
+  const badgeClass = pos => pos === "K" ? "kick" : (pos === "DB" || pos === "DL/LB") ? "def" : "";
+
+  /* ---------------- data ---------------- */
+  async function getJSON(path) {
+    const res = await fetch(REST_BASE + path, { headers: REST_HEADERS });
+    if (!res.ok) throw new Error("Supabase query failed (" + res.status + ")");
+    return res.json();
+  }
+
+  // Rosters (and the bye chart) come from weekly.html, so every page agrees on who is where.
+  async function loadWeekly() {
+    const res = await fetch("weekly.html", { cache: "no-cache" });
+    if (!res.ok) throw new Error("couldn't read weekly.html (" + res.status + ")");
+    const text = await res.text();
+    const m = text.match(/const ROSTER_DATA = (\{[\s\S]*?\});\n/);
+    if (!m) throw new Error("roster data not found in weekly.html");
+    const b = text.match(/const NFL_BYES = (\{[^}]*\});/);
+    return { RD: JSON.parse(m[1]), BYES: b ? JSON.parse(b[1]) : {} };
+  }
+
+  function rostersFor(RD, week) {
+    const r = {};
+    for (const code in RD.base)
+      r[code] = RD.base[code].map(([slot, name, team]) => ({ slot, name, team }));
+    for (const [eff, code, drop, slot, name, team] of RD.waivers) {
+      if (eff > week) continue;
+      const i = r[code].findIndex(p => norm(p.name) === norm(drop));
+      if (i >= 0) r[code][i] = { slot, name, team };
+    }
+    return r;
+  }
+
+  async function loadStarters() {
+    try {
+      const res = await fetch("lineup-starters.json", { cache: "no-cache" });
+      return res.ok ? await res.json() : null;
+    } catch (e) { return null; }
+  }
+
+  // Every stat line (scoring or not) from FINAL regular-season games, so a 0-point game still counts as played.
+  async function loadLines(weekIds) {
+    const byWeek = {};
+    const idToN = {};
+    for (const n in weekIds) { idToN[weekIds[n]] = +n; byWeek[n] = {}; }
+    const ids = Object.values(weekIds).join(",");
+    for (let off = 0; ; off += 1000) {
+      const page = await getJSON("/stat_lines?select=id,fantasy_points,players(name,nfl_team),games!inner(week_id,state)" +
+        "&games.week_id=in.(" + ids + ")&games.state=eq.post&order=id&limit=1000&offset=" + off);
+      for (const s of page) {
+        if (!s.players || !s.games) continue;
+        const n = idToN[s.games.week_id];
+        (byWeek[n][norm(s.players.name)] ||= []).push({ team: s.players.nfl_team, pts: Number(s.fantasy_points) || 0 });
+      }
+      if (page.length < 1000) break;
+    }
+    return byWeek;
+  }
+
+  // Same matching rule as weekly.html: name, with NFL team to break ties.
+  // Returns null if he has no box-score line that week (didn't play), else his points.
+  function weekLine(weekLines, p) {
+    const c = weekLines[norm(p.name)];
+    if (!c || !c.length) return null;
+    const same = c.filter(x => x.team === nfl(p.team));
+    const pick = same.length ? same : (new Set(c.map(x => x.team)).size === 1 ? c : []);
+    if (!pick.length) return null;
+    return pick.reduce((a, x) => a + x.pts, 0);
+  }
+
+  /* ---------------- build ---------------- */
+  let PLAYERS = [];
+  let WEEK_LIST = [];
+
+  function build(RD, BYES, ST, lines) {
+    const lastRosterWeek = Math.max(1, ...RD.waivers.map(w => w[0]));
+    const current = rostersFor(RD, lastRosterWeek);
+    const byKey = {};
+    // Keyed by normalized name: a player who changes NFL teams mid-season (and is
+    // re-claimed under his new team) is still one player, not two rows.
+    const add = (p, code, week) => {
+      const e = byKey[norm(p.name)] ||= { name: p.name, team: p.team, pos: posOf(p.slot), owner: null, lastOwner: code, held: {} };
+      e.held[week] = { code, name: p.name };
+      e.lastOwner = code;
+      e.team = p.team;
+      return e;
+    };
+    // Everyone rostered in any week this season (so released players keep their history).
+    const maxWeek = Math.max(lastRosterWeek, ...WEEK_LIST, 1);
+    for (let w = 1; w <= maxWeek; w++) {
+      const r = rostersFor(RD, w);
+      for (const code in r) for (const p of r[code]) add(p, code, w);
+    }
+    for (const code in current) for (const p of current[code]) {
+      const e = byKey[norm(p.name)];
+      if (e) { e.owner = code; e.name = p.name; e.team = p.team; e.pos = posOf(p.slot); }
+    }
+
+    const started = {};   // week -> Set of "code|name"
+    if (ST) for (const n in ST.weeks) {
+      const s = started[n] = new Set();
+      for (const code in ST.weeks[n]) for (const [, name] of ST.weeks[n][code]) if (name) s.add(code + "|" + name);
+    }
+
+    PLAYERS = Object.values(byKey).map(e => {
+      const weeks = {};
+      let total = 0, gp = 0, starts = 0, startPts = 0, high = null;
+      for (const n of WEEK_LIST) {
+        const bye = BYES[BYE_ALIASES[e.team] || e.team] === n;
+        const pts = weekLine(lines[n] || {}, e);
+        const h = e.held[n];
+        const st = !!(h && started[n] && started[n].has(h.code + "|" + h.name));
+        weeks[n] = { pts, bye, st };
+        if (pts !== null) { total += pts; gp++; if (high === null || pts > high) high = pts; }
+        if (st) { starts++; startPts += pts || 0; }
+      }
+      return Object.assign(e, {
+        weeks, total, gp, avg: gp ? total / gp : null, high,
+        starts, avgStart: starts ? startPts / starts : null
+      });
+    });
+  }
+
+  /* ---------------- filters / state ---------------- */
+  const state = { pos: new Set(), team: "ALL", gp: 0, q: "", sort: "avg", dir: -1 };
+
+  function readURL() {
+    const u = new URLSearchParams(location.search);
+    (u.get("pos") || "").split(",").map(s => s.trim().toUpperCase()).forEach(p => { if (POSITIONS.includes(p)) state.pos.add(p); });
+    const t = (u.get("team") || "").toUpperCase();
+    if (TEAMS[t] || t === "RELEASED") state.team = t;
+    const g = +u.get("gp"); if ([1,2,3,4].includes(g)) state.gp = g;
+    if (u.get("q")) state.q = u.get("q");
+    if (COLS.some(c => c.key === u.get("sort"))) state.sort = u.get("sort");
+    const sc = COLS.find(c => c.key === state.sort);
+    state.dir = u.get("dir") === "asc" ? 1 : u.get("dir") === "desc" ? -1 : (sc.first ? 1 : -1);
+  }
+  function writeURL() {
+    const u = new URL(location.href);
+    const set = (k, v) => v ? u.searchParams.set(k, v) : u.searchParams.delete(k);
+    set("pos", [...state.pos].join(","));
+    set("team", state.team === "ALL" ? "" : state.team);
+    set("gp", state.gp ? String(state.gp) : "");
+    set("q", state.q);
+    set("sort", state.sort === "avg" ? "" : state.sort);
+    const defDir = COLS.find(c => c.key === state.sort).first ? 1 : -1;
+    set("dir", state.dir === defDir ? "" : (state.dir === 1 ? "asc" : "desc"));
+    history.replaceState(null, "", u);
+  }
+
+  const COLS = [
+    { key: "name",     label: "Player",      cls: "l", val: p => p.name.toLowerCase(), first: 1 },
+    { key: "pos",      label: "Pos",         cls: "l", val: p => POSITIONS.indexOf(p.pos), first: 1 },
+    { key: "owner",    label: "DADS team",   cls: "l", val: p => p.owner ? TEAMS[p.owner].abbrev : "~", first: 1 },
+    { key: "gp",       label: "GP",          val: p => p.gp },
+    { key: "total",    label: "Total",       val: p => p.total },
+    { key: "avg",      label: "Avg",         val: p => p.avg },
+    { key: "high",     label: "High",        val: p => p.high },
+    { key: "starts",   label: "Starts",      val: p => p.starts },
+    { key: "avgStart", label: "Avg / start", val: p => p.avgStart }
+  ];
+
+  function filtered() {
+    const q = norm(state.q);
+    const list = PLAYERS.filter(p =>
+      (!state.pos.size || state.pos.has(p.pos)) &&
+      (state.team === "ALL" ? !!p.owner : state.team === "RELEASED" ? !p.owner : p.owner === state.team) &&
+      p.gp >= state.gp &&
+      (!q || norm(p.name).includes(q)));
+    const col = COLS.find(c => c.key === state.sort);
+    list.sort((a, b) => {
+      const x = col.val(a), y = col.val(b);
+      if (x === null && y !== null) return 1;     // blanks always last
+      if (y === null && x !== null) return -1;
+      if (x !== y) return (x < y ? -1 : 1) * state.dir;
+      return (b.avg ?? -1) - (a.avg ?? -1) || b.total - a.total || a.name.localeCompare(b.name);
+    });
+    return list;
+  }
+
+  /* ---------------- rendering ---------------- */
+  function renderControls() {
+    const chips = [`<button class="chip" type="button" data-pos="ALL" aria-pressed="${!state.pos.size}">All</button>`]
+      .concat(POSITIONS.map(p => `<button class="chip" type="button" data-pos="${p}" aria-pressed="${state.pos.has(p)}">${p}</button>`));
+    document.getElementById("posChips").innerHTML = chips.join("");
+    const opts = [`<option value="ALL">All DADS teams</option>`]
+      .concat(Object.keys(TEAMS).map(c => `<option value="${c}">${esc(TEAMS[c].name)}</option>`))
+      .concat([`<option value="RELEASED">Released players</option>`]);
+    const sel = document.getElementById("teamSel");
+    sel.innerHTML = opts.join(""); sel.value = state.team;
+    document.getElementById("gpSel").value = String(state.gp);
+    document.getElementById("search").value = state.q;
+  }
+
+  function strip(p, maxPts) {
+    return `<span class="strip">` + WEEK_LIST.map(n => {
+      const w = p.weeks[n];
+      let cls = "", h = 2, tip = "Wk " + n + ": ";
+      if (w.pts === null) { cls = w.bye ? "bye" : "dnp"; tip += w.bye ? "bye" : "no game"; }
+      else { h = Math.max(2, Math.round(26 * w.pts / maxPts)); cls = w.pts > 0 ? "" : "z"; tip += fmt(w.pts) + " pts"; }
+      if (w.st) { cls += " st"; tip += " · started"; }
+      return `<span class="${cls.trim()}" style="height:${h}px" title="${esc(tip)}"></span>`;
+    }).join("") + `</span>`;
+  }
+
+  function renderTable() {
+    const list = filtered();
+    const maxPts = Math.max(1, ...PLAYERS.flatMap(p => WEEK_LIST.map(n => p.weeks[n].pts || 0)));
+    const head = `<thead><tr><th class="l">#</th>` + COLS.map(c =>
+      `<th class="sort ${c.cls || ""}" data-key="${c.key}" aria-sort="${state.sort === c.key ? (state.dir < 0 ? "descending" : "ascending") : "none"}">${c.label}</th>`).join("") +
+      `<th class="l">By week</th></tr></thead>`;
+    const rows = list.map((p, i) => {
+      const owner = p.owner
+        ? `<td class="l owner"><span class="dot ${divClass(p.owner)}"></span>${esc(TEAMS[p.owner].abbrev)}</td>`
+        : `<td class="l owner gone" title="Dropped by ${esc(TEAMS[p.lastOwner].name)}">released · ${esc(TEAMS[p.lastOwner].abbrev)}</td>`;
+      const n = v => v === null ? `<span class="muted">–</span>` : fmt(v);
+      return `<tr${p.gp ? "" : ` class="dim"`}>
+        <td class="l rk">${i + 1}</td>
+        <td class="l pname">${esc(p.name)}<span class="nt">${esc(p.team)}</span></td>
+        <td class="l"><span class="badge ${badgeClass(p.pos)}">${esc(p.pos)}</span></td>
+        ${owner}
+        <td>${p.gp}</td>
+        <td>${fmt(p.total)}</td>
+        <td class="avg">${n(p.avg)}</td>
+        <td>${n(p.high)}</td>
+        <td>${p.starts}</td>
+        <td>${n(p.avgStart)}</td>
+        <td class="l">${strip(p, maxPts)}</td>
+      </tr>`;
+    }).join("");
+    document.getElementById("players").innerHTML = head + `<tbody>${rows ||
+      `<tr><td class="l" colspan="${COLS.length + 2}"><span class="status">No players match these filters.</span></td></tr>`}</tbody>`;
+    const of = PLAYERS.filter(p => state.team === "RELEASED" ? !p.owner : !!p.owner).length;
+    document.getElementById("count").textContent = list.length + " of " + of + " players";
+  }
+
+  function renderHeadline() {
+    const live = PLAYERS.filter(p => p.gp);
+    if (!live.length) return;
+    const minGp = Math.max(1, Math.ceil(WEEK_LIST.length / 2));
+    const topTotal = live.slice().sort((a, b) => b.total - a.total)[0];
+    const topAvg = live.filter(p => p.gp >= minGp).sort((a, b) => b.avg - a.avg)[0] || topTotal;
+    // Points scored while sitting on a DADS bench (weeks we have starters for).
+    const benched = PLAYERS.map(p => {
+      let b = 0;
+      for (const n of WEEK_LIST) { const w = p.weeks[n]; if (p.held[n] && !w.st && w.pts && STARTER_WEEKS.has(n)) b += w.pts; }
+      return { p, b };
+    }).sort((x, y) => y.b - x.b)[0];
+    const ownerTxt = p => p.owner ? TEAMS[p.owner].abbrev : "released";
+    document.getElementById("headline").innerHTML = `
+      <div class="stat good"><span class="lbl">Most points</span><span class="big">${esc(topTotal.name)}</span>
+        <span class="det">${fmt(topTotal.total)} pts in ${topTotal.gp} games · ${esc(topTotal.pos)} · ${esc(ownerTxt(topTotal))}</span></div>
+      <div class="stat good"><span class="lbl">Best average (${minGp}+ games)</span><span class="big">${esc(topAvg.name)}</span>
+        <span class="det">${fmt(topAvg.avg)} per game · ${esc(topAvg.pos)} · ${esc(ownerTxt(topAvg))}</span></div>
+      ${benched && benched.b > 0 ? `<div class="stat bad"><span class="lbl">Most points scored on a bench</span><span class="big">${esc(benched.p.name)}</span>
+        <span class="det">${fmt(benched.b)} pts in weeks he wasn't started · ${esc(benched.p.pos)} · ${esc(ownerTxt(benched.p))}</span></div>` : ""}`;
+  }
+
+  let STARTER_WEEKS = new Set();
+
+  function rerender() { renderControls(); renderTable(); writeURL(); }
+
+  /* ---------------- events ---------------- */
+  document.getElementById("posChips").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    const p = b.dataset.pos;
+    if (p === "ALL") state.pos.clear();
+    else if (state.pos.has(p)) state.pos.delete(p); else state.pos.add(p);
+    if (state.pos.size === POSITIONS.length) state.pos.clear();
+    rerender();
+  });
+  document.getElementById("teamSel").addEventListener("change", e => { state.team = e.target.value; rerender(); });
+  document.getElementById("gpSel").addEventListener("change", e => { state.gp = +e.target.value; rerender(); });
+  document.getElementById("search").addEventListener("input", e => { state.q = e.target.value; renderTable(); writeURL(); });
+  document.getElementById("players").addEventListener("click", e => {
+    const th = e.target.closest("th.sort"); if (!th) return;
+    const key = th.dataset.key;
+    if (state.sort === key) state.dir = -state.dir;
+    else { state.sort = key; state.dir = COLS.find(c => c.key === key).first ? 1 : -1; }
+    renderTable(); writeURL();
+  });
+
+  /* ---------------- boot ---------------- */
+  async function boot() {
+    readURL();
+    renderControls();
+    try {
+      const [W, ST, weeks] = await Promise.all([
+        loadWeekly(), loadStarters(),
+        getJSON("/weeks?select=id,season_id,week_number&season_type=eq.2&order=season_id.desc,week_number.asc")
+      ]);
+      document.getElementById("srcFile").textContent = ST ? (ST.source || "?") : "unavailable";
+      if (!ST) document.getElementById("warn").innerHTML =
+        `<p class="warn"><b>Lineup data unavailable.</b> Starts can't be shown right now; points and averages are unaffected.</p>`;
+      STARTER_WEEKS = new Set(ST ? Object.keys(ST.weeks).map(Number) : []);
+      const seasonId = weeks.length ? Math.max(...weeks.map(w => w.season_id)) : null;
+      const weekIds = {};
+      for (const w of weeks) if (w.season_id === seasonId) weekIds[w.week_number] = w.id;
+      if (!Object.keys(weekIds).length) throw new Error("no regular-season weeks yet");
+
+      const lines = await loadLines(weekIds);
+      // Only weeks with at least one final game.
+      WEEK_LIST = Object.keys(lines).map(Number).filter(n => Object.keys(lines[n]).length).sort((a, b) => a - b);
+      if (!WEEK_LIST.length) throw new Error("no final games yet");
+      build(W.RD, W.BYES, ST, lines);
+
+      const last = WEEK_LIST[WEEK_LIST.length - 1];
+      document.getElementById("eyebrow").textContent = "2026 Regular Season · weeks 1–" + last + " (final games)";
+      document.getElementById("legend").hidden = false;
+      renderHeadline();
+      renderTable();
+    } catch (e) {
+      document.getElementById("players").innerHTML =
+        `<tbody><tr><td class="l"><span class="status">Could not load player stats right now (${esc(e.message)}).</span></td></tr></tbody>`;
+    }
+  }
+
+  /* ---- theme (same as the other pages) ---- */
+  const themeBtn = document.getElementById("themeBtn");
+  const MODES = ["auto", "light", "dark"];
+  let mode = "auto";
+  try { mode = localStorage.getItem("ffl-sim-theme") || "auto"; } catch (e) {}
+  function applyTheme() {
+    if (mode === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", mode);
+    themeBtn.textContent = "Theme: " + mode;
+  }
+  themeBtn.addEventListener("click", () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    try { localStorage.setItem("ffl-sim-theme", mode); } catch (e) {}
+    applyTheme();
+  });
+  applyTheme();
+
+  boot();
+})();
+</script>
+
+</body>
+</html>
