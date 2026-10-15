@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DadsFFL Lineup Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #f6f3e9;
+    --paper-raised: #fffdf7;
+    --paper-sunk: #efeadb;
+    --ink: #1c2621;
+    --ink-soft: #4a544d;
+    --ink-faint: #7d867f;
+    --line: #ddd6c4;
+    --line-soft: #e8e2d2;
+    --turf: #2f6f4e;
+    --turf-deep: #1c4531;
+    --turf-tint: #e3ede6;
+    --gold: #ad8a1e;
+    --gold-tint: #f3ead0;
+    --clemenza: #ad5a2d;
+    --clemenza-tint: #f2e3d8;
+    --tessio: #2f6180;
+    --tessio-tint: #dfe9ee;
+    --shadow: 0 1px 2px rgba(28,38,33,0.06), 0 6px 20px -8px rgba(28,38,33,0.18);
+    --on-div: #fffdf7;
+    --heat: 173, 90, 45;          /* clemenza, as rgb, for the points-left heat cells */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14201a;
+      --paper-raised: #1b2a22;
+      --paper-sunk: #101a15;
+      --ink: #eef2ec;
+      --ink-soft: #a8b6ac;
+      --ink-faint: #7d8d82;
+      --line: #2c3a30;
+      --line-soft: #243029;
+      --turf: #6bbd91;
+      --turf-deep: #9fdcb9;
+      --turf-tint: #1e352a;
+      --gold: #e0bc55;
+      --gold-tint: #33301c;
+      --clemenza: #e08a55;
+      --clemenza-tint: #3a2a1f;
+      --tessio: #7fb8d6;
+      --tessio-tint: #1f3038;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+      --on-div: #101a15;
+      --heat: 224, 138, 85;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14201a;
+    --paper-raised: #1b2a22;
+    --paper-sunk: #101a15;
+    --ink: #eef2ec;
+    --ink-soft: #a8b6ac;
+    --ink-faint: #7d8d82;
+    --line: #2c3a30;
+    --line-soft: #243029;
+    --turf: #6bbd91;
+    --turf-deep: #9fdcb9;
+    --turf-tint: #1e352a;
+    --gold: #e0bc55;
+    --gold-tint: #33301c;
+    --clemenza: #e08a55;
+    --clemenza-tint: #3a2a1f;
+    --tessio: #7fb8d6;
+    --tessio-tint: #1f3038;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+    --on-div: #101a15;
+    --heat: 224, 138, 85;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+  @media (min-width: 720px) { .wrap { padding: 28px 20px 64px; } }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 16px; padding-bottom: 14px; border-bottom: 3px double var(--line);
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; }
+  .home {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint); text-decoration: none;
+    margin-bottom: 4px; align-self: flex-start;
+  }
+  .home:hover { color: var(--turf); }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--turf);
+  }
+  h1 {
+    font-family: Oswald, "Libre Franklin", sans-serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 44px); line-height: 1.02; margin: 0;
+    letter-spacing: -0.01em; text-transform: uppercase; text-wrap: balance;
+  }
+  .masthead .sub { color: var(--ink-soft); font-size: 13.5px; max-width: 52ch; margin: 4px 0 0; }
+  .theme-btn {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; cursor: pointer;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--turf); }
+
+  .note {
+    margin: 20px 0 0; padding: 13px 16px; background: var(--gold-tint);
+    border-left: 3px solid var(--gold); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .note b { color: var(--ink); font-weight: 600; }
+  .warn {
+    margin: 16px 0 0; padding: 11px 16px; background: var(--clemenza-tint);
+    border-left: 3px solid var(--clemenza); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .warn b { color: var(--ink); }
+  .status { margin-top: 18px; font-size: 13.5px; color: var(--ink-faint); }
+
+  /* ---------- headline ---------- */
+  .headline {
+    display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-top: 22px;
+  }
+  @media (max-width: 760px) { .headline { grid-template-columns: 1fr; } }
+  .stat {
+    background: var(--paper-raised); border: 1px solid var(--line); padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat .lbl {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .stat .big {
+    font-family: Oswald, sans-serif; font-weight: 600; font-size: 24px; line-height: 1.1;
+    text-transform: uppercase; letter-spacing: 0.01em;
+  }
+  .stat .det { font-size: 13px; color: var(--ink-soft); }
+  .stat.good .big { color: var(--turf-deep); }
+  .stat.bad .big { color: var(--clemenza); }
+
+  /* ---------- section heads ---------- */
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 14px; }
+  .sec-head h2 {
+    font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; font-size: 17px; margin: 0; white-space: nowrap;
+  }
+  .sec-head .rule { flex: 1; height: 1px; background: var(--line); }
+  .sec-head .hint { font-size: 12px; color: var(--ink-faint); }
+  @media (max-width: 560px) { .sec-head { flex-wrap: wrap; } .sec-head .rule { display: none; } .sec-head .hint { flex-basis: 100%; } }
+
+  /* ---------- tables ---------- */
+  .scroll { overflow-x: auto; background: var(--paper-raised); border: 1px solid var(--line); }
+  table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.t th {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+    text-align: right; padding: 9px 12px 6px; border-bottom: 1px solid var(--line);
+    white-space: nowrap; background: var(--paper-sunk);
+  }
+  table.t th.l, table.t td.l { text-align: left; }
+  table.t td {
+    padding: 9px 12px; border-bottom: 1px solid var(--line-soft); text-align: right;
+    font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 13px;
+    white-space: nowrap;
+  }
+  table.t tr:last-child td { border-bottom: none; }
+  .rk { font-family: Oswald, sans-serif !important; font-size: 16px !important; color: var(--ink-faint); width: 34px; }
+  .team { font-family: "Libre Franklin", sans-serif !important; font-weight: 600; font-size: 14px !important; }
+  .team .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+  .dot.clem { background: var(--clemenza); }
+  .dot.tess { background: var(--tessio); }
+  .tcode { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600; color: var(--ink-faint); margin-left: 7px; letter-spacing: 0.06em; }
+  .eff { display: flex; align-items: center; gap: 10px; justify-content: flex-end; min-width: 170px; }
+  .bar { flex: 1; max-width: 120px; height: 8px; background: var(--paper-sunk); border: 1px solid var(--line-soft); position: relative; }
+  .bar i { position: absolute; inset: 0 auto 0 0; background: var(--turf); }
+  .effv { font-weight: 600; color: var(--ink); min-width: 48px; }
+  .left { color: var(--clemenza); font-weight: 600; }
+  .muted { color: var(--ink-faint); }
+
+  /* heat cells (points left by position, and week grid) */
+  td.heat { position: relative; }
+  td.heat.zero { color: var(--ink-faint); }
+  td.cell { cursor: pointer; }
+  td.cell:hover { outline: 2px solid var(--gold); outline-offset: -2px; }
+  td.cell .sm { display: block; font-size: 10.5px; color: var(--ink-faint); }
+
+  /* ---------- week detail ---------- */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tab {
+    font-family: Oswald, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 9px 18px; cursor: pointer;
+    background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 2px;
+  }
+  .tab:hover { border-color: var(--turf); color: var(--ink); }
+  .tab[aria-selected="true"] { background: var(--turf); border-color: var(--turf); color: var(--on-div); }
+  .cards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; margin-top: 18px; }
+  @media (max-width: 820px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: var(--paper-raised); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .card-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    padding: 12px 16px; border-bottom: 1px solid var(--line);
+  }
+  .card-head .nm { font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase; font-size: 17px; letter-spacing: 0.02em; }
+  .card-head .fig { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-soft); white-space: nowrap; text-align: right; }
+  .card-head .fig b { font-family: Oswald, sans-serif; font-size: 18px; font-weight: 600; color: var(--ink); }
+  .card.clem { border-top: 3px solid var(--clemenza); }
+  .card.tess { border-top: 3px solid var(--tessio); }
+  .swap {
+    display: grid; grid-template-columns: 50px minmax(0,1fr) 52px; gap: 10px; align-items: baseline;
+    padding: 8px 16px; border-bottom: 1px solid var(--line-soft); font-size: 13.5px;
+  }
+  .swap:last-child { border-bottom: none; }
+  .badge {
+    font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; text-align: center; padding: 2px 0; border-radius: 2px;
+    background: var(--turf-tint); color: var(--turf-deep);
+  }
+  .badge.kick { background: var(--gold-tint); color: var(--gold); }
+  .badge.def { background: var(--tessio-tint); color: var(--tessio); }
+  .swap .in { font-weight: 600; }
+  .swap .out { color: var(--ink-faint); font-size: 12.5px; }
+  .swap .pp { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-faint); }
+  .swap .gain { font-family: Oswald, sans-serif; font-weight: 600; font-size: 17px; text-align: right; color: var(--clemenza); font-variant-numeric: tabular-nums; }
+  .perfect { padding: 14px 16px; font-size: 13.5px; color: var(--turf-deep); font-weight: 600; }
+  .flag { padding: 8px 16px; font-size: 12px; color: var(--clemenza); background: var(--clemenza-tint); border-top: 1px solid var(--line-soft); }
+
+  footer {
+    margin-top: 46px; padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: 12.5px; color: var(--ink-faint); line-height: 1.7;
+  }
+  footer code { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-soft); }
+  footer a { color: var(--ink-soft); }
+  [hidden] { display: none !important; }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">
+      <a class="home" href="./">&larr; DadsFFL</a>
+      <div class="eyebrow" id="eyebrow">2026 Regular Season</div>
+      <h1>Lineup Report</h1>
+      <p class="sub">Who is starting the right players &mdash; and who is leaving points on the bench. Every team's actual lineup against the best legal lineup its roster could have played that week.</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
+  </div>
+
+  <p class="note"><b>How it's measured.</b> <b>Scored</b> is what each team's starters earned. <b>Best possible</b> is the highest-scoring legal lineup from that week's 24-man roster, picked with hindsight: 1&nbsp;K, 1&nbsp;QB, 3&nbsp;RB, 1&nbsp;TE, 3&nbsp;WR (an extra TE may fill a WR spot), 1&nbsp;DL/LB, 1&nbsp;DB. <b>Efficiency</b> is scored &divide; best possible; the gap is points <b>left on the bench</b>. Hindsight is a hard grader &mdash; kicker and defensive picks are mostly luck &mdash; so read small differences as noise.</p>
+  <div id="warn"></div>
+
+  <div class="headline" id="headline"></div>
+
+  <div class="sec-head">
+    <h2>Rankings</h2>
+    <div class="rule"></div>
+    <div class="hint" id="rankHint"></div>
+  </div>
+  <div class="scroll"><table class="t" id="rankings"><tbody><tr><td class="l"><span class="status">Loading…</span></td></tr></tbody></table></div>
+
+  <div class="sec-head">
+    <h2>Where the points were left</h2>
+    <div class="rule"></div>
+    <div class="hint">bench points by position, all weeks</div>
+  </div>
+  <div class="scroll"><table class="t" id="bypos"></table></div>
+
+  <div class="sec-head">
+    <h2>Week by week</h2>
+    <div class="rule"></div>
+    <div class="hint">efficiency · points left &mdash; tap a cell for that week's misses</div>
+  </div>
+  <div class="scroll"><table class="t" id="grid"></table></div>
+
+  <div class="sec-head">
+    <h2>The misses</h2>
+    <div class="rule"></div>
+    <div class="hint">bench player who should have started, over the starter he'd have replaced</div>
+  </div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="cards" id="cards"></div>
+
+  <footer>
+    Starters: the commissioner's weekly stats workbook (<code>Wkly Player Tab</code>), source <code id="srcFile">…</code>, added each week once his sheet is posted.
+    Rosters: the same week-by-week rosters as the <a href="weekly.html">weekly head-to-head page</a> (pre-season rosters plus the waiver wire), read from that page so the two never drift apart.
+    Points: the league's scoring engine on ESPN box scores, from the same Supabase feed as the <a href="live.html">live scoring page</a> &mdash; every player, starters and bench alike, is scored the same way. If the engine and the commissioner's sheet disagree on a starter, the card for that week says so.
+    Ties in the best lineup are broken arbitrarily, which never changes the points left.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const SUPABASE_URL = "https://lpcremgkmgumumboqjux.supabase.co";
+  const ANON_KEY = "sb_publishable_zOdIS--l6_TDNSlrOE_RhA_s3E54zsj";
+  const REST_BASE = SUPABASE_URL + "/rest/v1";
+  const REST_HEADERS = { apikey: ANON_KEY, Authorization: "Bearer " + ANON_KEY };
+
+  const TEAMS = {
+    PD:   { name: "Predetermined Destination", abbrev: "PD",   division: "Clemenza" },
+    OS:   { name: "Odds & Sods",               abbrev: "O&S",  division: "Clemenza" },
+    FAB:  { name: "Fabricoh",                  abbrev: "FAB",  division: "Clemenza" },
+    WILD: { name: "Wild Geesemen",             abbrev: "WILD", division: "Clemenza" },
+    SV:   { name: "Screaming Vikings",         abbrev: "SV",   division: "Tessio" },
+    RHR:  { name: "Red Hot Revenge",           abbrev: "RHR",  division: "Tessio" },
+    COM:  { name: "The Commandos",             abbrev: "COM",  division: "Tessio" },
+    NUTS: { name: "The Ironnuts",              abbrev: "NUTS", division: "Tessio" }
+  };
+  const divClass = code => TEAMS[code].division === "Clemenza" ? "clem" : "tess";
+
+  // Same name normalization and spelling map as weekly.html.
+  const ALIASES = {
+    "ken walker": "kenneth walker",
+    "kenny gainwell": "kenneth gainwell",
+    "quentin johnson": "quentin johnston",
+    "omarion hamption": "omarion hampton",
+    "tyler allegeier": "tyler allgeier",
+    "michael piuttman": "michael pittman"
+  };
+  const TEAM_ALIASES = { WAS: "WSH" };
+  const norm = s => {
+    let k = String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+      .replace(/[.'’\-]/g, "").replace(/\b(jr|sr|ii|iii|iv|v)\b/g, "").replace(/\s+/g, " ").trim();
+    return ALIASES[k] || k;
+  };
+  const nfl = t => TEAM_ALIASES[t] || t;
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const fmt = n => (Math.round(n * 10) / 10).toString();
+  const pct = (a, b) => b > 0 ? (100 * a / b) : 100;
+
+  // Position groups. A roster slot labelled "TE/WR" is a tight end (Rule VI-A, as on weekly.html).
+  const GROUPS = ["K", "QB", "RB", "REC", "DL/LB", "DB"];
+  const GROUP_LABEL = { K: "K", QB: "QB", RB: "RB", REC: "WR/TE", "DL/LB": "DL/LB", DB: "DB" };
+  const groupOf = slot => (slot === "WR" || slot === "TE/WR" || slot === "TE") ? "REC" : slot;
+  const badgeClass = slot => slot === "K" ? "kick" : (slot === "DB" || slot === "DL/LB") ? "def" : "";
+  const slotLabel = slot => slot === "TE/WR" ? "TE" : slot;
+
+  /* ---------------- data ---------------- */
+  async function getJSON(path) {
+    const res = await fetch(REST_BASE + path, { headers: REST_HEADERS });
+    if (!res.ok) throw new Error("Supabase query failed (" + res.status + ")");
+    return res.json();
+  }
+
+  // Rosters come from weekly.html's ROSTER_DATA (kept up to date by the waiver task),
+  // so this page can never disagree with the head-to-head page about who was on a team.
+  async function loadRosterData() {
+    const res = await fetch("weekly.html", { cache: "no-cache" });
+    if (!res.ok) throw new Error("couldn't read weekly.html (" + res.status + ")");
+    const m = (await res.text()).match(/const ROSTER_DATA = (\{[\s\S]*?\});\n/);
+    if (!m) throw new Error("roster data not found in weekly.html");
+    return JSON.parse(m[1]);
+  }
+
+  function rostersFor(RD, week) {
+    const r = {};
+    for (const code in RD.base)
+      r[code] = RD.base[code].map(([slot, name, team]) => ({ slot, name, team }));
+    for (const [eff, code, drop, slot, name, team] of RD.waivers) {
+      if (eff > week) continue;
+      const i = r[code].findIndex(p => norm(p.name) === norm(drop));
+      if (i >= 0) r[code][i] = { slot, name, team };
+    }
+    return r;
+  }
+
+  async function loadStarters() {
+    const res = await fetch("lineup-starters.json", { cache: "no-cache" });
+    if (!res.ok) throw new Error("couldn't read lineup-starters.json (" + res.status + ")");
+    return res.json();
+  }
+
+  // Scoring players only (fantasy_points > 0); anyone not found scored 0.
+  async function loadPoints(weekIds) {
+    const byWeek = {};
+    const idToN = {};
+    for (const n in weekIds) { idToN[weekIds[n]] = +n; byWeek[n] = {}; }
+    const ids = Object.values(weekIds).join(",");
+    for (let off = 0; ; off += 1000) {
+      const page = await getJSON("/stat_lines?select=id,fantasy_points,players(name,nfl_team),games!inner(week_id)" +
+        "&games.week_id=in.(" + ids + ")&fantasy_points=gt.0&order=id&limit=1000&offset=" + off);
+      for (const s of page) {
+        if (!s.players || !s.games) continue;
+        const n = idToN[s.games.week_id];
+        (byWeek[n][norm(s.players.name)] ||= []).push({ team: s.players.nfl_team, pts: Number(s.fantasy_points) || 0 });
+      }
+      if (page.length < 1000) break;
+    }
+    return byWeek;
+  }
+
+  // Same matching rule as weekly.html: name, with NFL team to break ties.
+  function pointsFor(weekPts, p) {
+    const c = weekPts[norm(p.name)];
+    if (!c || !c.length) return 0;
+    const same = c.filter(x => x.team === nfl(p.team));
+    const pick = same.length ? same : (new Set(c.map(x => x.team)).size === 1 ? c : []);
+    return pick.reduce((a, x) => a + x.pts, 0);
+  }
+
+  /* ---------------- analysis ---------------- */
+  const byPts = (a, b) => b.pts - a.pts;
+
+  function bestLineup(players) {
+    const g = {};
+    for (const p of players) (g[p.slot] ||= []).push(p);
+    for (const k in g) g[k].sort(byPts);
+    const take = (k, n) => (g[k] || []).slice(0, n);
+    const out = [...take("K", 1), ...take("QB", 1), ...take("RB", 3), ...take("DL/LB", 1), ...take("DB", 1)];
+    const tes = g["TE/WR"] || [];
+    let rest = (g["WR"] || []).slice();
+    if (tes.length) { out.push(tes[0]); rest = rest.concat(tes.slice(1)); }
+    rest.sort(byPts);
+    return out.concat(rest.slice(0, tes.length ? 3 : 4));
+  }
+
+  function analyzeTeamWeek(week, code, roster, weekPts, starterRows) {
+    const players = roster.map(p => Object.assign({}, p, { pts: pointsFor(weekPts, p) }));
+    const byName = {};
+    for (const p of players) byName[p.name] = p;
+    const best = bestLineup(players);
+    const bestSet = new Set(best.map(p => p.name));
+
+    const starters = [];
+    const flags = [];
+    let scored = 0;
+    for (const [slot, name, commPts] of starterRows) {
+      if (!name) { starters.push({ slot, name: null, pts: 0, empty: true }); continue; }
+      const p = byName[name];
+      if (!p) { flags.push(name + " isn't on this week's roster"); starters.push({ slot, name, pts: 0 }); continue; }
+      starters.push({ slot, name, team: p.team, pts: p.pts });
+      scored += p.pts;
+      if (Math.abs(p.pts - commPts) > 0.01) flags.push(name + ": engine " + fmt(p.pts) + ", commissioner " + fmt(commPts));
+    }
+    const optimal = best.reduce((a, p) => a + p.pts, 0);
+    const startedSet = new Set(starters.filter(s => s.name).map(s => s.name));
+
+    // Pair each bench player who belongs in the best lineup with a starter he'd replace,
+    // inside the same position group: biggest benched score against smallest starter.
+    const swaps = [];
+    const left = {};
+    for (const grp of GROUPS) {
+      const ins = best.filter(p => groupOf(p.slot) === grp && !startedSet.has(p.name)).sort(byPts);
+      const outs = starters.filter(s => groupOf(s.slot) === grp && (s.empty || !bestSet.has(s.name))).sort((a, b) => a.pts - b.pts);
+      const n = Math.max(ins.length, outs.length);
+      for (let i = 0; i < n; i++) {
+        const a = ins[i], b = outs[i];
+        const gain = (a ? a.pts : 0) - (b ? b.pts : 0);
+        left[grp] = (left[grp] || 0) + gain;
+        if (Math.abs(gain) > 0.001) swaps.push({ grp, slot: a ? a.slot : b.slot, inn: a, out: b, gain });
+      }
+    }
+    // Split DL/LB vs DB stays as-is; the "REC" group covers WR + TE.
+    swaps.sort((x, y) => y.gain - x.gain);
+    return { week, code, scored, optimal, left: optimal - scored, byGroup: left, swaps, flags };
+  }
+
+  /* ---------------- rendering ---------------- */
+  let RESULTS = [];   // all team-weeks
+  let WEEK_LIST = [];
+  let current = null;
+
+  function teamCell(code) {
+    return `<span class="dot ${divClass(code)}"></span>${esc(TEAMS[code].name)}<span class="tcode">${esc(TEAMS[code].abbrev)}</span>`;
+  }
+
+  function season() {
+    const agg = {};
+    for (const code in TEAMS) agg[code] = { code, scored: 0, optimal: 0, byGroup: {}, weeks: [] };
+    for (const r of RESULTS) {
+      const a = agg[r.code];
+      a.scored += r.scored; a.optimal += r.optimal; a.weeks.push(r);
+      for (const g in r.byGroup) a.byGroup[g] = (a.byGroup[g] || 0) + r.byGroup[g];
+    }
+    const list = Object.values(agg).map(a => Object.assign(a, { left: a.optimal - a.scored, eff: pct(a.scored, a.optimal) }));
+    list.sort((x, y) => y.eff - x.eff || x.left - y.left);
+    return list;
+  }
+
+  function renderHeadline(list) {
+    const top = list[0], bot = list[list.length - 1];
+    const worstWeek = RESULTS.slice().sort((a, b) => b.left - a.left)[0];
+    const totalLeft = list.reduce((s, a) => s + a.left, 0);
+    document.getElementById("headline").innerHTML = `
+      <div class="stat good"><span class="lbl">Sharpest lineups</span><span class="big">${esc(TEAMS[top.code].name)}</span>
+        <span class="det">${fmt(top.eff)}% of the best possible · ${fmt(top.left)} pts left</span></div>
+      <div class="stat bad"><span class="lbl">Most left on the bench</span><span class="big">${esc(TEAMS[bot.code].name)}</span>
+        <span class="det">${fmt(bot.eff)}% of the best possible · ${fmt(bot.left)} pts left</span></div>
+      <div class="stat"><span class="lbl">Costliest single week</span><span class="big">${esc(TEAMS[worstWeek.code].name)} · wk ${worstWeek.week}</span>
+        <span class="det">${fmt(worstWeek.left)} pts left · league total ${fmt(totalLeft)} pts benched</span></div>`;
+  }
+
+  function renderRankings(list) {
+    const rows = list.map((a, i) => {
+      const ws = a.weeks.slice().sort((x, y) => pct(y.scored, y.optimal) - pct(x.scored, x.optimal));
+      const bw = ws[0], ww = ws[ws.length - 1];
+      return `<tr>
+        <td class="l rk">${i + 1}</td>
+        <td class="l team">${teamCell(a.code)}</td>
+        <td><div class="eff"><span class="bar"><i style="width:${Math.max(0, Math.min(100, a.eff)).toFixed(1)}%"></i></span><span class="effv">${fmt(a.eff)}%</span></div></td>
+        <td>${fmt(a.scored)}</td>
+        <td>${fmt(a.optimal)}</td>
+        <td class="left">${fmt(a.left)}</td>
+        <td class="muted">wk ${bw.week} · ${Math.round(pct(bw.scored, bw.optimal))}%</td>
+        <td class="muted">wk ${ww.week} · ${Math.round(pct(ww.scored, ww.optimal))}%</td>
+      </tr>`;
+    }).join("");
+    document.getElementById("rankings").innerHTML = `<thead><tr>
+        <th class="l">#</th><th class="l">Team</th><th>Efficiency</th><th>Scored</th><th>Best possible</th>
+        <th>Left on bench</th><th>Best week</th><th>Worst week</th></tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  function heatStyle(v, max) {
+    if (!(v > 0) || !(max > 0)) return "";
+    const a = 0.08 + 0.42 * Math.min(1, v / max);
+    return ` style="background: rgba(var(--heat), ${a.toFixed(2)})"`;
+  }
+
+  function renderByPos(list) {
+    const max = Math.max(1, ...list.flatMap(a => GROUPS.map(g => a.byGroup[g] || 0)));
+    const rows = list.map(a => `<tr><td class="l team">${teamCell(a.code)}</td>` +
+      GROUPS.map(g => { const v = a.byGroup[g] || 0;
+        return `<td class="heat${v > 0 ? "" : " zero"}"${heatStyle(v, max)}>${fmt(v)}</td>`; }).join("") +
+      `<td class="left">${fmt(a.left)}</td></tr>`).join("");
+    document.getElementById("bypos").innerHTML = `<thead><tr><th class="l">Team</th>` +
+      GROUPS.map(g => `<th>${GROUP_LABEL[g]}</th>`).join("") + `<th>Total</th></tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  function renderGrid(list) {
+    const max = Math.max(1, ...RESULTS.map(r => r.left));
+    const rows = list.map(a => `<tr><td class="l team">${teamCell(a.code)}</td>` +
+      WEEK_LIST.map(n => { const r = RESULTS.find(x => x.code === a.code && x.week === n);
+        if (!r) return "<td class='muted'>–</td>";
+        return `<td class="cell heat" data-week="${n}" title="Week ${n}: ${fmt(r.scored)} of ${fmt(r.optimal)}"${heatStyle(r.left, max)}>${Math.round(pct(r.scored, r.optimal))}%<span class="sm">−${fmt(r.left)}</span></td>`;
+      }).join("") + "</tr>").join("");
+    document.getElementById("grid").innerHTML = `<thead><tr><th class="l">Team</th>` +
+      WEEK_LIST.map(n => `<th>Wk ${n}</th>`).join("") + `</tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  function renderTabs() {
+    document.getElementById("tabs").innerHTML = WEEK_LIST.map(n =>
+      `<button class="tab" type="button" role="tab" data-week="${n}" aria-selected="${n === current}">Week ${n}</button>`).join("");
+  }
+
+  function renderCards() {
+    const rs = RESULTS.filter(r => r.week === current).sort((a, b) => b.left - a.left);
+    document.getElementById("cards").innerHTML = rs.map(r => {
+      const body = r.swaps.length ? r.swaps.map(s => {
+        const slot = s.inn ? s.inn.slot : s.out.slot;
+        const inn = s.inn ? `<span class="in">${esc(s.inn.name)}</span> <span class="pp">${fmt(s.inn.pts)}</span>` : `<span class="muted">nobody better</span>`;
+        const out = s.out ? (s.out.empty ? "over an empty slot" : `over ${esc(s.out.name)} <span class="pp">${fmt(s.out.pts)}</span>`) : "";
+        return `<div class="swap"><span class="badge ${badgeClass(slot)}">${esc(slotLabel(slot))}</span>
+          <div><div>${inn}</div><div class="out">${out}</div></div>
+          <span class="gain">${s.gain > 0 ? "+" : ""}${fmt(s.gain)}</span></div>`;
+      }).join("") : `<div class="perfect">Perfect lineup &mdash; nothing better on the bench.</div>`;
+      const flags = r.flags.length ? `<div class="flag">${r.flags.map(esc).join(" · ")}</div>` : "";
+      return `<div class="card ${divClass(r.code)}">
+        <div class="card-head"><span class="nm">${esc(TEAMS[r.code].name)}</span>
+          <span class="fig"><b>${fmt(r.scored)}</b> of ${fmt(r.optimal)} · <span class="left">−${fmt(r.left)}</span></span></div>
+        ${body}${flags}</div>`;
+    }).join("");
+  }
+
+  function selectWeek(n, push) {
+    current = n;
+    renderTabs(); renderCards();
+    if (push) {
+      const u = new URL(location.href); u.searchParams.set("week", n);
+      history.replaceState(null, "", u);
+    }
+  }
+
+  /* ---------------- boot ---------------- */
+  async function boot() {
+    try {
+      const [RD, ST, weeks] = await Promise.all([
+        loadRosterData(), loadStarters(),
+        getJSON("/weeks?select=id,season_id,week_number&season_type=eq.2&order=season_id.desc,week_number.asc")
+      ]);
+      document.getElementById("srcFile").textContent = ST.source || "?";
+      const seasonId = weeks.length ? Math.max(...weeks.map(w => w.season_id)) : null;
+      const weekIds = {};
+      for (const w of weeks) if (w.season_id === seasonId && ST.weeks[String(w.week_number)]) weekIds[w.week_number] = w.id;
+      WEEK_LIST = Object.keys(weekIds).map(Number).sort((a, b) => a - b);
+      const missing = Object.keys(ST.weeks).map(Number).filter(n => !weekIds[n]);
+      if (missing.length) document.getElementById("warn").innerHTML =
+        `<p class="warn"><b>Scores missing for week ${missing.join(", ")}.</b> Starters are in, but the score feed has no games for that week yet.</p>`;
+      if (!WEEK_LIST.length) throw new Error("no scored weeks yet");
+
+      const pts = await loadPoints(weekIds);
+      RESULTS = [];
+      for (const n of WEEK_LIST) {
+        const rosters = rostersFor(RD, n);
+        for (const code in TEAMS) {
+          const rows = (ST.weeks[String(n)] || {})[code];
+          if (!rows || !rosters[code]) continue;
+          RESULTS.push(analyzeTeamWeek(n, code, rosters[code], pts[n], rows));
+        }
+      }
+      const last = WEEK_LIST[WEEK_LIST.length - 1];
+      document.getElementById("eyebrow").textContent = "2026 Regular Season · through week " + last;
+      document.getElementById("rankHint").textContent = "weeks " + WEEK_LIST[0] + "–" + last + " · sorted by efficiency";
+      const list = season();
+      renderHeadline(list); renderRankings(list); renderByPos(list); renderGrid(list);
+      const q = +new URLSearchParams(location.search).get("week");
+      selectWeek(WEEK_LIST.includes(q) ? q : last, false);
+    } catch (e) {
+      document.getElementById("rankings").innerHTML =
+        `<tbody><tr><td class="l"><span class="status">Could not build the report right now (${esc(e.message)}).</span></td></tr></tbody>`;
+    }
+  }
+
+  document.getElementById("tabs").addEventListener("click", e => {
+    const b = e.target.closest(".tab"); if (b) selectWeek(+b.dataset.week, true);
+  });
+  document.getElementById("grid").addEventListener("click", e => {
+    const c = e.target.closest("td.cell"); if (!c) return;
+    selectWeek(+c.dataset.week, true);
+    document.getElementById("tabs").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---- theme (same as the other pages) ---- */
+  const themeBtn = document.getElementById("themeBtn");
+  const MODES = ["auto", "light", "dark"];
+  let mode = "auto";
+  try { mode = localStorage.getItem("ffl-sim-theme") || "auto"; } catch (e) {}
+  function applyTheme() {
+    if (mode === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", mode);
+    themeBtn.textContent = "Theme: " + mode;
+  }
+  themeBtn.addEventListener("click", () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    try { localStorage.setItem("ffl-sim-theme", mode); } catch (e) {}
+    applyTheme();
+  });
+  applyTheme();
+
+  boot();
+})();
+</script>
+
+</body>
+</html>
