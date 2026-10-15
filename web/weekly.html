@@ -289,7 +289,13 @@
     width: 16px; height: 16px; margin: 0; align-self: center; cursor: pointer;
     accent-color: var(--turf);
   }
-  .plr.pick input:disabled { cursor: progress; }
+  .plr.pick input:disabled { cursor: not-allowed; opacity: 0.45; }
+  .plr.pick.locked input:disabled { opacity: 0.8; }
+  .col-head .need { display: block; margin-top: 2px; color: var(--gold); }
+  .col-head .need.over { color: var(--clemenza); }
+  .col-head .need.ok { color: var(--turf-deep); }
+  .toolbar .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toggle.on { background: var(--clemenza); border-color: var(--clemenza); color: #fff; }
   /* Real NFL bye: no checkbox, a red BYE tag in its place, name struck through. */
   .plr .byetag {
     align-self: center; justify-self: center; width: 22px; padding: 2px 0; border-radius: 2px;
@@ -320,7 +326,7 @@
     <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
   </div>
 
-  <p class="note"><b>Only checked players count.</b> Tick the box next to a player to put him in that team's lineup &mdash; a team's score is the sum of its checked players, and a team with nothing checked scores 0. Checks are saved for everyone who views the page. No lineup rules are enforced yet (any number of players, any positions). Rosters follow the waiver wire: a player claimed after week N is on the roster from week N+1.</p>
+  <p class="note"><b>Only checked players count.</b> Tick the box next to a player to put him in that team's lineup &mdash; a team's score is the sum of its checked players, and a team with nothing checked scores 0. Checks are saved for everyone who views the page. A lineup is 1&nbsp;K, 1&nbsp;QB, 3&nbsp;RB, 1&nbsp;TE, 3&nbsp;WR (wide receivers or extra tight ends), 1&nbsp;DL/LB and 1&nbsp;DB (Rule VI-A): once a position is full, its other boxes are greyed out, and each roster shows which spots are still open. A player's box locks once his NFL game kicks off (Rule VI-C). Rosters follow the waiver wire: a player claimed after week N is on the roster from week N+1.</p>
   <div id="pickWarn"></div>
 
   <div class="sec-head">
@@ -338,7 +344,10 @@
   <div id="weekWarn"></div>
   <div class="toolbar">
     <div class="wk-meta" id="wkMeta"></div>
-    <button class="toggle" id="filterBtn" type="button">Showing: full roster</button>
+    <div class="btns">
+      <button class="toggle" id="overrideBtn" type="button" title="Commissioner only: unlock players whose games have started">Kickoff locks: on</button>
+      <button class="toggle" id="filterBtn" type="button">Showing: full roster</button>
+    </div>
   </div>
   <div class="games" id="games"><div class="status">Loading…</div></div>
 
@@ -427,6 +436,54 @@
     return "off";
   }
   const POS_ORDER = { K: 0, QB: 1, RB: 2, WR: 3, "TE/WR": 4, TE: 4, "DL/LB": 5, DB: 6 };
+
+  /* ---------------- lineup rules (Rule Book VI-A) ----------------
+     1 K, 1 QB, 3 RB, 1 TE, 3 WR, 1 DL/LB, 1 DB. Tight ends are listed as "TE/WR":
+     at least one must fill the TE spot, and the three WR spots take WRs or extra TEs.
+     So: at most 3 WR, and WR + TE together at most 4. */
+  const LIMITS = { K: 1, QB: 1, RB: 3, "DL/LB": 1, DB: 1 };
+  const isTE = pos => pos === "TE/WR" || pos === "TE";
+  function lineupCounts(players) {
+    const c = { K: 0, QB: 0, RB: 0, WR: 0, TE: 0, "DL/LB": 0, DB: 0 };
+    for (const p of players) if (p.on) {
+      if (isTE(p.pos)) c.TE++;
+      else if (p.pos in c) c[p.pos]++;
+    }
+    return c;
+  }
+  // Why this (unchecked) player can't be added, or "" if he can.
+  function fullReason(c, pos) {
+    if (pos in LIMITS) return c[pos] >= LIMITS[pos] ? pos + " spot" + (LIMITS[pos] > 1 ? "s" : "") + " full (" + LIMITS[pos] + ")" : "";
+    if (pos === "WR") {
+      if (c.WR >= 3) return "WR spots full (3)";
+      if (c.WR + c.TE >= 4) return "TE + WR spots full (4)";
+      return "";
+    }
+    if (isTE(pos)) return c.WR + c.TE >= 4 ? "TE + WR spots full (4)" : "";
+    return "position " + pos + " has no lineup spot";
+  }
+  // Open spots and over-limit positions, for the roster header.
+  function lineupStatus(c) {
+    const open = [], over = [];
+    for (const pos of ["K", "QB", "RB"]) {
+      if (c[pos] < LIMITS[pos]) open.push((LIMITS[pos] - c[pos] > 1 ? (LIMITS[pos] - c[pos]) + " " : "") + pos);
+      if (c[pos] > LIMITS[pos]) over.push(c[pos] + " " + pos);
+    }
+    if (c.TE < 1) open.push("TE");
+    const wr = Math.min(3, c.WR + Math.max(0, c.TE - 1));
+    if (wr < 3) open.push((3 - wr > 1 ? (3 - wr) + " " : "") + "WR");
+    if (c.WR > 3) over.push(c.WR + " WR");
+    if (c.WR + c.TE > 4) over.push(c.WR + c.TE + " WR/TE");
+    for (const pos of ["DL/LB", "DB"]) {
+      if (c[pos] < LIMITS[pos]) open.push(pos);
+      if (c[pos] > LIMITS[pos]) over.push(c[pos] + " " + pos);
+    }
+    return { open, over };
+  }
+  // A player locks once his NFL game has kicked off. The feed only writes a game
+  // row once it's live or final, so any game row that isn't "pre" means started.
+  const hasKickedOff = p => !!(p.game && p.game.state && p.game.state !== "pre");
+  let lockOverride = false;   // commissioner override; this page view only, never saved
 
   async function getJSON(path) {
     const res = await fetch(REST_BASE + path, { headers: REST_HEADERS });
@@ -545,7 +602,12 @@
       const pts = lineup.reduce((a, p) => a + p.pts, 0);
       const all = players.reduce((a, p) => a + p.pts, 0);
       const left = lineup.filter(p => p.game && p.game.state !== "post").length;
-      teams[code] = { players, pts, all, picked: lineup.length, left };
+      const counts = lineupCounts(players);
+      for (const p of players) {
+        p.locked = hasKickedOff(p);
+        p.full = p.on || p.bye ? "" : fullReason(counts, p.pos);
+      }
+      teams[code] = { players, pts, all, picked: lineup.length, left, status: lineupStatus(counts) };
     }
     const allFinal = stats.games.length > 0 && stats.games.every(g => g.state === "post");
     const started = stats.games.some(g => g.state !== "pre");
@@ -608,11 +670,14 @@
       const weekDone = wk && wk.games.length > 0 && wk.games.every(g => g.state === "post");
       s = weekDone ? "did not play" : "no stats yet";
     }
-    return `<div class="plr pick ${p.on ? "in" : "out"}${p.pts > 0 ? "" : " zero"}${p.bye ? " bye" : ""}">
+    const locked = p.locked && !lockOverride;
+    const why = locked ? "game has kicked off — locked" : p.full;
+    const off = !picksOK || locked || !!p.full;
+    return `<div class="plr pick ${p.on ? "in" : "out"}${p.pts > 0 ? "" : " zero"}${p.bye ? " bye" : ""}${locked ? " locked" : ""}">
         ${p.bye
           ? `<span class="byetag" title="${esc(p.team)} is on bye — can't be selected" aria-label="${esc(p.name)} is on bye this week">BYE</span>`
-          : `<input type="checkbox" data-team="${esc(code)}" data-player="${esc(p.name)}"${p.on ? " checked" : ""}${picksOK ? "" : " disabled"}
-          aria-label="Count ${esc(p.name)} for ${esc(TEAMS[code].abbrev)}">`}
+          : `<input type="checkbox" data-team="${esc(code)}" data-player="${esc(p.name)}"${p.on ? " checked" : ""}${off ? " disabled" : ""}
+          ${why ? `title="${esc(why)}" ` : ""}aria-label="Count ${esc(p.name)} for ${esc(TEAMS[code].abbrev)}${why ? " (" + esc(why) + ")" : ""}">`}
         <span class="badge ${badgeClass(p.pos)}">${esc(p.pos)}</span>
         <span class="who">
           <span class="n">${esc(p.name)}<span class="nfl">${esc(p.team)}</span>${p.added === cur ? '<span class="chg">waiver add</span>' : ""}</span>
@@ -622,11 +687,17 @@
       </div>`;
   }
 
+  function needLine(st) {
+    if (st.over.length) return `<span class="need over">Too many: ${esc(st.over.join(", "))} — uncheck to fix</span>`;
+    if (st.open.length) return `<span class="need">Open: ${esc(st.open.join(", "))}</span>`;
+    return `<span class="need ok">Lineup complete</span>`;
+  }
+
   function rosterCol(code, t) {
     const list = showAll ? t.players : t.players.filter(p => p.on);
     const left = t.left ? ` · ${t.left} still to play` : "";
     return `<div class="col">
-        <div class="col-head"><span>${esc(TEAMS[code].abbrev)} roster</span><span class="cnt"><b>${t.picked}</b> of ${t.players.length} checked${left}</span></div>
+        <div class="col-head"><span>${esc(TEAMS[code].abbrev)} roster</span><span class="cnt"><b>${t.picked}</b> of ${t.players.length} checked${left}${needLine(t.status)}</span></div>
         ${list.map(p => playerLine(p, code)).join("") || '<div class="plr zero"><span></span><span class="who"><span class="s none">No players checked yet.</span></span><span></span></div>'}
       </div>`;
   }
@@ -697,6 +768,16 @@
     if (!box) return;
     const n = cur, w = WEEKS.find(x => x.n === n);
     const team = box.dataset.team, name = box.dataset.player, on = box.checked;
+    // Re-check the rules against current data (the boxes may be up to 60s stale).
+    const t = cache[n] && scoreWeek(n, cache[n]).teams[team];
+    const p = t && t.players.find(x => x.name === name);
+    const blocked = !p ? "" : (p.locked && !lockOverride) ? "his game has already kicked off" : (on ? p.full : "");
+    if (blocked) {
+      box.checked = !on;
+      showPickWarn("<b>Not changed.</b> " + esc(name) + " (" + esc(TEAMS[team].abbrev) + "): " + esc(blocked) + ".");
+      renderWeek();
+      return;
+    }
     const set = picks[n] || (picks[n] = new Set());
     if (on) set.add(pickKey(team, name)); else set.delete(pickKey(team, name));
     saving++;
@@ -734,6 +815,14 @@
   }
   document.getElementById("tabs").addEventListener("click", e => {
     const b = e.target.closest(".tab"); if (b) selectWeek(+b.dataset.n, true);
+  });
+  const overrideBtn = document.getElementById("overrideBtn");
+  overrideBtn.addEventListener("click", () => {
+    if (!lockOverride && !confirm("Commissioner override: unlock players whose games have already kicked off?\n\nPosition limits still apply. The override lasts until you turn it off or reload the page.")) return;
+    lockOverride = !lockOverride;
+    overrideBtn.textContent = lockOverride ? "Kickoff locks: OVERRIDDEN" : "Kickoff locks: on";
+    overrideBtn.classList.toggle("on", lockOverride);
+    renderWeek();
   });
   filterBtn.addEventListener("click", () => {
     showAll = !showAll;
