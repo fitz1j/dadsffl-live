@@ -215,6 +215,7 @@
   .strip { display: inline-flex; align-items: flex-end; gap: 2px; height: 26px; vertical-align: middle; }
   .strip span { width: 9px; background: var(--turf); opacity: 0.85; min-height: 2px; }
   .strip span.st { background: var(--gold); opacity: 1; }
+  .strip.only-st span:not(.st) { opacity: 0.22; }
   .strip span.z { background: var(--line); }
   .strip span.bye { background: none; border-bottom: 2px dotted var(--ink-faint); height: 0 !important; min-height: 0; }
   .strip span.dnp { background: none; height: 0 !important; min-height: 0; border-bottom: 1px solid var(--line); }
@@ -235,7 +236,7 @@
     <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
   </div>
 
-  <p class="note"><b>How to read it.</b> <b>Avg</b> is total points &divide; <b>GP</b>, the NFL games he's played this season (a game counts once it's final). <b>Starts</b> is how many weeks his DADS owner had him in the lineup, and <b>Avg / start</b> is what he scored in those weeks. Click any column heading to sort; position buttons can be combined (QB + WR, say).</p>
+  <p class="note"><b>How to read it.</b> <b>Avg</b> is total points &divide; <b>GP</b>, the NFL games he's played this season (a game counts once it's final). <b>Starts</b> is how many weeks his DADS owner had him in the lineup, and <b>Avg / start</b> is what he scored in those weeks. Switch <b>Points</b> to <b>Started only</b> to count just the weeks a player was in his owner's lineup &mdash; totals, averages and highs then cover starts only. Click any column heading to sort; position buttons can be combined (QB + WR, say).</p>
   <div id="warn"></div>
 
   <div class="headline" id="headline"></div>
@@ -243,7 +244,8 @@
   <div class="filters" id="filters">
     <div class="chips" id="posChips" role="group" aria-label="Positions"></div>
     <label><span class="ctl-lbl">Team</span><select class="ctl" id="teamSel"></select></label>
-    <label><span class="ctl-lbl">Min GP</span><select class="ctl" id="gpSel">
+    <span class="chips" id="ptsChips" role="group" aria-label="Points counted"><span class="ctl-lbl" style="align-self:center">Points</span><button class="chip" type="button" data-pts="all" aria-pressed="true" title="Every game he played">All games</button><button class="chip" type="button" data-pts="started" aria-pressed="false" title="Only weeks his DADS owner started him">Started only</button></span>
+    <label><span class="ctl-lbl" id="gpLbl">Min GP</span><select class="ctl" id="gpSel">
       <option value="0">Any</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
     </select></label>
     <input class="ctl" id="search" type="search" placeholder="Search players" aria-label="Search players">
@@ -413,7 +415,7 @@
 
     PLAYERS = Object.values(byKey).map(e => {
       const weeks = {};
-      let total = 0, gp = 0, starts = 0, startPts = 0, high = null;
+      let total = 0, gp = 0, starts = 0, startPts = 0, high = null, startHigh = null;
       for (const n of WEEK_LIST) {
         const bye = BYES[BYE_ALIASES[e.team] || e.team] === n;
         const pts = weekLine(lines[n] || {}, e);
@@ -421,27 +423,28 @@
         const st = !!(h && started[n] && started[n].has(h.code + "|" + h.name));
         weeks[n] = { pts, bye, st };
         if (pts !== null) { total += pts; gp++; if (high === null || pts > high) high = pts; }
-        if (st) { starts++; startPts += pts || 0; }
+        if (st) { starts++; startPts += pts || 0; if (startHigh === null || (pts || 0) > startHigh) startHigh = pts || 0; }
       }
       return Object.assign(e, {
         weeks, total, gp, avg: gp ? total / gp : null, high,
-        starts, avgStart: starts ? startPts / starts : null
+        starts, startPts, startHigh, avgStart: starts ? startPts / starts : null
       });
     });
   }
 
   /* ---------------- filters / state ---------------- */
-  const state = { pos: new Set(), team: "ALL", gp: 0, q: "", sort: "avg", dir: -1 };
+  const state = { pos: new Set(), team: "ALL", gp: 0, q: "", sort: "avg", dir: -1, started: false };
 
   function readURL() {
     const u = new URLSearchParams(location.search);
     (u.get("pos") || "").split(",").map(s => s.trim().toUpperCase()).forEach(p => { if (POSITIONS.includes(p)) state.pos.add(p); });
     const t = (u.get("team") || "").toUpperCase();
     if (TEAMS[t] || t === "RELEASED") state.team = t;
+    state.started = u.get("pts") === "started";
     const g = +u.get("gp"); if ([1,2,3,4].includes(g)) state.gp = g;
     if (u.get("q")) state.q = u.get("q");
-    if (COLS.some(c => c.key === u.get("sort"))) state.sort = u.get("sort");
-    const sc = COLS.find(c => c.key === state.sort);
+    if (cols().some(c => c.key === u.get("sort"))) state.sort = u.get("sort");
+    const sc = cols().find(c => c.key === state.sort);
     state.dir = u.get("dir") === "asc" ? 1 : u.get("dir") === "desc" ? -1 : (sc.first ? 1 : -1);
   }
   function writeURL() {
@@ -451,38 +454,57 @@
     set("team", state.team === "ALL" ? "" : state.team);
     set("gp", state.gp ? String(state.gp) : "");
     set("q", state.q);
+    set("pts", state.started ? "started" : "");
     set("sort", state.sort === "avg" ? "" : state.sort);
-    const defDir = COLS.find(c => c.key === state.sort).first ? 1 : -1;
+    const defDir = cols().find(c => c.key === state.sort).first ? 1 : -1;
     set("dir", state.dir === defDir ? "" : (state.dir === 1 ? "asc" : "desc"));
     history.replaceState(null, "", u);
   }
 
-  const COLS = [
-    { key: "name",     label: "Player",      cls: "l", val: p => p.name.toLowerCase(), first: 1 },
-    { key: "pos",      label: "Pos",         cls: "l", val: p => POSITIONS.indexOf(p.pos), first: 1 },
-    { key: "owner",    label: "DADS team",   cls: "l", val: p => p.owner ? TEAMS[p.owner].abbrev : "~", first: 1 },
-    { key: "gp",       label: "GP",          val: p => p.gp },
-    { key: "total",    label: "Total",       val: p => p.total },
-    { key: "avg",      label: "Avg",         val: p => p.avg },
-    { key: "high",     label: "High",        val: p => p.high },
-    { key: "starts",   label: "Starts",      val: p => p.starts },
-    { key: "avgStart", label: "Avg / start", val: p => p.avgStart }
+  // Columns depend on the "Points" mode. In "started only" mode every figure is
+  // computed over the weeks his DADS owner started him: Starts replaces GP, and
+  // Total / Avg / High are started-week points (Avg = started points ÷ starts).
+  const blank = v => v === null ? `<span class="muted">–</span>` : fmt(v);
+  const BASE_COLS = [
+    { key: "name",  label: "Player",    cls: "l", val: p => p.name.toLowerCase(), first: 1 },
+    { key: "pos",   label: "Pos",       cls: "l", val: p => POSITIONS.indexOf(p.pos), first: 1 },
+    { key: "owner", label: "DADS team", cls: "l", val: p => p.owner ? TEAMS[p.owner].abbrev : "~", first: 1 }
   ];
+  const ALL_COLS = BASE_COLS.concat([
+    { key: "gp",       label: "GP",          val: p => p.gp,       cell: p => p.gp },
+    { key: "total",    label: "Total",       val: p => p.total,    cell: p => fmt(p.total) },
+    { key: "avg",      label: "Avg",         val: p => p.avg,      cell: p => blank(p.avg), avg: 1 },
+    { key: "high",     label: "High",        val: p => p.high,     cell: p => blank(p.high) },
+    { key: "starts",   label: "Starts",      val: p => p.starts,   cell: p => p.starts },
+    { key: "avgStart", label: "Avg / start", val: p => p.avgStart, cell: p => blank(p.avgStart) }
+  ]);
+  const STARTED_COLS = BASE_COLS.concat([
+    { key: "starts", label: "Starts",         val: p => p.starts,    cell: p => p.starts },
+    { key: "total",  label: "Started pts",    val: p => p.startPts,  cell: p => fmt(p.startPts) },
+    { key: "avg",    label: "Avg / start",    val: p => p.avgStart,  cell: p => blank(p.avgStart), avg: 1 },
+    { key: "high",   label: "High (started)", val: p => p.startHigh, cell: p => blank(p.startHigh) }
+  ]);
+  const cols = () => state.started ? STARTED_COLS : ALL_COLS;
+  // When switching modes, keep the sort if the column exists in both; else fall back to Avg.
+  function fixSort() {
+    if (!cols().some(c => c.key === state.sort)) { state.sort = "avg"; state.dir = -1; }
+  }
 
   function filtered() {
     const q = norm(state.q);
     const list = PLAYERS.filter(p =>
       (!state.pos.size || state.pos.has(p.pos)) &&
       (state.team === "ALL" ? !!p.owner : state.team === "RELEASED" ? !p.owner : p.owner === state.team) &&
-      p.gp >= state.gp &&
+      (state.started ? p.starts > 0 && p.starts >= state.gp : p.gp >= state.gp) &&
       (!q || norm(p.name).includes(q)));
-    const col = COLS.find(c => c.key === state.sort);
+    const col = cols().find(c => c.key === state.sort);
+    const avgOf = cols().find(c => c.avg).val;
     list.sort((a, b) => {
       const x = col.val(a), y = col.val(b);
       if (x === null && y !== null) return 1;     // blanks always last
       if (y === null && x !== null) return -1;
       if (x !== y) return (x < y ? -1 : 1) * state.dir;
-      return (b.avg ?? -1) - (a.avg ?? -1) || b.total - a.total || a.name.localeCompare(b.name);
+      return (avgOf(b) ?? -1) - (avgOf(a) ?? -1) || b.total - a.total || a.name.localeCompare(b.name);
     });
     return list;
   }
@@ -498,11 +520,13 @@
     const sel = document.getElementById("teamSel");
     sel.innerHTML = opts.join(""); sel.value = state.team;
     document.getElementById("gpSel").value = String(state.gp);
+    document.getElementById("gpLbl").textContent = state.started ? "Min starts" : "Min GP";
+    for (const b of document.querySelectorAll("#ptsChips .chip")) b.setAttribute("aria-pressed", String((b.dataset.pts === "started") === state.started));
     document.getElementById("search").value = state.q;
   }
 
   function strip(p, maxPts) {
-    return `<span class="strip">` + WEEK_LIST.map(n => {
+    return `<span class="strip${state.started ? " only-st" : ""}">` + WEEK_LIST.map(n => {
       const w = p.weeks[n];
       let cls = "", h = 2, tip = "Wk " + n + ": ";
       if (w.pts === null) { cls = w.bye ? "bye" : "dnp"; tip += w.bye ? "bye" : "no game"; }
@@ -515,31 +539,27 @@
   function renderTable() {
     const list = filtered();
     const maxPts = Math.max(1, ...PLAYERS.flatMap(p => WEEK_LIST.map(n => p.weeks[n].pts || 0)));
-    const head = `<thead><tr><th class="l">#</th>` + COLS.map(c =>
+    const C = cols();
+    const head = `<thead><tr><th class="l">#</th>` + C.map(c =>
       `<th class="sort ${c.cls || ""}" data-key="${c.key}" aria-sort="${state.sort === c.key ? (state.dir < 0 ? "descending" : "ascending") : "none"}">${c.label}</th>`).join("") +
       `<th class="l">By week</th></tr></thead>`;
     const rows = list.map((p, i) => {
       const owner = p.owner
         ? `<td class="l owner"><span class="dot ${divClass(p.owner)}"></span>${esc(TEAMS[p.owner].abbrev)}</td>`
         : `<td class="l owner gone" title="Dropped by ${esc(TEAMS[p.lastOwner].name)}">released · ${esc(TEAMS[p.lastOwner].abbrev)}</td>`;
-      const n = v => v === null ? `<span class="muted">–</span>` : fmt(v);
-      return `<tr${p.gp ? "" : ` class="dim"`}>
+      const live = state.started ? p.starts : p.gp;
+      return `<tr${live ? "" : ` class="dim"`}>
         <td class="l rk">${i + 1}</td>
         <td class="l pname">${esc(p.name)}<span class="nt">${esc(p.team)}</span></td>
         <td class="l"><span class="badge ${badgeClass(p.pos)}">${esc(p.pos)}</span></td>
         ${owner}
-        <td>${p.gp}</td>
-        <td>${fmt(p.total)}</td>
-        <td class="avg">${n(p.avg)}</td>
-        <td>${n(p.high)}</td>
-        <td>${p.starts}</td>
-        <td>${n(p.avgStart)}</td>
+        ${C.slice(3).map(c => `<td${c.avg ? ` class="avg"` : ""}>${c.cell(p)}</td>`).join("")}
         <td class="l">${strip(p, maxPts)}</td>
       </tr>`;
     }).join("");
     document.getElementById("players").innerHTML = head + `<tbody>${rows ||
-      `<tr><td class="l" colspan="${COLS.length + 2}"><span class="status">No players match these filters.</span></td></tr>`}</tbody>`;
-    const of = PLAYERS.filter(p => state.team === "RELEASED" ? !p.owner : !!p.owner).length;
+      `<tr><td class="l" colspan="${C.length + 2}"><span class="status">No players match these filters.</span></td></tr>`}</tbody>`;
+    const of = PLAYERS.filter(p => (state.team === "RELEASED" ? !p.owner : !!p.owner) && (!state.started || p.starts > 0)).length;
     document.getElementById("count").textContent = list.length + " of " + of + " players";
   }
 
@@ -578,6 +598,11 @@
     if (state.pos.size === POSITIONS.length) state.pos.clear();
     rerender();
   });
+  document.getElementById("ptsChips").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    state.started = b.dataset.pts === "started";
+    fixSort(); rerender();
+  });
   document.getElementById("teamSel").addEventListener("change", e => { state.team = e.target.value; rerender(); });
   document.getElementById("gpSel").addEventListener("change", e => { state.gp = +e.target.value; rerender(); });
   document.getElementById("search").addEventListener("input", e => { state.q = e.target.value; renderTable(); writeURL(); });
@@ -585,7 +610,7 @@
     const th = e.target.closest("th.sort"); if (!th) return;
     const key = th.dataset.key;
     if (state.sort === key) state.dir = -state.dir;
-    else { state.sort = key; state.dir = COLS.find(c => c.key === key).first ? 1 : -1; }
+    else { state.sort = key; state.dir = cols().find(c => c.key === key).first ? 1 : -1; }
     renderTable(); writeURL();
   });
 
