@@ -185,6 +185,30 @@
   }
   .toggle:hover { color: var(--ink); border-color: var(--turf); }
 
+  /* ---------- scoreboard (all four games at a glance; tap to jump) ---------- */
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-top: 16px; }
+  @media (max-width: 860px) { .board { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .tile {
+    display: block; text-align: left; width: 100%; cursor: pointer; font: inherit; color: inherit;
+    background: var(--paper-raised); border: 1px solid var(--line); box-shadow: var(--shadow);
+    padding: 8px 12px 9px; border-radius: 2px;
+  }
+  .tile:hover { border-color: var(--turf); }
+  .tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .tile .ln { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 2px 0; }
+  .tile .ab { font-family: Oswald, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.03em; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile .sp { font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; color: var(--ink-faint); }
+  .tile .ln.won .ab { color: var(--ink); } .tile .ln.won .sp { color: var(--turf-deep); }
+  .tile .ln.lead .ab { color: var(--ink); } .tile .ln.lead .sp { color: var(--gold); }
+  .tile .ft { display: flex; justify-content: space-between; margin-top: 3px; padding-top: 4px; border-top: 1px solid var(--line-soft);
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+  .game { scroll-margin-top: 12px; }
+  .game.flash { animation: flash 1.4s ease-out; }
+  @keyframes flash { 0% { box-shadow: 0 0 0 3px var(--gold); } 100% { box-shadow: var(--shadow); } }
+  .to-top { display: block; text-align: right; padding: 7px 16px; font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); text-decoration: none; border-top: 1px solid var(--line-soft); }
+  .to-top:hover { color: var(--turf); }
+
   /* ---------- matchup cards ---------- */
   .games { display: flex; flex-direction: column; gap: 22px; margin-top: 20px; }
   .game { background: var(--paper-raised); border: 1px solid var(--line); box-shadow: var(--shadow); }
@@ -349,6 +373,7 @@
       <button class="toggle" id="filterBtn" type="button">Showing: full roster</button>
     </div>
   </div>
+  <div class="board" id="board"></div>
   <div class="games" id="games"><div class="status">Loading…</div></div>
 
   <footer>
@@ -711,17 +736,28 @@
     document.getElementById("weekWarn").innerHTML = cur > ROSTERS_THROUGH
       ? `<p class="warn"><b>Rosters not yet updated for week ${cur}.</b> Waiver moves are entered through week ${ROSTERS_THROUGH}, so this week is using week-${ROSTERS_THROUGH} rosters.</p>` : "";
     const stats = cache[cur];
-    if (!stats) { document.getElementById("games").innerHTML = '<div class="status">Loading…</div>'; return; }
+    if (!stats) { document.getElementById("board").innerHTML = ""; document.getElementById("games").innerHTML = '<div class="status">Loading…</div>'; return; }
     const sc = scoreWeek(cur, stats);
     const fin = stats.games.filter(g => g.state === "post").length, live = stats.games.filter(g => g.state === "in").length;
     document.getElementById("wkMeta").textContent = "NFL " + w.title + " · " + stats.games.length + " games · " +
       fin + " final" + (live ? " · " + live + " live" : "") + " · updated " + new Date(stats.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
     const pill = sc.allFinal ? '<span class="pill final">Final</span>' : (sc.started ? '<span class="pill live">In progress</span>' : '<span class="pill">Not started</span>');
-    document.getElementById("games").innerHTML = (SCHEDULE[cur] || []).map(([a, b]) => {
+    const games = SCHEDULE[cur] || [];
+    const state = sc.allFinal ? "Final" : (sc.started ? "In progress" : "Not started");
+    document.getElementById("board").innerHTML = games.map(([a, b], i) => {
+      const A = sc.teams[a], B = sc.teams[b], diff = A.pts - B.pts;
+      const c = won => won ? (sc.allFinal ? " won" : " lead") : "";
+      return `<button class="tile" type="button" data-game="${i}" title="Jump to ${esc(TEAMS[a].name)} vs ${esc(TEAMS[b].name)}">
+          <span class="ln${c(diff > 0)}"><span class="ab">${esc(TEAMS[a].name)}</span><span class="sp">${fmt(A.pts)}</span></span>
+          <span class="ln${c(diff < 0)}"><span class="ab">${esc(TEAMS[b].name)}</span><span class="sp">${fmt(B.pts)}</span></span>
+          <span class="ft"><span>${state}</span><span>${diff ? (sc.allFinal ? "by " : "up ") + fmt(Math.abs(diff)) : "tied"} &darr;</span></span>
+        </button>`;
+    }).join("");
+    document.getElementById("games").innerHTML = games.map(([a, b], i) => {
       const A = sc.teams[a], B = sc.teams[b];
       const diff = A.pts - B.pts, aw = diff > 0, bw = diff < 0;
       const cls = (won) => won ? (sc.allFinal ? " won" : " lead") : "";
-      return `<div class="game">
+      return `<div class="game" id="game-${i}">
           <div class="score">
             <div class="side${cls(aw)}"><span class="meta">${esc(TEAMS[a].division)}</span>
               <span class="nm">${esc(TEAMS[a].name)}</span><span class="pts">${fmt(A.pts)}</span>
@@ -733,6 +769,7 @@
               <span class="sub-pts">${B.picked} checked · ${fmt(B.all)} if all 24</span></div>
           </div>
           <div class="rosters">${rosterCol(a, A)}${rosterCol(b, B)}</div>
+          <a class="to-top" href="#board" data-top="1">&uarr; All scores</a>
         </div>`;
     }).join("");
   }
@@ -813,6 +850,18 @@
       document.getElementById("games").innerHTML = '<div class="status">Could not load scores right now (' + esc(e.message) + ').</div>';
     }
   }
+  // Scoreboard tile -> scroll to that game; "All scores" link -> back up to the scoreboard.
+  document.getElementById("board").addEventListener("click", e => {
+    const t = e.target.closest(".tile"); if (!t) return;
+    const g = document.getElementById("game-" + t.dataset.game); if (!g) return;
+    g.scrollIntoView({ behavior: "smooth", block: "start" });
+    g.classList.remove("flash"); void g.offsetWidth; g.classList.add("flash");
+  });
+  document.getElementById("games").addEventListener("click", e => {
+    const a = e.target.closest("a[data-top]"); if (!a) return;
+    e.preventDefault();
+    document.getElementById("tabs").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   document.getElementById("tabs").addEventListener("click", e => {
     const b = e.target.closest(".tab"); if (b) selectWeek(+b.dataset.n, true);
   });
