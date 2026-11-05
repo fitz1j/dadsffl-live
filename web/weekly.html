@@ -334,6 +334,14 @@
   .plr.pick.in { background: var(--turf-tint); }
   .plr.pick.in .badge { border-color: transparent; }
   .col-head .cnt b { color: var(--turf-deep); font-weight: 600; }
+  .copy-btn {
+    margin-left: 8px; font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; cursor: pointer; vertical-align: 1px;
+  }
+  .copy-btn:hover:not(:disabled) { color: var(--ink); border-color: var(--turf); }
+  .copy-btn:disabled { opacity: 0.45; cursor: default; }
+  .copy-btn.done { background: var(--turf); border-color: var(--turf); color: var(--on-div, #fff); }
   .side .sub-pts { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.04em; }
 </style>
 </head>
@@ -760,7 +768,7 @@
     const list = showAll ? t.players : t.players.filter(p => p.on);
     const left = t.left ? ` · ${t.left} still to play` : "";
     return `<div class="col">
-        <div class="col-head"><span>${esc(TEAMS[code].abbrev)} roster</span><span class="cnt"><b>${t.picked}</b> of ${t.players.length} checked${left}${needLine(t.status)}</span></div>
+        <div class="col-head"><span>${esc(TEAMS[code].abbrev)} roster<button class="copy-btn" type="button" data-copy="${code}"${t.picked ? "" : " disabled"} title="Copy checked players as Position Player Team, one per line">Copy lineup</button></span><span class="cnt"><b>${t.picked}</b> of ${t.players.length} checked${left}${needLine(t.status)}</span></div>
         ${list.map(p => playerLine(p, code)).join("") || '<div class="plr zero"><span></span><span class="who"><span class="s none">No players checked yet.</span></span><span></span></div>'}
       </div>`;
   }
@@ -868,6 +876,38 @@
       if (cur === n) renderWeek();
       renderStandings();
     }
+  });
+
+  /* ---------------- copy lineup to clipboard ---------------- */
+  // One line per checked player, in the page's lineup order: "K Ka'imi Fairbairn HOU".
+  function lineupText(code) {
+    const t = cache[cur] && scoreWeek(cur, cache[cur]).teams[code];
+    if (!t) return "";
+    return t.players.filter(p => p.on)
+      .map(p => (isTE(p.pos) ? "TE" : p.pos) + " " + p.name + " " + p.team).join("\n");
+  }
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    // Fallback for browsers without the async clipboard API.
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+  document.getElementById("games").addEventListener("click", async e => {
+    const b = e.target.closest("button[data-copy]"); if (!b) return;
+    const code = b.dataset.copy, text = lineupText(code);
+    if (!text) return;
+    const ok = await copyText(text);
+    const n = text.split("\n").length;
+    // The card may have re-rendered while copying; label whichever button is on screen now.
+    const btn = document.querySelector('button[data-copy="' + code + '"]') || b;
+    btn.textContent = ok ? "Copied " + n + " ✓" : "Copy failed";
+    btn.classList.toggle("done", ok);
+    if (!ok) showPickWarn("<b>Couldn't copy.</b> Your browser blocked clipboard access. The " + esc(TEAMS[code].abbrev) + " lineup:<br><code style=\"white-space:pre\">" + esc(text) + "</code>");
+    setTimeout(() => { const x = document.querySelector('button[data-copy="' + code + '"]'); if (x) { x.textContent = "Copy lineup"; x.classList.remove("done"); } }, 2000);
   });
 
   /* ---------------- boot ---------------- */
