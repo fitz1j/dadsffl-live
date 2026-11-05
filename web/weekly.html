@@ -607,6 +607,36 @@
     return { pts: 0, sum: "", game: g || null, team: p.team, found: false };
   }
 
+  // Kickoff times. Supabase only gets a game row once the game is under way, so for
+  // games that haven't started we read the week's schedule straight from ESPN's
+  // public scoreboard (CORS-enabled). Best-effort: if it fails we fall back to "no stats yet".
+  const kickoffs = {};   // week -> { NFL team abbrev -> { at: Date, tbd, label } }
+  async function loadKickoffs(n) {
+    if (kickoffs[n]) return;
+    const now = new Date();
+    const year = now.getMonth() < 2 ? now.getFullYear() - 1 : now.getFullYear();   // Jan/Feb belong to last season
+    const map = {};
+    try {
+      const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100&dates=" +
+        year + "&seasontype=2&week=" + n);
+      if (!res.ok) throw new Error(res.status);
+      const sb = await res.json();
+      for (const ev of sb.events || []) {
+        const comp = (ev.competitions || [])[0] || {};
+        const side = h => ((comp.competitors || []).find(c => c.homeAway === h) || {}).team || {};
+        const home = side("home").abbreviation, away = side("away").abbreviation;
+        if (!home || !away || !ev.date) continue;
+        const k = { at: new Date(ev.date), tbd: comp.timeValid === false, label: away + " @ " + home };
+        map[home] = k; map[away] = k;
+      }
+    } catch (e) { console.warn("kickoff times unavailable", e); }
+    kickoffs[n] = map;
+  }
+  function kickoffText(k) {
+    if (k.tbd) return k.at.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }) + " · time TBD";
+    return k.at.toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+  }
+
   function gameLabel(g) {
     if (!g) return "";
     return g.away_abbrev + " " + (g.away_score ?? "") + " @ " + g.home_abbrev + " " + (g.home_score ?? "");
@@ -687,14 +717,21 @@
     if (p.sum) s = esc(p.sum);
     else if (p.team === "FA") s = "free agent — no NFL team";
     else if (p.bye) s = "bye week";
-    else if (p.game && p.game.state === "pre") s = "game not started · " + esc(gameLabel(p.game));
+    else if (p.game && p.game.state === "pre") {
+      const k = (kickoffs[cur] || {})[nfl(p.team)];
+      s = k ? "kickoff " + esc(kickoffText(k)) + " · " + esc(k.label) : "game not started · " + esc(gameLabel(p.game));
+    }
     else if (p.found) s = "no scoring stats · " + esc(gameLabel(p.game));
     else if (p.game) s = "not in box score · " + esc(gameLabel(p.game));
     else {
       // No game row for his NFL team yet: before the week is played that just means no stats yet.
       const wk = cache[cur];
       const weekDone = wk && wk.games.length > 0 && wk.games.every(g => g.state === "post");
-      s = weekDone ? "did not play" : "no stats yet";
+      const k = (kickoffs[cur] || {})[nfl(p.team)];
+      if (weekDone) s = "did not play";
+      else if (k && k.at > new Date()) s = "kickoff " + esc(kickoffText(k)) + " · " + esc(k.label);
+      else if (k) s = "no stats yet · kicked off " + esc(kickoffText(k)) + " · " + esc(k.label);
+      else s = "no stats yet";
     }
     const locked = p.locked && !lockOverride;
     const why = locked ? "game has kicked off — locked" : p.full;
@@ -780,6 +817,7 @@
     if (push) history.replaceState(null, "", "?week=" + n);
     renderWeek();
     const w = WEEKS.find(x => x.n === n);
+    if (!kickoffs[n]) loadKickoffs(n).then(() => { if (cur === n && cache[n]) renderWeek(); });
     if (!cache[n] || !picks[n]) {
       await Promise.all([cache[n] ? null : loadWeekStats(w).then(st => { cache[n] = st; }), picks[n] ? null : loadPicks(w)]);
       renderWeek();
