@@ -65,7 +65,7 @@ def load_rosters():
 
 def roster(rd, team: str, week: int):
     r = [list(x) for x in rd["base"][team]]
-    for eff, code, drop, slot, name, nfl in rd["waivers"]:
+    for eff, code, drop, slot, name, nfl, *_ in rd["waivers"]:
         if code == team and eff <= week:
             for i, x in enumerate(r):
                 if norm(x[1]) == norm(drop):
