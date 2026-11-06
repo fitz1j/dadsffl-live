@@ -645,6 +645,18 @@
     return k.at.toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
   }
 
+  // A week is over only when ALL of its NFL games are final. Supabase gets a game row
+  // only once that game kicks off, so "every row is final" is true right after Thursday
+  // night. Count against the real number of games: (32 teams − teams on bye) ÷ 2.
+  function gamesInWeek(n) {
+    const byes = Object.values(NFL_BYES).filter(w => w === n).length;
+    return (32 - byes) / 2;
+  }
+  function weekComplete(n, games) {
+    const fin = (games || []).filter(g => g.state === "post").length;
+    return fin > 0 && fin >= gamesInWeek(n);
+  }
+
   function gameLabel(g) {
     if (!g) return "";
     return g.away_abbrev + " " + (g.away_score ?? "") + " @ " + g.home_abbrev + " " + (g.home_score ?? "");
@@ -665,7 +677,8 @@
       const lineup = players.filter(p => p.on);
       const pts = lineup.reduce((a, p) => a + p.pts, 0);
       const all = players.reduce((a, p) => a + p.pts, 0);
-      const left = lineup.filter(p => p.game && p.game.state !== "post").length;
+      // Still to play: checked players whose game hasn't gone final (including games not loaded yet).
+      const left = lineup.filter(p => p.team !== "FA" && !(p.game && p.game.state === "post")).length;
       const counts = lineupCounts(players);
       for (const p of players) {
         p.locked = hasKickedOff(p);
@@ -673,7 +686,7 @@
       }
       teams[code] = { players, pts, all, picked: lineup.length, left, status: lineupStatus(counts) };
     }
-    const allFinal = stats.games.length > 0 && stats.games.every(g => g.state === "post");
+    const allFinal = weekComplete(n, stats.games);
     const started = stats.games.some(g => g.state !== "pre");
     return { teams, allFinal, started };
   }
@@ -734,7 +747,7 @@
     else {
       // No game row for his NFL team yet: before the week is played that just means no stats yet.
       const wk = cache[cur];
-      const weekDone = wk && wk.games.length > 0 && wk.games.every(g => g.state === "post");
+      const weekDone = !!wk && weekComplete(cur, wk.games);
       const k = (kickoffs[cur] || {})[nfl(p.team)];
       if (weekDone) s = "did not play";
       else if (k && k.at > new Date()) s = "kickoff " + esc(kickoffText(k)) + " · " + esc(k.label);
@@ -785,8 +798,7 @@
     if (!stats) { document.getElementById("board").innerHTML = ""; document.getElementById("games").innerHTML = '<div class="status">Loading…</div>'; return; }
     const sc = scoreWeek(cur, stats);
     const fin = stats.games.filter(g => g.state === "post").length, live = stats.games.filter(g => g.state === "in").length;
-    document.getElementById("wkMeta").textContent = "NFL " + w.title + " · " + stats.games.length + " games · " +
-      fin + " final" + (live ? " · " + live + " live" : "") + " · updated " + new Date(stats.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    document.getElementById("wkMeta").textContent = "NFL " + w.title + " · " + fin + " of " + gamesInWeek(cur) + " games final" + (live ? " · " + live + " live" : "") + " · updated " + new Date(stats.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
     const pill = sc.allFinal ? '<span class="pill final">Final</span>' : (sc.started ? '<span class="pill live">In progress</span>' : '<span class="pill">Not started</span>');
     const games = SCHEDULE[cur] || [];
     const state = sc.allFinal ? "Final" : (sc.started ? "In progress" : "Not started");
@@ -840,7 +852,7 @@
     const w = WEEKS.find(x => x.n === cur);
     try {
       const jobs = [loadPicks(w)];
-      if (!cache[cur].games.every(g => g.state === "post")) jobs.push(loadWeekStats(w).then(st => { cache[cur] = st; }));
+      if (!weekComplete(cur, cache[cur].games)) jobs.push(loadWeekStats(w).then(st => { cache[cur] = st; }));
       await Promise.all(jobs);
       if (!saving) { renderWeek(); renderStandings(); }
     } catch (e) { console.warn(e); }
