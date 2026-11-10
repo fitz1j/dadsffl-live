@@ -99,7 +99,16 @@ def main():
         if pos not in SLOTS:
             errors.append((wk, f"wk{wk} {team}: unknown slot {pos!r} for {player}"))
         raw = str(player or "").strip()
-        pts = float(pts or 0)
+        # "TNF" marks a Thursday Night Football player (points not filled in
+        # yet); count it as zero. Any other non-numeric value is reported.
+        if isinstance(pts, str) and pts.strip().upper() in ("TNF", ""):
+            pts = 0.0
+        else:
+            try:
+                pts = float(pts or 0)
+            except (TypeError, ValueError):
+                errors.append((wk, f"wk{wk} {team}: non-numeric points {pts!r} for {player}"))
+                pts = 0.0
         name = None
         if raw.lower() not in EMPTY:
             ros = roster(rd, code, wk)
