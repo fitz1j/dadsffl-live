@@ -375,8 +375,10 @@
       r[code] = RD.base[code].map(([slot, name, team]) => ({ slot, name, team }));
     for (const [eff, code, drop, slot, name, team] of RD.waivers) {
       if (eff > week) continue;
-      const i = r[code].findIndex(p => norm(p.name) === norm(drop));
-      if (i >= 0) r[code][i] = { slot, name, team };
+      const p = name ? { slot, name, team } : null;
+      if (!drop) { if (p) r[code].push(p); continue; }
+      const i = r[code].findIndex(x => norm(x.name) === norm(drop));
+      if (i >= 0) { if (p) r[code][i] = p; else r[code].splice(i, 1); }
     }
     return r;
   }

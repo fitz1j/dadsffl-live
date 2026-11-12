@@ -67,9 +67,16 @@ def roster(rd, team: str, week: int):
     r = [list(x) for x in rd["base"][team]]
     for eff, code, drop, slot, name, nfl, *_ in rd["waivers"]:
         if code == team and eff <= week:
+            if not drop:  # add with no drop
+                if name:
+                    r.append([slot, name, nfl])
+                continue
             for i, x in enumerate(r):
                 if norm(x[1]) == norm(drop):
-                    r[i] = [slot, name, nfl]
+                    if name:
+                        r[i] = [slot, name, nfl]
+                    else:  # removed with no replacement (uneven trade)
+                        del r[i]
                     break
     return r
 
