@@ -449,7 +449,7 @@
       if (!p) { flags.push(name + " isn't on this week's roster"); starters.push({ slot, name, pts: 0 }); continue; }
       starters.push({ slot, name, team: p.team, pts: p.pts });
       scored += p.pts;
-      if (Math.abs(p.pts - commPts) > 0.01) flags.push(name + ": engine " + fmt(p.pts) + ", commissioner " + fmt(commPts));
+      if (commPts != null && Math.abs(p.pts - commPts) > 0.01) flags.push(name + ": engine " + fmt(p.pts) + ", commissioner " + fmt(commPts));
     }
     const optimal = best.reduce((a, p) => a + p.pts, 0);
     const startedSet = new Set(starters.filter(s => s.name).map(s => s.name));
