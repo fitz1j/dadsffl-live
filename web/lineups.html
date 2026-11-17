@@ -387,10 +387,10 @@
   }
 
   // Paged read of a Supabase table (the API caps each response at 1000 rows).
-  async function getAll(path) {
+  async function getAll(path, order) {
     let out = [];
     for (let off = 0; ; off += 1000) {
-      const page = await getJSON(path + "&order=id&limit=1000&offset=" + off);
+      const page = await getJSON(path + "&order=" + order + "&limit=1000&offset=" + off);
       out = out.concat(page);
       if (page.length < 1000) return out;
     }
@@ -400,7 +400,7 @@
   async function loadPicks(weekIds) {
     const idToN = {};
     for (const n in weekIds) idToN[weekIds[n]] = +n;
-    const rows = await getAll("/lineup_picks?week_id=in.(" + Object.values(weekIds).join(",") + ")&select=id,week_id,team,player");
+    const rows = await getAll("/lineup_picks?week_id=in.(" + Object.values(weekIds).join(",") + ")&select=week_id,team,player", "week_id,team,player");
     const out = {};
     for (const r of rows) {
       const n = idToN[r.week_id];
@@ -414,7 +414,7 @@
   async function completeWeeks(weekIds, byes) {
     const idToN = {};
     for (const n in weekIds) idToN[weekIds[n]] = +n;
-    const games = await getAll("/games?week_id=in.(" + Object.values(weekIds).join(",") + ")&select=id,week_id,state");
+    const games = await getAll("/games?week_id=in.(" + Object.values(weekIds).join(",") + ")&select=id,week_id,state", "id");
     const fin = {};
     for (const g of games) if (g.state === "post") fin[idToN[g.week_id]] = (fin[idToN[g.week_id]] || 0) + 1;
     return Object.keys(weekIds).map(Number).filter(n => {
