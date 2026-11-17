@@ -297,9 +297,9 @@
   <div class="cards" id="cards"></div>
 
   <footer>
-    Starters: the commissioner's weekly stats workbook (<code>Wkly Player Tab</code>), source <code id="srcFile">…</code>, added each week once his sheet is posted.
+    Starters: the players checked on the <a href="weekly.html">weekly head-to-head page</a> (Supabase <code>lineup_picks</code>), read live. A week shows up here once every NFL game in it is final; a team with nothing checked that week is shown as not set.
     Rosters: the same week-by-week rosters as the <a href="weekly.html">weekly head-to-head page</a> (pre-season rosters plus the waiver wire), read from that page so the two never drift apart.
-    Points: the league's scoring engine on ESPN box scores, from the same Supabase feed as the <a href="live.html">live scoring page</a> &mdash; every player, starters and bench alike, is scored the same way. If the engine and the commissioner's sheet disagree on a starter, the card for that week says so.
+    Points: the league's scoring engine on ESPN box scores, from the same Supabase feed as the <a href="live.html">live scoring page</a> &mdash; every player, starters and bench alike, is scored the same way.
     Ties in the best lineup are broken arbitrarily, which never changes the points left.
   </footer>
 </div>
@@ -364,9 +364,12 @@
   async function loadRosterData() {
     const res = await fetch("weekly.html", { cache: "no-cache" });
     if (!res.ok) throw new Error("couldn't read weekly.html (" + res.status + ")");
-    const m = (await res.text()).match(/const ROSTER_DATA = (\{[\s\S]*?\});\n/);
+    const html = await res.text();
+    const m = html.match(/const ROSTER_DATA = (\{[\s\S]*?\});\n/);
     if (!m) throw new Error("roster data not found in weekly.html");
-    return JSON.parse(m[1]);
+    const b = html.match(/const NFL_BYES = (\{[^}]*\});/);
+    if (!b) throw new Error("bye weeks not found in weekly.html");
+    return { RD: JSON.parse(m[1]), byes: JSON.parse(b[1]) };
   }
 
   function rostersFor(RD, week) {
@@ -383,10 +386,57 @@
     return r;
   }
 
-  async function loadStarters() {
-    const res = await fetch("lineup-starters.json", { cache: "no-cache" });
-    if (!res.ok) throw new Error("couldn't read lineup-starters.json (" + res.status + ")");
-    return res.json();
+  // Paged read of a Supabase table (the API caps each response at 1000 rows).
+  async function getAll(path) {
+    let out = [];
+    for (let off = 0; ; off += 1000) {
+      const page = await getJSON(path + "&order=id&limit=1000&offset=" + off);
+      out = out.concat(page);
+      if (page.length < 1000) return out;
+    }
+  }
+
+  // Lineup checks from the weekly page: week number -> team -> [player names].
+  async function loadPicks(weekIds) {
+    const idToN = {};
+    for (const n in weekIds) idToN[weekIds[n]] = +n;
+    const rows = await getAll("/lineup_picks?week_id=in.(" + Object.values(weekIds).join(",") + ")&select=id,week_id,team,player");
+    const out = {};
+    for (const r of rows) {
+      const n = idToN[r.week_id];
+      ((out[n] ||= {})[r.team] ||= []).push(r.player);
+    }
+    return out;
+  }
+
+  // Same rule as weekly.html: a week is over once ALL its NFL games are final,
+  // counted against (32 teams - teams on bye) / 2, since game rows appear only at kickoff.
+  async function completeWeeks(weekIds, byes) {
+    const idToN = {};
+    for (const n in weekIds) idToN[weekIds[n]] = +n;
+    const games = await getAll("/games?week_id=in.(" + Object.values(weekIds).join(",") + ")&select=id,week_id,state");
+    const fin = {};
+    for (const g of games) if (g.state === "post") fin[idToN[g.week_id]] = (fin[idToN[g.week_id]] || 0) + 1;
+    return Object.keys(weekIds).map(Number).filter(n => {
+      const need = (32 - Object.values(byes).filter(w => w === n).length) / 2;
+      return (fin[n] || 0) > 0 && fin[n] >= need;
+    });
+  }
+
+  // Turn a team's checked names into lineup rows [slot, name], using the roster's slots.
+  // Unfilled lineup spots become empty rows so the report counts them as points left.
+  const NEED = { K: 1, QB: 1, RB: 3, REC: 4, "DL/LB": 1, DB: 1 };
+  function starterRows(names, roster) {
+    const rows = [], have = {};
+    for (const name of names) {
+      const p = roster.find(x => x.name === name) || roster.find(x => norm(x.name) === norm(name));
+      const slot = p ? p.slot : "?";
+      rows.push([slot, p ? p.name : name]);
+      have[groupOf(slot)] = (have[groupOf(slot)] || 0) + 1;
+    }
+    for (const g in NEED)
+      for (let i = have[g] || 0; i < NEED[g]; i++) rows.push([g === "REC" ? "WR" : g, null]);
+    return rows;
   }
 
   // Scoring players only (fantasy_points > 0); anyone not found scored 0.
@@ -443,16 +493,18 @@
     const starters = [];
     const flags = [];
     let scored = 0;
-    for (const [slot, name, commPts] of starterRows) {
+    for (const [slot, name] of starterRows) {
       if (!name) { starters.push({ slot, name: null, pts: 0, empty: true }); continue; }
       const p = byName[name];
       if (!p) { flags.push(name + " isn't on this week's roster"); starters.push({ slot, name, pts: 0 }); continue; }
       starters.push({ slot, name, team: p.team, pts: p.pts });
       scored += p.pts;
-      if (commPts != null && Math.abs(p.pts - commPts) > 0.01) flags.push(name + ": engine " + fmt(p.pts) + ", commissioner " + fmt(commPts));
     }
     const optimal = best.reduce((a, p) => a + p.pts, 0);
     const startedSet = new Set(starters.filter(s => s.name).map(s => s.name));
+    const open = starters.filter(s => s.empty).length;
+    if (open) flags.push(open + " lineup spot" + (open > 1 ? "s" : "") + " not checked");
+    if (starters.length - open > 11) flags.push((starters.length - open) + " players checked (lineup is 11)");
 
     // Pair each bench player who belongs in the best lineup with a starter he'd replace,
     // inside the same position group: biggest benched score against smallest starter.
@@ -491,7 +543,7 @@
       a.scored += r.scored; a.optimal += r.optimal; a.weeks.push(r);
       for (const g in r.byGroup) a.byGroup[g] = (a.byGroup[g] || 0) + r.byGroup[g];
     }
-    const list = Object.values(agg).map(a => Object.assign(a, { left: a.optimal - a.scored, eff: pct(a.scored, a.optimal) }));
+    const list = Object.values(agg).filter(a => a.weeks.length).map(a => Object.assign(a, { left: a.optimal - a.scored, eff: pct(a.scored, a.optimal) }));
     list.sort((x, y) => y.eff - x.eff || x.left - y.left);
     return list;
   }
@@ -549,7 +601,7 @@
     const max = Math.max(1, ...RESULTS.map(r => r.left));
     const rows = list.map(a => `<tr><td class="l team">${teamCell(a.code)}</td>` +
       WEEK_LIST.map(n => { const r = RESULTS.find(x => x.code === a.code && x.week === n);
-        if (!r) return "<td class='muted'>–</td>";
+        if (!r) return "<td class='muted' title='Week " + n + ": no lineup checked'>not set</td>";
         return `<td class="cell heat" data-week="${n}" title="Week ${n}: ${fmt(r.scored)} of ${fmt(r.optimal)}"${heatStyle(r.left, max)}>${Math.round(pct(r.scored, r.optimal))}%<span class="sm">−${fmt(r.left)}</span></td>`;
       }).join("") + "</tr>").join("");
     document.getElementById("grid").innerHTML = `<thead><tr><th class="l">Team</th>` +
@@ -592,30 +644,35 @@
   /* ---------------- boot ---------------- */
   async function boot() {
     try {
-      const [RD, ST, weeks] = await Promise.all([
-        loadRosterData(), loadStarters(),
+      const [{ RD, byes }, weeks] = await Promise.all([
+        loadRosterData(),
         getJSON("/weeks?select=id,season_id,week_number&season_type=eq.2&order=season_id.desc,week_number.asc")
       ]);
-      document.getElementById("srcFile").textContent = ST.source || "?";
       const seasonId = weeks.length ? Math.max(...weeks.map(w => w.season_id)) : null;
+      const allIds = {};
+      for (const w of weeks) if (w.season_id === seasonId) allIds[w.week_number] = w.id;
+      if (!Object.keys(allIds).length) throw new Error("no weeks in the score feed yet");
+      const [done, PK] = await Promise.all([completeWeeks(allIds, byes), loadPicks(allIds)]);
+      // Finished weeks where at least one team checked a lineup.
+      WEEK_LIST = done.filter(n => PK[n] && Object.keys(PK[n]).length).sort((a, b) => a - b);
+      if (!WEEK_LIST.length) throw new Error("no finished week has lineup checks yet");
       const weekIds = {};
-      for (const w of weeks) if (w.season_id === seasonId && ST.weeks[String(w.week_number)]) weekIds[w.week_number] = w.id;
-      WEEK_LIST = Object.keys(weekIds).map(Number).sort((a, b) => a - b);
-      const missing = Object.keys(ST.weeks).map(Number).filter(n => !weekIds[n]);
-      if (missing.length) document.getElementById("warn").innerHTML =
-        `<p class="warn"><b>Scores missing for week ${missing.join(", ")}.</b> Starters are in, but the score feed has no games for that week yet.</p>`;
-      if (!WEEK_LIST.length) throw new Error("no scored weeks yet");
+      for (const n of WEEK_LIST) weekIds[n] = allIds[n];
 
       const pts = await loadPoints(weekIds);
       RESULTS = [];
+      const unset = [];
       for (const n of WEEK_LIST) {
         const rosters = rostersFor(RD, n);
         for (const code in TEAMS) {
-          const rows = (ST.weeks[String(n)] || {})[code];
-          if (!rows || !rosters[code]) continue;
-          RESULTS.push(analyzeTeamWeek(n, code, rosters[code], pts[n], rows));
+          const names = (PK[n] || {})[code];
+          if (!rosters[code]) continue;
+          if (!names || !names.length) { unset.push(TEAMS[code].abbrev + " wk " + n); continue; }
+          RESULTS.push(analyzeTeamWeek(n, code, rosters[code], pts[n], starterRows(names, rosters[code])));
         }
       }
+      if (unset.length) document.getElementById("warn").innerHTML =
+        `<p class="warn"><b>No lineup checked:</b> ${esc(unset.join(", "))}. Those team-weeks are left out until someone checks the lineup on the <a href="weekly.html">weekly page</a>.</p>`;
       const last = WEEK_LIST[WEEK_LIST.length - 1];
       document.getElementById("eyebrow").textContent = "2026 Regular Season · through week " + last;
       document.getElementById("rankHint").textContent = "weeks " + WEEK_LIST[0] + "–" + last + " · sorted by efficiency";
