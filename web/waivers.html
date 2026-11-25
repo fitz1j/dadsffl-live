@@ -641,16 +641,18 @@ function groupClaims(rows) {
 }
 // Rosters going into run w, rolling forward any closed runs not yet copied into weekly.html.
 const runMemo = {};
+// Each run's rosters include trades that take effect the following week (E.withPendingTrades).
 async function stateAt(w) {
   let rosters = E.rostersFor(RD, Math.min(w, ROSTERS_THROUGH));
   const extra = [];
   for (let k = ROSTERS_THROUGH; k < w; k++) {
-    const r = await runResults(k, rosters, extra);
-    if (!r || r.pending) return { rosters, extra, missing: k, why: r && r.pending ? "coin" : "rosters" };
+    const before = E.withPendingTrades(RD, rosters, k);
+    const r = await runResults(k, before, extra);
+    if (!r || r.pending) return { rosters: before, extra, missing: k, why: r && r.pending ? "coin" : "rosters" };
     extra.push({ week: k, results: r.results });
-    rosters = E.applyResults(rosters, r.results);
+    rosters = E.applyResults(before, r.results);
   }
-  return { rosters, extra, missing: null };
+  return { rosters: E.withPendingTrades(RD, rosters, w), extra, missing: null };
 }
 function contextFor(rosters, extra) {
   return { rosters, rostered: E.rosteredMap(rosters), released: E.releasedAfterDeadline(RD, extra) };

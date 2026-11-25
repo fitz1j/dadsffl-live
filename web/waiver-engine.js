@@ -35,6 +35,15 @@ function applyMove(r, code, drop, p) {
   if (i < 0) return;
   if (p) r[code][i] = p; else r[code].splice(i, 1);
 }
+// Trades that take effect the week after a waiver run (made between that week's games and
+// the next week's kickoff) count before that run's claims. A trade made before the post-week-N
+// waiver deadline is a row [N+1, ..., "trade"], but those claims are checked against week-N rosters.
+export function withPendingTrades(RD, rosters, run) {
+  const r = cloneRosters(rosters);
+  for (const [eff, code, drop, pos, name, team, via] of RD.waivers)
+    if (via === "trade" && eff === run + 1) applyMove(r, code, drop, name ? { pos, name, team } : null);
+  return r;
+}
 export function cloneRosters(r) {
   const out = {};
   for (const c in r) out[c] = r[c].map(p => Object.assign({}, p));
