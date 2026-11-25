@@ -906,50 +906,68 @@ function renderClaims() {
   renderAdder();
 }
 
+// Drop first, then the claim. pickDrop: "" = nothing chosen yet, a roster player's name,
+// or "@<group>" = no drop, filling an open spot at that position (2026 same-position rule).
+const GROUP_POS = { K: ["K"], QB: ["QB"], RB: ["RB"], "WR/TE": ["WR", "TE/WR"], "DL/LB": ["DL/LB"], DB: ["DB"] };
+let manual = false;            // typing a player in instead of picking from ESPN
 function renderAdder() {
   const box = $("adder"); if (!box) return;
   const ctx = ctxNow();
   const roster = view.st.rosters[me.team].slice().sort((a, b) => (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9));
-  // Same-position rule: once a player is picked, only same-position players can be dropped,
-  // and "no drop" is offered only if that position has an open spot.
-  const grp = picking ? E.groupOf(picking.pos) : null;
-  const same = grp ? roster.filter(p => E.groupOf(p.pos) === grp) : roster;
-  const canNoDrop = roster.length < E.ROSTER_MAX && (!grp || same.length < E.GROUP_MAX[grp]);
-  if (pickDrop && !same.some(p => p.name === pickDrop)) pickDrop = "";
-  const dropOpts = (canNoDrop ? '<option value="">No drop' + (grp ? " (open " + grp + " spot: " + same.length + " of " + E.GROUP_MAX[grp] + ")" : "") + "</option>"
-      : '<option value="">' + (grp ? "Pick a " + grp + " to drop…" : "Pick a player first…") + "</option>") +
-    same.map(p => `<option value="${esc(p.name)}" ${pickDrop === p.name ? "selected" : ""}>${esc(E.posLabel(p.pos) + " " + p.name + " (" + p.team + ")")}</option>`).join("");
-  let pickHtml;
-  if (picking) {
-    pickHtml = `<div class="chosen">${badge(picking.pos)} <span class="n">${esc(picking.name)}</span> <span class="nfl">${esc(picking.team)}</span>
+  const groupCount = g => roster.filter(p => E.groupOf(p.pos) === g).length;
+  const openGroups = roster.length < E.ROSTER_MAX ? Object.keys(E.GROUP_MAX).filter(g => groupCount(g) < E.GROUP_MAX[g]) : [];
+  if (pickDrop.startsWith("@") ? !openGroups.includes(pickDrop.slice(1)) : (pickDrop && !roster.some(p => p.name === pickDrop))) pickDrop = "";
+  const dropPlayer = pickDrop && !pickDrop.startsWith("@") ? roster.find(p => p.name === pickDrop) : null;
+  const grp = pickDrop.startsWith("@") ? pickDrop.slice(1) : dropPlayer ? E.groupOf(dropPlayer.pos) : null;
+  if (picking && grp && E.groupOf(picking.pos) !== grp) picking = null;   // drop changed to another position
+
+  const dropOpts = '<option value="">Pick a player to drop…</option>' +
+    openGroups.map(g => `<option value="@${esc(g)}" ${pickDrop === "@" + g ? "selected" : ""}>No drop — fill an open ${esc(g)} spot (${groupCount(g)} of ${E.GROUP_MAX[g]})</option>`).join("") +
+    roster.map(p => `<option value="${esc(p.name)}" ${pickDrop === p.name ? "selected" : ""}>${esc(E.posLabel(p.pos) + " " + p.name + " (" + p.team + ")")}</option>`).join("");
+
+  let claimHtml;
+  if (!grp) {
+    claimHtml = '<div class="empty" style="padding:4px 0">Pick who you\'ll drop first; the claim has to be the same position.</div>';
+  } else if (picking) {
+    claimHtml = `<div class="chosen">${badge(picking.pos)} <span class="n">${esc(picking.name)}</span> <span class="nfl">${esc(picking.team)}</span>${picking.typed ? ' <span class="nfl">(typed in)</span>' : ""}
       <button class="linkbtn" id="unpick" type="button" style="margin-left:8px">change</button></div>`;
+  } else if (manual || dirError) {
+    const opts = GROUP_POS[grp];
+    claimHtml = (dirError ? `<p class="warn" style="margin:0 0 8px"><b>ESPN's player list didn't load</b> (${esc(dirError)}).</p>` : "") +
+      `<div class="form"><input id="mName" placeholder="player name" style="flex:2 1 160px" autocomplete="off">
+        ${opts.length > 1 ? `<select id="mPos">${opts.map(p => `<option value="${p}">${E.posLabel(p)}</option>`).join("")}</select>` : `<input type="hidden" id="mPos" value="${opts[0]}"><span class="badge">${esc(E.posLabel(opts[0]))}</span>`}
+        <input id="mTeam" placeholder="NFL team or FA" style="width:130px" autocomplete="off"><button class="btn ghost" id="mUse" type="button">Use</button></div>
+      <div class="wk-meta" style="margin-top:4px">Spell the name the way ESPN will list him, so his points match up later.</div>` +
+      (DIRECTORY ? '<button class="linkbtn" id="toSearch" type="button">search ESPN rosters instead</button>' : "");
   } else if (DIRECTORY) {
-    pickHtml = `<div><label for="search">Player to claim</label><input type="search" id="search" placeholder="Search ESPN rosters by name…" autocomplete="off"></div><div class="hits" id="hits" hidden></div>`;
-  } else if (dirError) {
-    pickHtml = `<p class="warn" style="margin:0"><b>ESPN's player list didn't load</b> (${esc(dirError)}). Type the player in exactly as ESPN lists him.</p>
-      <div class="form"><input id="mName" placeholder="player name" style="flex:2 1 160px"><select id="mPos">${E.POSITIONS.map(p => `<option value="${p}">${E.posLabel(p)}</option>`).join("")}</select>
-      <input id="mTeam" placeholder="NFL team (e.g. BUF)" style="width:130px"><button class="btn ghost" id="mUse" type="button">Use</button></div>`;
+    claimHtml = `<input type="search" id="search" placeholder="Search ESPN rosters for a ${esc(grp)}…" autocomplete="off"><div class="hits" id="hits" hidden></div>
+      <button class="linkbtn" id="toManual" type="button">Not on an NFL roster? Type him in</button>`;
   } else {
-    pickHtml = '<div class="empty">Loading NFL rosters from ESPN…</div>';
+    claimHtml = '<div class="empty">Loading NFL rosters from ESPN…</div> <button class="linkbtn" id="toManual" type="button">type him in instead</button>';
   }
-  const claim = picking ? { claim_name: picking.name, claim_pos: picking.pos, claim_nfl: picking.team, claim_espn_id: picking.id || "", drop_name: pickDrop } : null;
+
+  const claim = picking && grp ? { claim_name: picking.name, claim_pos: picking.pos, claim_nfl: picking.team, claim_espn_id: picking.id || "",
+    drop_name: dropPlayer ? dropPlayer.name : "" } : null;
   const reason = claim ? entryReason(ctx, claim, -1) || (draft.some(x => E.norm(x.claim_name) === E.norm(claim.claim_name)) ? "already on your list" : "") : "";
-  box.innerHTML = pickHtml +
-    `<div><label for="drop">Drop</label><select id="drop">${dropOpts}</select></div>
+  box.innerHTML =
+    `<div><label for="drop">1. Drop</label><select id="drop">${dropOpts}</select></div>
+     <div><label>2. Claim${grp ? " (" + esc(grp) + ")" : ""}</label>${claimHtml}</div>
      <div class="msg err" id="addMsg">${esc(claim ? reason : "")}</div>
      <div><button class="btn" id="addBtn" type="button" ${claim && !reason ? "" : "disabled"}>Add to list as #${draft.length + 1}</button></div>`;
 
   $("drop").onchange = e => { pickDrop = e.target.value; renderAdder(); };
   if ($("unpick")) $("unpick").onclick = () => { picking = null; renderAdder(); };
+  if ($("toManual")) $("toManual").onclick = () => { manual = true; renderAdder(); };
+  if ($("toSearch")) $("toSearch").onclick = () => { manual = false; renderAdder(); };
   if ($("addBtn")) $("addBtn").onclick = () => {
     if (!claim || reason) return;
-    draft.push(claim); picking = null; pickDrop = "";
+    draft.push(claim); picking = null; pickDrop = ""; manual = false;
     renderClaims();
   };
   if ($("mUse")) $("mUse").onclick = () => {
-    const name = $("mName").value.trim(), team = $("mTeam").value.trim().toUpperCase();
-    if (!name || !/^[A-Z]{2,4}$/.test(team)) { $("addMsg").textContent = "Enter a name and an NFL team code."; return; }
-    picking = { name, pos: $("mPos").value, team, id: "" }; renderAdder();
+    const name = $("mName").value.trim().replace(/\s+/g, " "), team = $("mTeam").value.trim().toUpperCase();
+    if (name.length < 3 || !/^[A-Z]{2,4}$/.test(team)) { $("addMsg").textContent = "Enter the player's name and an NFL team code (or FA)."; return; }
+    picking = { name, pos: $("mPos").value, team, id: "", typed: true }; renderAdder();
   };
   const s = $("search");
   if (s) {
@@ -961,9 +979,10 @@ function renderAdder() {
       hits.hidden = false;
       hits.innerHTML = found.length ? found.map((p, i) => {
         const why = ctx.rostered.get(E.norm(p.name)) ? "on " + ctx.rostered.get(E.norm(p.name)) + "'s roster"
-          : ctx.released.get(E.norm(p.name)) ? "released after the trade deadline" : "";
+          : ctx.released.get(E.norm(p.name)) ? "released after the trade deadline"
+          : E.groupOf(p.pos) !== grp ? "not a " + grp + " — your drop is a " + grp : "";
         return `<button class="hit" type="button" data-i="${i}" ${why ? "disabled" : ""}>${badge(p.pos)}<span><span class="n">${esc(p.name)}</span><span class="nfl">${esc(p.team)}</span>${why ? '<span class="x">' + esc(why) + "</span>" : ""}</span></button>`;
-      }).join("") : '<div class="empty">No NFL player matches.</div>';
+      }).join("") : '<div class="empty">No NFL player matches. Use "type him in" below if he isn\'t on a roster.</div>';
       hits.onclick = e => {
         const b = e.target.closest("button.hit"); if (!b || b.disabled) return;
         picking = found[+b.dataset.i]; renderAdder();
