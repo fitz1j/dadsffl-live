@@ -66,6 +66,15 @@ test("2026 rule: drop must be the same position; no drop only into an open spot"
   assert.match(E.claimReason(c2, "RHR", { claim_name: "Free WR", claim_pos: "WR", claim_nfl: "NE", drop_name: rbs[1].name }), /must drop a WR\/TE/);
 });
 
+test("trades effective next week count in this week's waiver run", () => {
+  const RD2 = { base: RD.base, waivers: RD.waivers.filter(w => w[0] <= 11).concat([[12, "SV", "Justin Jefferson", "WR", "Test Guy", "PIT", "trade"], [12, "PD", "Malik Willis", "QB", "Late Waiver", "NE"]]) };
+  const r = E.withPendingTrades(RD2, E.rostersFor(RD2, 11), 11);
+  assert.ok(r.SV.some(p => p.name === "Test Guy"));
+  assert.ok(!r.SV.some(p => p.name === "Justin Jefferson"));
+  assert.ok(!r.PD.some(p => p.name === "Late Waiver"), "waiver rows for next week are not pulled in");
+  assert.ok(!E.withPendingTrades(RD2, E.rostersFor(RD2, 12), 12).SV.some(p => p.name === "Justin Jefferson"));
+});
+
 test("released after deadline comes from post-week-12+ runs only", () => {
   const RD2 = { base: RD.base, waivers: RD.waivers.concat([[12, "PD", "Early Drop", "RB", "X1", "NE"], [13, "PD", "Late Drop", "RB", "X2", "NE"], [13, "SV", "Traded Guy", "RB", "X3", "NE", "trade"]]) };
   const m = E.releasedAfterDeadline(RD2, [{ week: 13, results: [{ team: "OS", status: "claimed", claim: { drop_name: "Page Drop" } }] }]);
