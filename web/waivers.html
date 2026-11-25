@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DadsFFL Waiver Wire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #f6f3e9;
+    --paper-raised: #fffdf7;
+    --paper-sunk: #efeadb;
+    --ink: #1c2621;
+    --ink-soft: #4a544d;
+    --ink-faint: #7d867f;
+    --line: #ddd6c4;
+    --line-soft: #e8e2d2;
+    --turf: #2f6f4e;
+    --turf-deep: #1c4531;
+    --turf-tint: #e3ede6;
+    --gold: #ad8a1e;
+    --gold-tint: #f3ead0;
+    --clemenza: #ad5a2d;
+    --clemenza-tint: #f2e3d8;
+    --tessio: #2f6180;
+    --tessio-tint: #dfe9ee;
+    --shadow: 0 1px 2px rgba(28,38,33,0.06), 0 6px 20px -8px rgba(28,38,33,0.18);
+    --on-div: #fffdf7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14201a;
+      --paper-raised: #1b2a22;
+      --paper-sunk: #101a15;
+      --ink: #eef2ec;
+      --ink-soft: #a8b6ac;
+      --ink-faint: #7d8d82;
+      --line: #2c3a30;
+      --line-soft: #243029;
+      --turf: #6bbd91;
+      --turf-deep: #9fdcb9;
+      --turf-tint: #1e352a;
+      --gold: #e0bc55;
+      --gold-tint: #33301c;
+      --clemenza: #e08a55;
+      --clemenza-tint: #3a2a1f;
+      --tessio: #7fb8d6;
+      --tessio-tint: #1f3038;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+      --on-div: #101a15;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14201a;
+    --paper-raised: #1b2a22;
+    --paper-sunk: #101a15;
+    --ink: #eef2ec;
+    --ink-soft: #a8b6ac;
+    --ink-faint: #7d8d82;
+    --line: #2c3a30;
+    --line-soft: #243029;
+    --turf: #6bbd91;
+    --turf-deep: #9fdcb9;
+    --turf-tint: #1e352a;
+    --gold: #e0bc55;
+    --gold-tint: #33301c;
+    --clemenza: #e08a55;
+    --clemenza-tint: #3a2a1f;
+    --tessio: #7fb8d6;
+    --tessio-tint: #1f3038;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 26px -10px rgba(0,0,0,0.5);
+    --on-div: #101a15;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 16px; padding-bottom: 14px; border-bottom: 3px double var(--line);
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; }
+  .home {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint); text-decoration: none;
+    margin-bottom: 4px; align-self: flex-start;
+  }
+  .home:hover { color: var(--turf); }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--turf);
+  }
+  h1 {
+    font-family: Oswald, "Libre Franklin", sans-serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 44px); line-height: 1.02; margin: 0;
+    letter-spacing: -0.01em; text-transform: uppercase; text-wrap: balance;
+  }
+  .masthead .sub { color: var(--ink-soft); font-size: 13.5px; max-width: 46ch; margin: 4px 0 0; }
+  .theme-btn {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; cursor: pointer;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--turf); }
+
+  /* ---------- method note ---------- */
+  .note {
+    margin: 20px 0 0; padding: 13px 16px; background: var(--gold-tint);
+    border-left: 3px solid var(--gold); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .note b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- section heads ---------- */
+  .sec-head {
+    display: flex; align-items: baseline; gap: 12px; margin: 34px 0 14px;
+  }
+  .sec-head h2 {
+    font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; font-size: 17px; margin: 0; white-space: nowrap;
+  }
+  .sec-head .rule { flex: 1; height: 1px; background: var(--line); }
+  .sec-head .hint { font-size: 12px; color: var(--ink-faint); white-space: nowrap; }
+
+  /* ---------- standings ---------- */
+  .standings { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+  @media (max-width: 720px) { .standings { grid-template-columns: 1fr; } }
+  .div-block { background: var(--paper-raised); border: 1px solid var(--line); }
+  .div-title {
+    font-family: Oswald, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; padding: 8px 14px; color: var(--on-div);
+  }
+  .div-block.clem .div-title { background: var(--clemenza); }
+  .div-block.tess .div-title { background: var(--tessio); }
+  table.stand { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.stand th {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+    text-align: right; padding: 7px 14px 5px; border-bottom: 1px solid var(--line-soft);
+  }
+  table.stand th:first-child { text-align: left; }
+  table.stand td {
+    padding: 7px 14px; border-bottom: 1px solid var(--line-soft); text-align: right;
+    font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 13px;
+  }
+  table.stand td:first-child {
+    text-align: left; font-family: "Libre Franklin", sans-serif; font-weight: 600; font-size: 14px;
+  }
+  table.stand tr:last-child td { border-bottom: none; }
+  .tcode {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600;
+    color: var(--ink-faint); margin-left: 7px; letter-spacing: 0.06em;
+  }
+
+  /* ---------- week tabs ---------- */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 30px 0 0; }
+  .tab {
+    font-family: Oswald, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 9px 18px; cursor: pointer;
+    background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 2px;
+  }
+  .tab:hover { border-color: var(--turf); color: var(--ink); }
+  .tab[aria-selected="true"] { background: var(--turf); border-color: var(--turf); color: var(--on-div); }
+  .toolbar {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft);
+  }
+  .wk-meta { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-faint); letter-spacing: 0.03em; }
+  .toggle {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  }
+  .toggle:hover { color: var(--ink); border-color: var(--turf); }
+
+  /* ---------- scoreboard (all four games at a glance; tap to jump) ---------- */
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-top: 16px; }
+  @media (max-width: 860px) { .board { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .tile {
+    display: block; text-align: left; width: 100%; cursor: pointer; font: inherit; color: inherit;
+    background: var(--paper-raised); border: 1px solid var(--line); box-shadow: var(--shadow);
+    padding: 8px 12px 9px; border-radius: 2px;
+  }
+  .tile:hover { border-color: var(--turf); }
+  .tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .tile .ln { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 2px 0; }
+  .tile .ab { font-family: Oswald, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.03em; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile .sp { font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; color: var(--ink-faint); }
+  .tile .ln.won .ab { color: var(--ink); } .tile .ln.won .sp { color: var(--turf-deep); }
+  .tile .ln.lead .ab { color: var(--ink); } .tile .ln.lead .sp { color: var(--gold); }
+  .tile .ft { display: flex; justify-content: space-between; margin-top: 3px; padding-top: 4px; border-top: 1px solid var(--line-soft);
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+  .game { scroll-margin-top: 12px; }
+  .game.flash { animation: flash 1.4s ease-out; }
+  @keyframes flash { 0% { box-shadow: 0 0 0 3px var(--gold); } 100% { box-shadow: var(--shadow); } }
+  .to-top { display: block; text-align: right; padding: 7px 16px; font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); text-decoration: none; border-top: 1px solid var(--line-soft); }
+  .to-top:hover { color: var(--turf); }
+
+  /* ---------- matchup cards ---------- */
+  .games { display: flex; flex-direction: column; gap: 22px; margin-top: 20px; }
+  .game { background: var(--paper-raised); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .score {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch;
+    border-bottom: 1px solid var(--line);
+  }
+  .side { padding: 14px 18px; display: flex; flex-direction: column; gap: 3px; }
+  .side.right { text-align: right; align-items: flex-end; }
+  .side .nm {
+    font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase;
+    font-size: clamp(15px, 2.4vw, 20px); letter-spacing: 0.02em; line-height: 1.12;
+  }
+  .side .meta { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-faint); }
+  .side .pts {
+    font-family: Oswald, sans-serif; font-weight: 700; font-size: clamp(30px, 6vw, 42px);
+    line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink-faint); margin-top: 4px;
+  }
+  .side.won .pts { color: var(--turf-deep); }
+  .side.won .nm { color: var(--ink); }
+  .side.won { background: var(--turf-tint); }
+  .side.won .meta { color: var(--turf); }
+  .vs {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 0 14px; border-left: 1px solid var(--line-soft); border-right: 1px solid var(--line-soft);
+    background: var(--paper-sunk);
+  }
+  .vs .v { font-family: Oswald, sans-serif; font-size: 12px; letter-spacing: 0.16em; color: var(--ink-faint); }
+  .vs .marg { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--gold); font-weight: 600; margin-top: 3px; white-space: nowrap; }
+
+  .rosters { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 780px) { .rosters { grid-template-columns: 1fr; } }
+  .col { padding: 0; }
+  .col + .col { border-left: 1px solid var(--line-soft); }
+  @media (max-width: 780px) { .col + .col { border-left: none; border-top: 3px double var(--line); } }
+  .col-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    padding: 9px 16px; background: var(--paper-sunk); border-bottom: 1px solid var(--line-soft);
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+
+  .plr {
+    display: grid; grid-template-columns: 50px minmax(0,1fr) 46px; align-items: baseline;
+    gap: 10px; padding: 7px 16px; border-bottom: 1px solid var(--line-soft);
+  }
+  .plr:last-child { border-bottom: none; }
+  .plr.zero { opacity: 0.5; }
+  .badge {
+    font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; text-align: center; padding: 2px 0; border-radius: 2px;
+    background: var(--paper-sunk); color: var(--ink-soft); border: 1px solid var(--line-soft);
+  }
+  .badge.off { background: var(--turf-tint); color: var(--turf-deep); border-color: transparent; }
+  .badge.kick { background: var(--gold-tint); color: var(--gold); border-color: transparent; }
+  .badge.def { background: var(--tessio-tint); color: var(--tessio); border-color: transparent; }
+  .who { min-width: 0; }
+  .who .n { font-weight: 600; font-size: 13.5px; line-height: 1.25; }
+  .who .n .nfl {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 500;
+    color: var(--ink-faint); margin-left: 6px; letter-spacing: 0.04em;
+  }
+  .who .s {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-soft);
+    line-height: 1.4; word-break: break-word;
+  }
+  .who .s.none { color: var(--ink-faint); font-style: italic; }
+  .p {
+    font-family: Oswald, sans-serif; font-weight: 600; font-size: 17px; text-align: right;
+    font-variant-numeric: tabular-nums; color: var(--turf-deep);
+  }
+  .plr.zero .p { color: var(--ink-faint); font-weight: 500; }
+
+  footer {
+    margin-top: 46px; padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: 12.5px; color: var(--ink-faint); line-height: 1.7;
+  }
+  footer code { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-soft); }
+  [hidden] { display: none !important; }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  /* ---------- weekly page additions ---------- */
+  .pill {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+    background: var(--paper-sunk); color: var(--ink-faint); border: 1px solid var(--line-soft);
+  }
+  .pill.live { background: var(--gold-tint); color: var(--gold); border-color: transparent; }
+  .pill.final { background: var(--turf-tint); color: var(--turf-deep); border-color: transparent; }
+  .side.lead .pts { color: var(--gold); }
+  .warn {
+    margin: 16px 0 0; padding: 11px 16px; background: var(--clemenza-tint);
+    border-left: 3px solid var(--clemenza); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .warn b { color: var(--ink); }
+  .plr .chg {
+    font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.06em;
+    color: var(--gold); margin-left: 6px; text-transform: uppercase;
+  }
+  .status { margin-top: 18px; font-size: 13.5px; color: var(--ink-faint); }
+  .plr.pick { grid-template-columns: 22px 50px minmax(0,1fr) 46px; }
+  .plr.pick input {
+    width: 16px; height: 16px; margin: 0; align-self: center; cursor: pointer;
+    accent-color: var(--turf);
+  }
+  .plr.pick input:disabled { cursor: not-allowed; opacity: 0.45; }
+  .plr.pick.locked input:disabled { opacity: 0.8; }
+  .col-head .need { display: block; margin-top: 2px; color: var(--gold); }
+  .col-head .need.over { color: var(--clemenza); }
+  .col-head .need.ok { color: var(--turf-deep); }
+  .toolbar .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toggle.on { background: var(--clemenza); border-color: var(--clemenza); color: #fff; }
+  /* Real NFL bye: no checkbox, a red BYE tag in its place, name struck through. */
+  .plr .byetag {
+    align-self: center; justify-self: center; width: 22px; padding: 2px 0; border-radius: 2px;
+    font-family: "IBM Plex Mono", monospace; font-size: 8px; font-weight: 700; letter-spacing: 0.02em;
+    text-align: center; color: #fff; background: var(--clemenza); cursor: not-allowed;
+  }
+  .plr.bye { opacity: 1; background: repeating-linear-gradient(-45deg, transparent 0 6px, var(--paper-sunk) 6px 12px); }
+  .plr.bye .who .n { text-decoration: line-through; text-decoration-color: var(--clemenza); text-decoration-thickness: 2px; color: var(--ink-faint); }
+  .plr.bye .s { font-style: italic; color: var(--clemenza); }
+  .plr.pick.out .p { color: var(--ink-faint); font-weight: 500; text-decoration: line-through; text-decoration-color: var(--line); }
+  .plr.pick.out.zero .p { text-decoration: none; }
+  .plr.pick.in { background: var(--turf-tint); }
+  .plr.pick.in .badge { border-color: transparent; }
+  .col-head .cnt b { color: var(--turf-deep); font-weight: 600; }
+  .copy-btn {
+    margin-left: 8px; font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--paper-raised); color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; cursor: pointer; vertical-align: 1px;
+  }
+  .copy-btn:hover:not(:disabled) { color: var(--ink); border-color: var(--turf); }
+  .copy-btn:disabled { opacity: 0.45; cursor: default; }
+  .copy-btn.done { background: var(--turf); border-color: var(--turf); color: var(--on-div, #fff); }
+  .side .sub-pts { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.04em; }
+  /* ---------- waiver page ---------- */
+  .runs { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 0; }
+  .runbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+  .runbar .big { font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; letter-spacing: 0.02em; }
+  .pill.open { background: var(--turf-tint); color: var(--turf-deep); border-color: transparent; }
+  .pill.closed { background: var(--clemenza-tint); color: var(--clemenza); border-color: transparent; }
+  .card { background: var(--paper-raised); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; padding: 10px 16px; background: var(--paper-sunk); border-bottom: 1px solid var(--line-soft);
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+  .card-head b { color: var(--ink); font-weight: 600; }
+  .card-body { padding: 14px 16px; }
+  table.order { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.order th { font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); text-align: left; padding: 7px 14px 5px; border-bottom: 1px solid var(--line-soft); }
+  table.order td { padding: 8px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  table.order tr:last-child td { border-bottom: none; }
+  table.order td.num { font-family: Oswald, sans-serif; font-weight: 700; font-size: 18px; width: 44px; color: var(--turf-deep); }
+  table.order td.pts { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  table.order th.pts { text-align: right; }
+  table.order .tn { font-weight: 600; }
+  table.order .why { display: block; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--gold); }
+  table.order tr.me td { background: var(--gold-tint); }
+  .form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .form input, .form select, .ed select, .ed input {
+    font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 2px;
+    background: var(--paper); color: var(--ink); min-width: 0;
+  }
+  .form input[type=email], .form input[type=password] { width: 220px; }
+  .btn { font-family: Oswald, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 8px 16px; cursor: pointer; background: var(--turf); color: var(--on-div); border: 1px solid var(--turf); border-radius: 2px; }
+  .btn:hover:not(:disabled) { background: var(--turf-deep); border-color: var(--turf-deep); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn.ghost { background: var(--paper-raised); color: var(--ink-soft); border-color: var(--line); }
+  .btn.ghost:hover:not(:disabled) { color: var(--ink); border-color: var(--turf); background: var(--paper-raised); }
+  .linkbtn { background: none; border: none; padding: 0; color: var(--turf); cursor: pointer; font: inherit; font-size: 13px; text-decoration: underline; }
+  .msg { font-size: 13px; margin-top: 8px; color: var(--ink-soft); }
+  .msg.err { color: var(--clemenza); }
+  .msg.ok { color: var(--turf-deep); }
+  .who-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; font-size: 13.5px; }
+  .who-bar b { font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+  .ed { display: grid; gap: 10px; }
+  .ed label { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); display: block; margin-bottom: 3px; }
+  .ed input[type=search] { width: 100%; }
+  .ed select { width: 100%; }
+  .hits { border: 1px solid var(--line-soft); max-height: 260px; overflow-y: auto; }
+  .hit { display: grid; grid-template-columns: 50px minmax(0,1fr); gap: 10px; align-items: baseline; width: 100%; text-align: left; padding: 6px 10px;
+    background: none; border: none; border-bottom: 1px solid var(--line-soft); cursor: pointer; font: inherit; color: inherit; }
+  .hit:last-child { border-bottom: none; }
+  .hit:hover:not(:disabled) { background: var(--turf-tint); }
+  .hit:disabled { cursor: not-allowed; opacity: 0.55; }
+  .hit .n { font-weight: 600; font-size: 13.5px; }
+  .hit .nfl { font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--ink-faint); margin-left: 6px; }
+  .hit .x { display: block; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--clemenza); }
+  .chosen { padding: 8px 10px; background: var(--turf-tint); font-size: 13.5px; }
+  .chosen .n { font-weight: 600; }
+  .list { counter-reset: none; }
+  .entry { display: grid; grid-template-columns: 30px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--line-soft); }
+  .entry:last-child { border-bottom: none; }
+  .entry .rk { font-family: Oswald, sans-serif; font-weight: 700; font-size: 18px; color: var(--turf-deep); }
+  .entry .ln1 { font-weight: 600; font-size: 13.5px; }
+  .entry .ln2 { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-soft); }
+  .entry .bad { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--clemenza); }
+  .entry.invalid { background: var(--clemenza-tint); }
+  .entry .ctl { display: flex; gap: 4px; }
+  .mini { font-family: "IBM Plex Mono", monospace; font-size: 12px; width: 28px; height: 26px; padding: 0; cursor: pointer; background: var(--paper-raised); color: var(--ink-soft); border: 1px solid var(--line); border-radius: 2px; }
+  .mini:hover:not(:disabled) { color: var(--ink); border-color: var(--turf); }
+  .mini:disabled { opacity: 0.35; cursor: default; }
+  .empty { padding: 14px 16px; color: var(--ink-faint); font-size: 13.5px; font-style: italic; }
+  .savebar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 16px; border-top: 1px solid var(--line); background: var(--paper-sunk); }
+  .roster { columns: 2; column-gap: 18px; font-size: 13px; }
+  @media (max-width: 560px) { .roster { columns: 1; } }
+  .roster div { break-inside: avoid; padding: 2px 0; display: grid; grid-template-columns: 46px minmax(0,1fr); gap: 8px; align-items: baseline; }
+  .roster .nfl { font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--ink-faint); margin-left: 4px; }
+  .counts { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-soft); margin-bottom: 8px; }
+  .results .res { padding: 10px 16px; border-bottom: 1px solid var(--line-soft); }
+  .results .res:last-child { border-bottom: none; }
+  .res .top { display: flex; gap: 10px; align-items: baseline; }
+  .res .top .rk { font-family: Oswald, sans-serif; font-weight: 700; font-size: 18px; color: var(--turf-deep); width: 26px; }
+  .res .top .tn { font-weight: 600; }
+  .res .top .out { margin-left: auto; text-align: right; font-size: 13.5px; }
+  .res .top .out.got { color: var(--turf-deep); font-weight: 600; }
+  .res .top .out.void { color: var(--clemenza); font-weight: 600; }
+  .res .top .out.none { color: var(--ink-faint); }
+  .res details { margin: 4px 0 0 36px; }
+  .res summary { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-faint); cursor: pointer; }
+  .res ol { margin: 6px 0 0; padding-left: 20px; font-size: 12.5px; color: var(--ink-soft); }
+  .res ol li span { font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .o-awarded { color: var(--turf-deep); } .o-taken { color: var(--gold); } .o-void { color: var(--clemenza); } .o-not { color: var(--ink-faint); }
+  pre.lines { margin: 0; padding: 12px 16px; font-family: "IBM Plex Mono", monospace; font-size: 12.5px; white-space: pre-wrap; background: var(--paper-sunk); border-top: 1px solid var(--line-soft); }
+  .comm .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .comm h3 { font-family: Oswald, sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; margin: 4px 0 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">
+      <a class="home" href="./">&larr; DadsFFL</a>
+      <div class="eyebrow">2026 Regular Season</div>
+      <h1>Waiver Wire</h1>
+      <p class="sub">Send your ranked claims before the Thursday noon deadline. The order and the results are worked out here, by the rule book.</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
+  </div>
+
+  <p class="note"><b>How it works (Rule III).</b> After each week, every team may drop one player and claim one free agent (no drop needed under 24 players). Teams pick in reverse order of total season points &mdash; fewest points first &mdash; with ties broken by head-to-head record, head-to-head point differential, overall point differential, then a coin toss. Rank as many players as you like: you get the highest one an earlier pick hasn't taken, and you can drop a different player for each. Only claims that follow the rule book can be saved (free agent, position limits, nobody released after the trade deadline). Lists stay private until the deadline; then everyone sees the results and every list.</p>
+  <div id="topWarn"></div>
+
+  <div class="runs" id="runs" role="tablist"></div>
+  <div class="runbar">
+    <div><span class="big" id="runTitle">Loading…</span> <span class="pill" id="runPill"></span></div>
+    <div class="wk-meta" id="runMeta"></div>
+  </div>
+
+  <div class="sec-head"><h2>Selection order</h2><div class="rule"></div><div class="hint" id="orderHint"></div></div>
+  <div class="card" id="orderCard"><div class="empty">Loading…</div></div>
+
+  <div id="mainSection"></div>
+
+  <div id="commSection"></div>
+
+  <footer>
+    Points for the order: the same numbers as the season record on the <a href="weekly.html">weekly head-to-head page</a> (checked players, games with both lineups set, completed weeks only).
+    Rosters: read from the weekly page, plus any waiver run on this page that hasn't been copied there yet.
+    Player list: ESPN's NFL team rosters, read in your browser.
+    Claims, deadlines and coin tosses are stored in the league's Supabase database; the database itself hides each list until the deadline and refuses changes after it.
+  </footer>
+</div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import * as E from "./waiver-engine.js";
+
+const SUPABASE_URL = "https://lpcremgkmgumumboqjux.supabase.co";
+const ANON_KEY = "sb_publishable_zOdIS--l6_TDNSlrOE_RhA_s3E54zsj";
+const sb = createClient(SUPABASE_URL, ANON_KEY, { auth: { persistSession: true, detectSessionInUrl: true } });
+const LEAGUE_EMAIL = "dadsffl@googlegroups.com";
+const TZ = "America/New_York";
+
+const TEAMS = {
+  PD:   { name: "Predetermined Destination", abbrev: "PD" },
+  OS:   { name: "Odds & Sods",               abbrev: "O&S" },
+  FAB:  { name: "Fabricoh",                  abbrev: "FAB" },
+  WILD: { name: "Wild Geesemen",             abbrev: "WILD" },
+  SV:   { name: "Screaming Vikings",         abbrev: "SV" },
+  RHR:  { name: "Red Hot Revenge",           abbrev: "RHR" },
+  COM:  { name: "The Commandos",             abbrev: "COM" },
+  NUTS: { name: "The Ironnuts",              abbrev: "NUTS" }
+};
+const CODES = Object.keys(TEAMS);
+const POS_ORDER = { K: 0, QB: 1, RB: 2, WR: 3, "TE/WR": 4, "DL/LB": 5, DB: 6 };
+
+/* ---------------- helpers ---------------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => (Math.round(n * 10) / 10).toString();
+const tname = c => TEAMS[c] ? TEAMS[c].name : c;
+const badge = pos => {
+  const cls = pos === "K" ? "kick" : (pos === "DB" || pos === "DL/LB") ? "def" : "off";
+  return '<span class="badge ' + cls + '">' + esc(E.posLabel(pos)) + "</span>";
+};
+const TEAM_ALIASES = { WAS: "WSH" };      // roster sheet -> ESPN, for box score matching
+const nflKey = t => TEAM_ALIASES[t] || t;
+function etString(d, opts) {
+  return d.toLocaleString("en-US", Object.assign({ timeZone: TZ, weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }, opts || {})) + " ET";
+}
+// "2026-12-03T12:00" typed as New York time -> Date
+function fromET(local) {
+  const [d, t] = local.split("T"); const [y, m, day] = d.split("-").map(Number); const [hh, mm] = t.split(":").map(Number);
+  const guess = Date.UTC(y, m - 1, day, hh, mm);
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: TZ, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+    .formatToParts(new Date(guess)).map(x => [x.type, x.value]));
+  const shown = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute);
+  return new Date(guess - (shown - guess));
+}
+function toETInput(date) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: TZ, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+    .formatToParts(date).map(x => [x.type, x.value]));
+  return p.year + "-" + p.month + "-" + p.day + "T" + p.hour + ":" + p.minute;
+}
+function untilText(ms) {
+  if (ms <= 0) return "closed";
+  const m = Math.floor(ms / 60000), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mi = m % 60;
+  return "closes in " + (d ? d + "d " : "") + (d || h ? h + "h " : "") + mi + "m";
+}
+async function q(promise) {
+  const { data, error } = await promise;
+  if (error) throw new Error(error.message || String(error));
+  return data;
+}
+
+/* ---------------- league data from weekly.html ---------------- */
+let RD, ROSTERS_THROUGH, NFL_BYES, SCHEDULE;
+async function loadSiteData() {
+  const res = await fetch("weekly.html", { cache: "no-cache" });
+  if (!res.ok) throw new Error("couldn't read weekly.html (" + res.status + ")");
+  const html = await res.text();
+  const m = html.match(/const ROSTER_DATA = (\{[\s\S]*?\});\n/);
+  const t = html.match(/const ROSTERS_THROUGH = (\d+);/);
+  const b = html.match(/const NFL_BYES = (\{[^}]*\});/);
+  const s = html.match(/const SCHEDULE = (\{[\s\S]*?\n  \});/);
+  if (!m || !t || !b || !s) throw new Error("league data not found in weekly.html");
+  RD = JSON.parse(m[1]);
+  ROSTERS_THROUGH = +t[1];
+  NFL_BYES = JSON.parse(b[1]);
+  SCHEDULE = JSON.parse(s[1].replace(/(\d+):/g, '"$1":'));
+}
+const BYE_ALIASES = { WSH: "WAS", LVR: "LV", JAC: "JAX", ARZ: "ARI", LA: "LAR" };
+const onBye = (team, week) => NFL_BYES[BYE_ALIASES[team] || team] === week;
+const gamesInWeek = n => (32 - Object.values(NFL_BYES).filter(w => w === n).length) / 2;
+
+/* ---------------- season points (same method as weekly.html's season record) ---------------- */
+let WEEKIDS = null;            // week number -> weeks.id
+const weekCache = {};          // week number -> {complete, games:[{week,a,b,ap,bp}]}
+async function loadWeekIds() {
+  if (WEEKIDS) return WEEKIDS;
+  const all = await q(sb.from("weeks").select("id,season_id,season_type,week_number").eq("season_type", 2));
+  const season = all.length ? Math.max(...all.map(w => w.season_id)) : null;
+  WEEKIDS = {};
+  for (const w of all) if (w.season_id === season && SCHEDULE[w.week_number]) WEEKIDS[w.week_number] = w.id;
+  return WEEKIDS;
+}
+async function pagedStatLines(ids) {
+  let out = [];
+  for (let off = 0; ; off += 1000) {
+    const page = await q(sb.from("stat_lines").select("id,game_id,fantasy_points,players(name,nfl_team)")
+      .in("game_id", ids).order("id").range(off, off + 999));
+    out = out.concat(page);
+    if (page.length < 1000) return out;
+  }
+}
+async function weekResults(n) {
+  if (weekCache[n]) return weekCache[n];
+  const id = (await loadWeekIds())[n];
+  if (!id) return (weekCache[n] = { complete: false, games: [] });
+  const games = await q(sb.from("games").select("id,state").eq("week_id", id));
+  const fin = games.filter(g => g.state === "post").length;
+  if (!(fin > 0 && fin >= gamesInWeek(n))) return { complete: false, games: [] };   // not cached: may finish
+  const lines = await pagedStatLines(games.map(g => g.id));
+  const byName = {};
+  for (const s of lines) if (s.players)
+    (byName[E.norm(s.players.name)] ||= []).push({ team: s.players.nfl_team, pts: Number(s.fantasy_points) || 0 });
+  const picks = await q(sb.from("lineup_picks").select("team,player").eq("week_id", id).limit(1000));
+  const chosen = new Set(picks.map(p => p.team + "|" + p.player));
+  const rosters = E.rostersFor(RD, n);
+  const tot = {}, picked = {};
+  for (const code in rosters) {
+    tot[code] = 0; picked[code] = 0;
+    for (const p of rosters[code]) {
+      if (onBye(p.team, n) || !chosen.has(code + "|" + p.name)) continue;
+      picked[code]++;
+      const c = byName[E.norm(p.name)] || [];
+      const same = c.filter(x => x.team === nflKey(p.team));
+      const use = same.length ? same : (new Set(c.map(x => x.team)).size === 1 ? c : []);
+      tot[code] += use.reduce((a, x) => a + x.pts, 0);
+    }
+  }
+  const out = [];
+  for (const [a, b] of SCHEDULE[n] || [])
+    if (picked[a] && picked[b]) out.push({ week: n, a, b, ap: tot[a], bp: tot[b] });
+  return (weekCache[n] = { complete: true, games: out });
+}
+async function seasonThrough(n) {
+  const weeks = [];
+  for (let w = 1; w <= n; w++) if (SCHEDULE[w]) weeks.push(w);
+  const res = await Promise.all(weeks.map(weekResults));
+  return { games: res.flatMap(r => r.games), done: weeks.filter((w, i) => res[i].complete) };
+}
+
+/* ---------------- waiver runs ---------------- */
+let WINDOWS = {};              // week -> {week_number, deadline: Date, note}
+const isClosed = w => !!WINDOWS[w] && Date.now() >= WINDOWS[w].deadline.getTime();
+async function loadWindows() {
+  const rows = await q(sb.from("waiver_windows").select("*").order("week_number"));
+  WINDOWS = {};
+  for (const r of rows) WINDOWS[r.week_number] = Object.assign({}, r, { deadline: new Date(r.deadline) });
+}
+async function coinFor(w) {
+  const rows = await q(sb.from("waiver_coin_tosses").select("team,pick_rank").eq("week_number", w));
+  const out = {};
+  for (const r of rows) out[r.team] = r.pick_rank;
+  return out;
+}
+async function orderFor(w) {
+  const s = await seasonThrough(w);
+  const coin = await coinFor(w);
+  return Object.assign(E.waiverOrder(CODES, s.games, coin), { done: s.done, coin });
+}
+function groupClaims(rows) {
+  const by = {};
+  for (const r of rows) (by[r.team] ||= []).push(r);
+  for (const c in by) by[c].sort((a, b) => a.rank - b.rank);
+  return by;
+}
+// Rosters going into run w, rolling forward any closed runs not yet copied into weekly.html.
+const runMemo = {};
+async function stateAt(w) {
+  let rosters = E.rostersFor(RD, Math.min(w, ROSTERS_THROUGH));
+  const extra = [];
+  for (let k = ROSTERS_THROUGH; k < w; k++) {
+    const r = await runResults(k, rosters, extra);
+    if (!r || r.pending) return { rosters, extra, missing: k, why: r && r.pending ? "coin" : "rosters" };
+    extra.push({ week: k, results: r.results });
+    rosters = E.applyResults(rosters, r.results);
+  }
+  return { rosters, extra, missing: null };
+}
+function contextFor(rosters, extra) {
+  return { rosters, rostered: E.rosteredMap(rosters), released: E.releasedAfterDeadline(RD, extra) };
+}
+async function runResults(k, rosters, extra) {
+  if (runMemo[k]) return runMemo[k];
+  if (!WINDOWS[k] || !isClosed(k)) return null;
+  const order = await orderFor(k);
+  if (order.coinNeeded.length) return { pending: true, order };
+  const rows = await q(sb.from("waiver_claims").select("*").eq("week_number", k));
+  const results = E.resolveRun(order.order, groupClaims(rows), contextFor(rosters, extra));
+  return (runMemo[k] = { order, results, rows });
+}
+
+/* ---------------- ESPN player list ---------------- */
+const ESPN_TEAM_IDS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,33,34];
+const ESPN_POS = { QB: "QB", RB: "RB", FB: "RB", HB: "RB", WR: "WR", TE: "TE/WR", PK: "K", K: "K",
+  DE: "DL/LB", DT: "DL/LB", NT: "DL/LB", DL: "DL/LB", LB: "DL/LB", OLB: "DL/LB", ILB: "DL/LB", MLB: "DL/LB", EDGE: "DL/LB",
+  CB: "DB", S: "DB", FS: "DB", SS: "DB", DB: "DB", SAF: "DB", NB: "DB" };
+const ESPN_NFL = { WSH: "WAS" };   // ESPN -> roster sheet spelling
+let DIRECTORY = null, dirError = null;
+async function loadDirectory() {
+  if (DIRECTORY || dirError) return;
+  try {
+    const cached = JSON.parse(sessionStorage.getItem("ffl-espn-players") || "null");
+    if (cached && Date.now() - cached.at < 6 * 3600e3) { DIRECTORY = cached.list; return; }
+  } catch (e) {}
+  try {
+    const all = await Promise.all(ESPN_TEAM_IDS.map(async id => {
+      const r = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/" + id + "/roster");
+      if (!r.ok) throw new Error("ESPN " + r.status);
+      const j = await r.json();
+      const abbr = (j.team && j.team.abbreviation) || "";
+      const team = ESPN_NFL[abbr] || abbr;
+      const out = [];
+      for (const grp of j.athletes || []) for (const a of grp.items || []) {
+        const pos = ESPN_POS[(a.position && a.position.abbreviation) || ""];
+        if (pos && a.fullName) out.push({ id: String(a.id), name: a.fullName, pos, team });
+      }
+      return out;
+    }));
+    DIRECTORY = all.flat();
+    try { sessionStorage.setItem("ffl-espn-players", JSON.stringify({ at: Date.now(), list: DIRECTORY })); } catch (e) {}
+  } catch (e) {
+    dirError = e.message || String(e);
+    console.warn("ESPN player list unavailable", e);
+  }
+}
+
+/* ---------------- auth ---------------- */
+let me = null;                 // {email, team, comm} or null
+async function loadMe() {
+  const { data } = await sb.auth.getSession();
+  const s = data && data.session;
+  if (!s) { me = null; return; }
+  const email = (s.user.email || "").toLowerCase();
+  const rows = await q(sb.from("league_members").select("team,is_commissioner").eq("email", email));
+  me = { email, team: rows[0] ? rows[0].team : null, comm: !!(rows[0] && rows[0].is_commissioner) };
+}
+
+/* ---------------- page state ---------------- */
+let RUN = null;                // selected run week
+let view = null;               // computed state for RUN
+let draft = [];                // my ranked list being edited: [{claim_name, claim_pos, claim_nfl, claim_espn_id, drop_name}]
+let savedJSON = "[]";
+let picking = null;            // player chosen in the search box
+let pickDrop = "";
+
+function chooseRun() {
+  const weeks = Object.keys(WINDOWS).map(Number).sort((a, b) => a - b);
+  const q = +new URLSearchParams(location.search).get("run");
+  if (weeks.includes(q)) return q;
+  return weeks.find(w => !isClosed(w)) ?? weeks[weeks.length - 1] ?? null;
+}
+
+async function render() {
+  const weeks = Object.keys(WINDOWS).map(Number).sort((a, b) => a - b);
+  $("runs").innerHTML = weeks.map(w =>
+    `<button class="tab" type="button" role="tab" data-run="${w}" aria-selected="${w === RUN}">Post Week ${w}</button>`).join("");
+  if (RUN == null) {
+    $("runTitle").textContent = "No waiver runs set up yet";
+    $("orderCard").innerHTML = '<div class="empty">The commissioner hasn\'t opened a waiver run yet.</div>';
+    $("mainSection").innerHTML = ""; renderAuthOnly(); renderComm(); return;
+  }
+  const win = WINDOWS[RUN], closed = isClosed(RUN);
+  $("runTitle").textContent = "Post Week " + RUN + " waivers";
+  $("runPill").textContent = closed ? "Closed" : "Open";
+  $("runPill").className = "pill " + (closed ? "closed" : "open");
+  $("runMeta").textContent = "Deadline " + etString(win.deadline) + " · " + untilText(win.deadline - Date.now()) +
+    " · claims count from week " + (RUN + 1) + (win.note ? " · " + win.note : "");
+
+  const st = await stateAt(RUN);
+  const order = closed && runMemo[RUN] ? runMemo[RUN].order : await orderFor(RUN);
+  view = { st, order, closed };
+  renderOrder();
+  if (closed) await renderResults(); else renderClaims();
+  renderComm();
+}
+
+function renderOrder() {
+  const { order } = view;
+  const weekDone = order.done.includes(RUN);
+  $("orderHint").textContent = (weekDone ? "final" : "so far — week " + RUN + " isn't over yet") +
+    " · total points through " + (order.done.length ? "week " + Math.max(...order.done) : "no completed weeks");
+  const rows = order.order.map((c, i) => {
+    const inf = order.info[c];
+    return `<tr class="${me && me.team === c ? "me" : ""}"><td class="num">${i + 1}</td>
+      <td><span class="tn">${esc(tname(c))}</span><span class="tcode">${esc(TEAMS[c].abbrev)}</span>${inf.note ? '<span class="why">' + esc(inf.note) + "</span>" : ""}</td>
+      <td class="pts">${fmt(inf.pf)}</td><td class="pts">${fmt(inf.pf - inf.pa)}</td></tr>`;
+  }).join("");
+  const last = order.order[order.order.length - 1];
+  $("orderCard").innerHTML = `<table class="order"><thead><tr><th>Pick</th><th>Team</th><th class="pts">Points</th><th class="pts">Diff</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="savebar"><span class="wk-meta">Rule III-F: the GM in the last spot (${esc(tname(last))}) runs the wire and sends the results.</span></div>`;
+  $("topWarn").innerHTML = order.coinNeeded.length
+    ? '<p class="warn"><b>Coin toss needed.</b> ' + order.coinNeeded.map(g => g.map(tname).join(" and ")).join("; ") +
+      " are still tied after every other tiebreaker. The commissioner enters the result below; until then the order (and the results) can't be final.</p>"
+    : "";
+}
+
+function missingText(st) {
+  return st.why === "coin"
+    ? `<b>Post Week ${st.missing} is waiting on a coin toss,</b> so its results (and the rosters coming out of it) aren't final yet.`
+    : `<b>Rosters aren't up to date yet.</b> The post-week-${st.missing} waiver results haven't been added to the rosters.`;
+}
+
+/* ---------------- sign-in ---------------- */
+function authCard() {
+  if (me) {
+    const team = me.team ? esc(tname(me.team)) : "<i>no team linked to this login yet — ask the commissioner</i>";
+    return `<div class="who-bar">Signed in as <b>${esc(me.email)}</b> · ${team}${me.comm ? " · commissioner" : ""}
+      <button class="linkbtn" id="pwBtn" type="button">change password</button>
+      <button class="linkbtn" id="outBtn" type="button">sign out</button></div>
+      <div id="pwForm" hidden class="form" style="margin-top:8px"><input type="password" id="newPw" placeholder="new password (8+ characters)" autocomplete="new-password"><button class="btn ghost" id="pwSave" type="button">Save password</button></div>
+      <div class="msg" id="authMsg"></div>`;
+  }
+  return `<div class="form">
+      <input type="email" id="email" placeholder="email" autocomplete="username">
+      <input type="password" id="pw" placeholder="password" autocomplete="current-password">
+      <button class="btn" id="inBtn" type="button">Sign in</button>
+      <button class="linkbtn" id="linkBtn" type="button">email me a sign-in link instead</button>
+    </div><div class="msg" id="authMsg"></div>`;
+}
+function wireAuth() {
+  const msg = (t, cls) => { const m = $("authMsg"); if (m) { m.textContent = t; m.className = "msg " + (cls || ""); } };
+  if ($("inBtn")) $("inBtn").onclick = async () => {
+    const email = $("email").value.trim().toLowerCase(), password = $("pw").value;
+    if (!email || !password) return msg("Enter your email and password.", "err");
+    msg("Signing in…");
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) return msg(error.message, "err");
+    await afterAuthChange();
+  };
+  if ($("pw")) $("pw").onkeydown = e => { if (e.key === "Enter") $("inBtn").click(); };
+  if ($("linkBtn")) $("linkBtn").onclick = async () => {
+    const email = $("email").value.trim().toLowerCase();
+    if (!email) return msg("Enter your email first.", "err");
+    const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: location.href.split("#")[0] } });
+    msg(error ? error.message : "Check your email for a sign-in link.", error ? "err" : "ok");
+  };
+  if ($("outBtn")) $("outBtn").onclick = async () => { await sb.auth.signOut(); await afterAuthChange(); };
+  if ($("pwBtn")) $("pwBtn").onclick = () => { $("pwForm").hidden = !$("pwForm").hidden; };
+  if ($("pwSave")) $("pwSave").onclick = async () => {
+    const password = $("newPw").value;
+    if (password.length < 8) return msg("Use at least 8 characters.", "err");
+    const { error } = await sb.auth.updateUser({ password });
+    msg(error ? error.message : "Password changed.", error ? "err" : "ok");
+    if (!error) { $("newPw").value = ""; $("pwForm").hidden = true; }
+  };
+}
+async function afterAuthChange() {
+  await loadMe();
+  await loadMyClaims();
+  await render();
+}
+function renderAuthOnly() {
+  $("mainSection").innerHTML = `<div class="sec-head"><h2>Sign in</h2><div class="rule"></div></div><div class="card"><div class="card-body">${authCard()}</div></div>`;
+  wireAuth();
+}
+
+/* ---------------- claims editor (before the deadline) ---------------- */
+async function loadMyClaims() {
+  draft = []; savedJSON = "[]"; picking = null; pickDrop = "";
+  if (!me || !me.team || RUN == null || isClosed(RUN)) return;
+  const rows = await q(sb.from("waiver_claims").select("*").eq("week_number", RUN).eq("team", me.team).order("rank"));
+  draft = rows.map(r => ({ claim_name: r.claim_name, claim_pos: r.claim_pos, claim_nfl: r.claim_nfl, claim_espn_id: r.claim_espn_id || "", drop_name: r.drop_name || "" }));
+  savedJSON = JSON.stringify(draft);
+}
+const dirty = () => JSON.stringify(draft) !== savedJSON;
+function ctxNow() { return contextFor(view.st.rosters, view.st.extra); }
+function entryReason(ctx, c, idx) {
+  const dup = draft.findIndex((x, i) => i !== idx && E.norm(x.claim_name) === E.norm(c.claim_name));
+  if (dup >= 0 && dup < idx) return "already on your list at #" + (dup + 1);
+  return E.claimReason(ctx, me.team, Object.assign({}, c, { drop_name: c.drop_name || null }));
+}
+
+function renderClaims() {
+  const sec = $("mainSection");
+  let body;
+  if (!me || !me.team) {
+    sec.innerHTML = `<div class="sec-head"><h2>Your claims</h2><div class="rule"></div><div class="hint">sign in to enter your team's list</div></div>
+      <div class="card"><div class="card-body">${authCard()}</div></div>`;
+    wireAuth(); return;
+  }
+  if (view.st.missing != null) {
+    sec.innerHTML = `<div class="sec-head"><h2>Your claims</h2><div class="rule"></div></div>
+      <div class="card"><div class="card-body">${authCard()}</div></div>
+      <p class="warn">${missingText(view.st)} Claims for this run can't be checked until then.</p>`;
+    wireAuth(); return;
+  }
+  const ctx = ctxNow();
+  const roster = view.st.rosters[me.team].slice().sort((a, b) => (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9));
+  const reasons = draft.map((c, i) => entryReason(ctx, c, i));
+  const allOK = reasons.every(r => !r);
+  const list = draft.length ? draft.map((c, i) => `<div class="entry ${reasons[i] ? "invalid" : ""}">
+      <div class="rk">${i + 1}</div>
+      <div><div class="ln1">${badge(c.claim_pos)} ${esc(c.claim_name)} <span class="nfl">${esc(c.claim_nfl)}</span></div>
+        <div class="ln2">${c.drop_name ? "drop " + esc(c.drop_name) : "no drop"}</div>
+        ${reasons[i] ? '<div class="bad">' + esc(reasons[i]) + "</div>" : ""}</div>
+      <div class="ctl"><button class="mini" data-act="up" data-i="${i}" ${i ? "" : "disabled"} title="Move up">&uarr;</button>
+        <button class="mini" data-act="down" data-i="${i}" ${i < draft.length - 1 ? "" : "disabled"} title="Move down">&darr;</button>
+        <button class="mini" data-act="del" data-i="${i}" title="Remove">&times;</button></div></div>`).join("")
+    : '<div class="empty">No claims yet. Add players on the right, best first.</div>';
+  const c = {};
+  for (const p of view.st.rosters[me.team]) { const k = E.isTE(p.pos) ? "TE" : p.pos; c[k] = (c[k] || 0) + 1; }
+  const countLine = view.st.rosters[me.team].length + " players · " + ["K", "QB", "RB", "WR", "TE", "DL/LB", "DB"].map(k => (c[k] || 0) + " " + k).join(" · ");
+
+  sec.innerHTML = `<div class="sec-head"><h2>Your claims</h2><div class="rule"></div><div class="hint">only you can see this list until the deadline</div></div>
+    <div class="card" style="margin-bottom:18px"><div class="card-body">${authCard()}</div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-head"><span><b>${esc(tname(me.team))}</b> · ranked list</span><span>${draft.length} claim${draft.length === 1 ? "" : "s"}</span></div>
+        <div class="list" id="list">${list}</div>
+        <div class="savebar"><span class="msg ${dirty() ? "err" : "ok"}" id="saveMsg">${dirty() ? "Unsaved changes" : (draft.length ? "Saved ✓" : "Nothing saved")}</span>
+          <button class="btn" id="saveBtn" type="button" ${dirty() && allOK ? "" : "disabled"}>Save list</button></div>
+        ${allOK ? "" : '<p class="warn" style="margin:0"><b>Fix or remove the red entries before saving.</b> They no longer follow the rules (rosters may have changed since you added them).</p>'}
+      </div>
+      <div class="card"><div class="card-head"><span><b>Add a claim</b></span></div>
+        <div class="card-body ed" id="adder"></div>
+      </div>
+    </div>
+    <div class="sec-head"><h2>Your roster going into this run</h2><div class="rule"></div></div>
+    <div class="card"><div class="card-body"><div class="counts">${esc(countLine)}</div>
+      <div class="roster">${roster.map(p => `<div>${badge(p.pos)}<span>${esc(p.name)}<span class="nfl">${esc(p.team)}</span></span></div>`).join("")}</div></div></div>`;
+  wireAuth();
+  $("list").onclick = e => {
+    const b = e.target.closest("button[data-act]"); if (!b) return;
+    const i = +b.dataset.i;
+    if (b.dataset.act === "del") draft.splice(i, 1);
+    if (b.dataset.act === "up" && i > 0) [draft[i - 1], draft[i]] = [draft[i], draft[i - 1]];
+    if (b.dataset.act === "down" && i < draft.length - 1) [draft[i + 1], draft[i]] = [draft[i], draft[i + 1]];
+    renderClaims();
+  };
+  $("saveBtn").onclick = saveList;
+  renderAdder();
+}
+
+function renderAdder() {
+  const box = $("adder"); if (!box) return;
+  const ctx = ctxNow();
+  const roster = view.st.rosters[me.team].slice().sort((a, b) => (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9));
+  const canNoDrop = roster.length < E.ROSTER_MAX;
+  const dropOpts = (canNoDrop ? '<option value="">No drop (roster has ' + roster.length + ")</option>" : '<option value="">Pick a player to drop…</option>') +
+    roster.map(p => `<option value="${esc(p.name)}" ${pickDrop === p.name ? "selected" : ""}>${esc(E.posLabel(p.pos) + " " + p.name + " (" + p.team + ")")}</option>`).join("");
+  let pickHtml;
+  if (picking) {
+    pickHtml = `<div class="chosen">${badge(picking.pos)} <span class="n">${esc(picking.name)}</span> <span class="nfl">${esc(picking.team)}</span>
+      <button class="linkbtn" id="unpick" type="button" style="margin-left:8px">change</button></div>`;
+  } else if (DIRECTORY) {
+    pickHtml = `<div><label for="search">Player to claim</label><input type="search" id="search" placeholder="Search ESPN rosters by name…" autocomplete="off"></div><div class="hits" id="hits" hidden></div>`;
+  } else if (dirError) {
+    pickHtml = `<p class="warn" style="margin:0"><b>ESPN's player list didn't load</b> (${esc(dirError)}). Type the player in exactly as ESPN lists him.</p>
+      <div class="form"><input id="mName" placeholder="player name" style="flex:2 1 160px"><select id="mPos">${E.POSITIONS.map(p => `<option value="${p}">${E.posLabel(p)}</option>`).join("")}</select>
+      <input id="mTeam" placeholder="NFL team (e.g. BUF)" style="width:130px"><button class="btn ghost" id="mUse" type="button">Use</button></div>`;
+  } else {
+    pickHtml = '<div class="empty">Loading NFL rosters from ESPN…</div>';
+  }
+  const claim = picking ? { claim_name: picking.name, claim_pos: picking.pos, claim_nfl: picking.team, claim_espn_id: picking.id || "", drop_name: pickDrop } : null;
+  const reason = claim ? entryReason(ctx, claim, -1) || (draft.some(x => E.norm(x.claim_name) === E.norm(claim.claim_name)) ? "already on your list" : "") : "";
+  box.innerHTML = pickHtml +
+    `<div><label for="drop">Drop</label><select id="drop">${dropOpts}</select></div>
+     <div class="msg err" id="addMsg">${esc(claim ? reason : "")}</div>
+     <div><button class="btn" id="addBtn" type="button" ${claim && !reason ? "" : "disabled"}>Add to list as #${draft.length + 1}</button></div>`;
+
+  $("drop").onchange = e => { pickDrop = e.target.value; renderAdder(); };
+  if ($("unpick")) $("unpick").onclick = () => { picking = null; renderAdder(); };
+  if ($("addBtn")) $("addBtn").onclick = () => {
+    if (!claim || reason) return;
+    draft.push(claim); picking = null; pickDrop = "";
+    renderClaims();
+  };
+  if ($("mUse")) $("mUse").onclick = () => {
+    const name = $("mName").value.trim(), team = $("mTeam").value.trim().toUpperCase();
+    if (!name || !/^[A-Z]{2,4}$/.test(team)) { $("addMsg").textContent = "Enter a name and an NFL team code."; return; }
+    picking = { name, pos: $("mPos").value, team, id: "" }; renderAdder();
+  };
+  const s = $("search");
+  if (s) {
+    const hits = $("hits");
+    s.oninput = () => {
+      const t = E.norm(s.value);
+      if (t.length < 2) { hits.hidden = true; hits.innerHTML = ""; return; }
+      const found = DIRECTORY.filter(p => E.norm(p.name).includes(t)).slice(0, 15);
+      hits.hidden = false;
+      hits.innerHTML = found.length ? found.map((p, i) => {
+        const why = ctx.rostered.get(E.norm(p.name)) ? "on " + ctx.rostered.get(E.norm(p.name)) + "'s roster"
+          : ctx.released.get(E.norm(p.name)) ? "released after the trade deadline" : "";
+        return `<button class="hit" type="button" data-i="${i}" ${why ? "disabled" : ""}>${badge(p.pos)}<span><span class="n">${esc(p.name)}</span><span class="nfl">${esc(p.team)}</span>${why ? '<span class="x">' + esc(why) + "</span>" : ""}</span></button>`;
+      }).join("") : '<div class="empty">No NFL player matches.</div>';
+      hits.onclick = e => {
+        const b = e.target.closest("button.hit"); if (!b || b.disabled) return;
+        picking = found[+b.dataset.i]; renderAdder();
+      };
+    };
+  }
+}
+
+async function saveList() {
+  const btn = $("saveBtn"), msg = $("saveMsg");
+  btn.disabled = true; msg.textContent = "Saving…"; msg.className = "msg";
+  try {
+    const n = await q(sb.rpc("save_waiver_claims", { wk: RUN, claims: draft }));
+    savedJSON = JSON.stringify(draft);
+    renderClaims();
+    $("saveMsg").textContent = "Saved ✓ (" + n + " claim" + (n === 1 ? "" : "s") + ")";
+  } catch (e) {
+    msg.textContent = "Couldn't save: " + e.message; msg.className = "msg err";
+    btn.disabled = false;
+  }
+}
+
+/* ---------------- results (after the deadline) ---------------- */
+async function renderResults() {
+  const sec = $("mainSection");
+  const head = `<div class="sec-head"><h2>Results</h2><div class="rule"></div><div class="hint">deadline passed · every list is now public</div></div>`;
+  const signIn = me ? "" : `<div class="card" style="margin-top:18px"><div class="card-body">${authCard()}</div></div>`;
+  if (view.st.missing != null) {
+    sec.innerHTML = head + `<p class="warn">${missingText(view.st)} This run's results depend on them.</p>` + signIn;
+    wireAuth(); return;
+  }
+  const r = await runResults(RUN, view.st.rosters, view.st.extra);
+  if (!r || r.pending) {
+    sec.innerHTML = head + '<p class="warn"><b>Waiting on the coin toss.</b> Results appear as soon as the commissioner enters it.</p>' + signIn;
+    wireAuth(); return;
+  }
+  const lines = E.resultLines(r.results, view.st.rosters);
+  const OUTCOME = { awarded: ["o-awarded", "awarded"], taken: ["o-taken", "taken"], void: ["o-void", "void"], "not reached": ["o-not", "not reached"] };
+  const items = r.results.map(res => {
+    let out;
+    if (res.status === "claimed") {
+      const c = res.claim;
+      out = `<span class="out got">claims ${esc(E.posLabel(c.claim_pos))} ${esc(c.claim_name)} ${esc(c.claim_nfl)}${c.drop_name ? " · drops " + esc(c.drop_name) : ""}</span>`;
+    } else if (res.status === "void") out = '<span class="out void">claim voided</span>';
+    else if (res.status === "none") out = '<span class="out none">no claim — everyone on the list was taken</span>';
+    else out = '<span class="out none">no list submitted</span>';
+    const det = res.entries.length ? `<details ${res.status === "void" ? "open" : ""}><summary>ranked list (${res.entries.length})</summary><ol>${res.entries.map(e =>
+      `<li>${esc(E.posLabel(e.claim.claim_pos))} ${esc(e.claim.claim_name)} ${esc(e.claim.claim_nfl)}${e.claim.drop_name ? " / drop " + esc(e.claim.drop_name) : ""} — <span class="${OUTCOME[e.outcome][0]}">${OUTCOME[e.outcome][1]}${e.note ? ": " + esc(e.note) : ""}</span></li>`).join("")}</ol></details>` : "";
+    return `<div class="res"><div class="top"><span class="rk">${res.pick}</span><span class="tn">${esc(tname(res.team))}</span>${out}</div>${det}</div>`;
+  }).join("");
+  const subject = "[DADSFFL] Post Week " + RUN + " Waiver Claim Results";
+  const mailto = "mailto:" + LEAGUE_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(lines.join("\n") + "\n\nFull details: " + location.href.split("?")[0].split("#")[0] + "?run=" + RUN + "\n");
+  const applied = ROSTERS_THROUGH > RUN;
+  sec.innerHTML = head + `<div class="card results">${items}</div>
+    <div class="sec-head"><h2>Announcement</h2><div class="rule"></div><div class="hint">${applied ? "already applied to the rosters" : "not yet applied to the rosters on the other pages"}</div></div>
+    <div class="card"><pre class="lines" id="lines">${esc(subject + "\n\n" + lines.join("\n"))}</pre>
+      <div class="savebar"><span class="wk-meta">Sending this email to the league list updates the rosters on the other pages (the Thursday roster task reads it).</span>
+        <span><button class="btn ghost" id="copyBtn" type="button">Copy</button> <a class="btn" href="${esc(mailto)}" style="text-decoration:none;display:inline-block">Email the league</a></span></div></div>` + signIn;
+  wireAuth();
+  $("copyBtn").onclick = async () => {
+    try { await navigator.clipboard.writeText(subject + "\n\n" + lines.join("\n")); $("copyBtn").textContent = "Copied ✓"; }
+    catch (e) { $("copyBtn").textContent = "Copy failed"; }
+  };
+}
+
+/* ---------------- commissioner tools ---------------- */
+function renderComm() {
+  const sec = $("commSection");
+  if (!me || !me.comm) { sec.innerHTML = ""; return; }
+  const weeks = Object.keys(WINDOWS).map(Number);
+  const next = weeks.length ? Math.max(...weeks) + 1 : 1;
+  let coin = "";
+  if (view && view.order && view.order.coinNeeded.length) {
+    coin = `<h3>Coin toss</h3>` + view.order.coinNeeded.map((g, gi) => `<div class="row">${g.map(c =>
+      `<label>${esc(TEAMS[c].abbrev)} picks <select data-coin="${c}">${g.map((_, i) => `<option value="${i + 1}">${["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"][i]}</option>`).join("")}</select></label>`).join(" ")}
+      <span class="wk-meta">among the tied teams</span></div>`).join("") + `<div class="row"><button class="btn ghost" id="coinSave" type="button">Save coin toss</button></div>`;
+  }
+  sec.innerHTML = `<div class="sec-head"><h2>Commissioner</h2><div class="rule"></div></div>
+    <div class="card comm"><div class="card-body">
+      ${RUN != null ? `<h3>Post Week ${RUN} deadline</h3><div class="row"><input type="datetime-local" id="dl" value="${toETInput(WINDOWS[RUN].deadline)}"> <span class="wk-meta">Eastern time</span>
+        <input id="dlNote" placeholder="note, e.g. early deadline for Thanksgiving" value="${esc(WINDOWS[RUN].note || "")}" style="flex:1 1 220px">
+        <button class="btn ghost" id="dlSave" type="button">Save deadline</button></div>` : ""}
+      ${next <= 16 ? `<h3>Open another run</h3><div class="row"><span>Post Week ${next}, deadline</span><input type="datetime-local" id="nwDl" value="${toETInput(defaultDeadline(next))}"><span class="wk-meta">Eastern time</span><button class="btn ghost" id="nwSave" type="button">Open run</button></div>` : ""}
+      ${coin}
+      <div class="msg" id="commMsg"></div>
+    </div></div>`;
+  const msg = (t, cls) => { $("commMsg").textContent = t; $("commMsg").className = "msg " + (cls || ""); };
+  if ($("dlSave")) $("dlSave").onclick = async () => {
+    try {
+      await q(sb.from("waiver_windows").update({ deadline: fromET($("dl").value).toISOString(), note: $("dlNote").value.trim() || null }).eq("week_number", RUN));
+      await loadWindows(); delete runMemo[RUN]; await render(); msg("Deadline saved.", "ok");
+    } catch (e) { msg("Couldn't save: " + e.message, "err"); }
+  };
+  if ($("nwSave")) $("nwSave").onclick = async () => {
+    try {
+      await q(sb.from("waiver_windows").insert({ week_number: next, deadline: fromET($("nwDl").value).toISOString() }));
+      await loadWindows(); await render(); msg("Post Week " + next + " run opened.", "ok");
+    } catch (e) { msg("Couldn't open: " + e.message, "err"); }
+  };
+  if ($("coinSave")) $("coinSave").onclick = async () => {
+    const rows = [...document.querySelectorAll("select[data-coin]")].map(s => ({ week_number: RUN, team: s.dataset.coin, pick_rank: +s.value }));
+    const ranks = rows.map(r => r.pick_rank);
+    if (new Set(ranks).size !== ranks.length) return msg("Each tied team needs a different spot.", "err");
+    try {
+      await q(sb.from("waiver_coin_tosses").upsert(rows));
+      delete runMemo[RUN]; await render(); msg("Coin toss saved.", "ok");
+    } catch (e) { msg("Couldn't save: " + e.message, "err"); }
+  };
+}
+// Thursday noon ET of NFL week n+1 (week 1's Thursday was Sep 10, 2026).
+function defaultDeadline(n) {
+  const d = new Date(Date.UTC(2026, 8, 10 + 7 * n));
+  return fromET(d.toISOString().slice(0, 10) + "T12:00");
+}
+
+/* ---------------- boot ---------------- */
+$("runs").addEventListener("click", async e => {
+  const b = e.target.closest(".tab"); if (!b) return;
+  RUN = +b.dataset.run;
+  history.replaceState(null, "", "?run=" + RUN);
+  await loadMyClaims();
+  await render();
+});
+window.addEventListener("beforeunload", e => { if (me && RUN != null && !isClosed(RUN) && dirty()) { e.preventDefault(); e.returnValue = ""; } });
+
+async function boot() {
+  try {
+    await loadSiteData();
+    await loadWindows();
+    await loadMe();
+    RUN = chooseRun();
+    await loadMyClaims();
+    await render();
+    loadDirectory().then(() => { if (RUN != null && !isClosed(RUN) && $("adder")) renderAdder(); });
+    sb.auth.onAuthStateChange(async (ev) => { if (ev === "SIGNED_IN" && !me) await afterAuthChange(); });
+    // Keep the countdown honest, and flip to results the moment the deadline passes.
+    let wasClosed = RUN != null && isClosed(RUN);
+    setInterval(async () => {
+      if (RUN == null) return;
+      const c = isClosed(RUN);
+      if (c !== wasClosed) { wasClosed = c; await render(); return; }
+      $("runMeta").textContent = "Deadline " + etString(WINDOWS[RUN].deadline) + " · " + untilText(WINDOWS[RUN].deadline - Date.now()) +
+        " · claims count from week " + (RUN + 1) + (WINDOWS[RUN].note ? " · " + WINDOWS[RUN].note : "");
+    }, 30000);
+  } catch (e) {
+    $("orderCard").innerHTML = '<div class="empty">Could not load the waiver wire right now (' + esc(e.message) + ").</div>";
+    console.error(e);
+  }
+}
+
+/* ---- theme (same as the other pages) ---- */
+const themeBtn = $("themeBtn");
+const MODES = ["auto", "light", "dark"];
+let mode = "auto";
+try { mode = localStorage.getItem("ffl-sim-theme") || "auto"; } catch (e) {}
+function applyTheme() {
+  if (mode === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", mode);
+  themeBtn.textContent = "Theme: " + mode;
+}
+themeBtn.addEventListener("click", () => {
+  mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+  try { localStorage.setItem("ffl-sim-theme", mode); } catch (e) {}
+  applyTheme();
+});
+applyTheme();
+
+boot();
+</script>
+
+</body>
+</html>
