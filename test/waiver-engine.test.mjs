@@ -32,7 +32,8 @@ test("roster limits", () => {
   assert.match(E.limitReason(roster, "RB", "QB0"), /RB would be 8/);
   assert.equal(E.limitReason(roster, "WR", "TE0"), "");           // 7 WR + 1 TE
   assert.match(E.limitReason(roster, "WR", "QB0"), /WR \+ TE would be 9/);
-  assert.match(E.limitReason(roster, "QB", null), /25 players/);
+  assert.match(E.limitReason(roster, "QB", null), /no open QB spot \(3 of 3\)/);
+  assert.equal(E.limitReason(roster.slice(1), "K", null), "");   // K spot open after trading a K away
   assert.equal(E.limitReason(roster.slice(1), "K", null), "");    // 23 players, 1 K -> add K
   assert.match(E.limitReason(roster, "DB", "K0"), /DB would be 3/);
   assert.equal(E.limitReason(roster, "TE/WR", "WR0"), "");
@@ -49,6 +50,20 @@ test("claim validity: rostered, released after deadline, missing drop, full rost
   assert.match(E.claimReason(ctx, "RHR", { claim_name: "Free Guy", claim_pos: "RB", claim_nfl: "NE", drop_name: "Nobody Here" }), /not on your roster/);
   assert.match(E.claimReason(ctx, "RHR", { claim_name: "Free Guy", claim_pos: "RB", claim_nfl: "NE", drop_name: null }), /roster is full/);
   assert.equal(E.claimReason(ctx, "RHR", { claim_name: "Free Guy", claim_pos: "RB", claim_nfl: "NE", drop_name: rhrDrop }), "");
+});
+
+test("2026 rule: drop must be the same position; no drop only into an open spot", () => {
+  const r = E.rostersFor(RD, 11);
+  const ctx = ctxFor(r);
+  const k = r.RHR.find(p => p.pos === "K").name, wr = r.RHR.find(p => p.pos === "WR").name, rbs = r.RHR.filter(p => p.pos === "RB");
+  assert.match(E.claimReason(ctx, "RHR", { claim_name: "Free Guy", claim_pos: "RB", claim_nfl: "NE", drop_name: k }), /to claim a RB you must drop a RB .* is a K/);
+  assert.equal(E.claimReason(ctx, "RHR", { claim_name: "Free TE", claim_pos: "TE/WR", claim_nfl: "NE", drop_name: wr }), "");   // WR/TE one group
+  // trade an RB away: can claim an RB with no drop, but a WR still needs a WR dropped
+  const short = { ...r, RHR: r.RHR.filter(p => p.name !== rbs[0].name) };
+  const c2 = ctxFor(short);
+  assert.equal(E.claimReason(c2, "RHR", { claim_name: "Free Guy", claim_pos: "RB", claim_nfl: "NE", drop_name: null }), "");
+  assert.match(E.claimReason(c2, "RHR", { claim_name: "Free WR", claim_pos: "WR", claim_nfl: "NE", drop_name: null }), /no open WR\/TE spot/);
+  assert.match(E.claimReason(c2, "RHR", { claim_name: "Free WR", claim_pos: "WR", claim_nfl: "NE", drop_name: rbs[1].name }), /must drop a WR\/TE/);
 });
 
 test("released after deadline comes from post-week-12+ runs only", () => {

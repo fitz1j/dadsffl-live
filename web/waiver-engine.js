@@ -58,6 +58,10 @@ export const REC_MAX = 8;      // WR + TE together
 export const isTE = pos => pos === "TE/WR" || pos === "TE";
 export const POSITIONS = ["K", "QB", "RB", "WR", "TE/WR", "DL/LB", "DB"];
 export const posLabel = pos => isTE(pos) ? "TE" : pos;
+// Position groups for the same-position rule (2026): WR and TE are one group,
+// since the rule book counts them together ("7 WR or additional tight ends").
+export const groupOf = pos => (pos === "WR" || isTE(pos)) ? "WR/TE" : pos;
+export const GROUP_MAX = { K: 2, QB: 3, RB: 7, "WR/TE": 8, "DL/LB": 2, DB: 2 };
 
 function counts(list) {
   const c = { K: 0, QB: 0, RB: 0, WR: 0, TE: 0, "DL/LB": 0, DB: 0, total: list.length };
@@ -74,6 +78,13 @@ export function limitReason(roster, claimPos, dropName) {
   const after = roster.filter(p => !(dropName && norm(p.name) === norm(dropName)));
   after.push({ pos: claimPos });
   const c = counts(after);
+  if (!dropName) {
+    // No drop: the claim has to fill an open spot at its own position (2026 rule).
+    const g = groupOf(claimPos);
+    const have = g === "WR/TE" ? c.WR + c.TE - 1 : (c[claimPos] || 0) - 1;
+    if (g in GROUP_MAX && have >= GROUP_MAX[g])
+      return "no open " + g + " spot (" + have + " of " + GROUP_MAX[g] + ") — drop a " + g + " to claim one";
+  }
   if (c.total > ROSTER_MAX) return "roster would have " + c.total + " players (max " + ROSTER_MAX + ") — pick a player to drop";
   if (isTE(claimPos)) {
     if (c.WR + c.TE > REC_MAX) return "WR + TE would be " + (c.WR + c.TE) + " (max " + REC_MAX + ")";
@@ -123,9 +134,13 @@ export function claimReason(ctx, team, claim) {
   const rel = ctx.released.get(key);
   if (rel) return claim.claim_name + " was released after the trade deadline (" + rel.team + ", post-week-" + rel.run + ") and can't be claimed this season";
   if (claim.drop_name) {
-    if (!roster.some(p => norm(p.name) === norm(claim.drop_name))) return claim.drop_name + " is not on your roster";
+    const d = roster.find(p => norm(p.name) === norm(claim.drop_name));
+    if (!d) return claim.drop_name + " is not on your roster";
+    // 2026 rule: the dropped player must play the same position as the claimed one.
+    if (groupOf(d.pos) !== groupOf(claim.claim_pos))
+      return "to claim a " + groupOf(claim.claim_pos) + " you must drop a " + groupOf(claim.claim_pos) + " (" + d.name + " is a " + posLabel(d.pos) + ")";
   } else if (roster.length >= ROSTER_MAX) {
-    return "your roster is full (" + roster.length + ") — pick a player to drop";
+    return "your roster is full (" + roster.length + ") — drop a " + groupOf(claim.claim_pos) + " to claim one";
   }
   return limitReason(roster, claim.claim_pos, claim.drop_name);
 }

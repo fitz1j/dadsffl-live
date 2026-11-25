@@ -450,7 +450,7 @@
     <button class="theme-btn" id="themeBtn" type="button">Theme: auto</button>
   </div>
 
-  <p class="note"><b>How it works (Rule III).</b> After each week, every team may drop one player and claim one free agent (no drop needed under 24 players). Teams pick in reverse order of total season points &mdash; fewest points first &mdash; with ties broken by head-to-head record, head-to-head point differential, overall point differential, then a coin toss. Rank as many players as you like: you get the highest one an earlier pick hasn't taken, and you can drop a different player for each. Only claims that follow the rule book can be saved (free agent, position limits, nobody released after the trade deadline). Lists stay private until the deadline; then everyone sees the results and every list.</p>
+  <p class="note"><b>How it works (Rule III).</b> After each week, every team may drop one player and claim one free agent (no drop needed under 24 players). Teams pick in reverse order of total season points &mdash; fewest points first &mdash; with ties broken by head-to-head record, head-to-head point differential, overall point differential, then a coin toss. Rank as many players as you like: you get the highest one an earlier pick hasn't taken, and you can drop a different player for each. The player you drop must play the same position as the one you claim (WR and TE count as one position); you can claim without a drop only to fill an open spot at that position. Only claims that follow the rule book can be saved (free agent, position limits, nobody released after the trade deadline). Lists stay private until the deadline; then everyone sees the results and every list.</p>
   <div id="topWarn"></div>
 
   <div class="runs" id="runs" role="tablist"></div>
@@ -910,9 +910,15 @@ function renderAdder() {
   const box = $("adder"); if (!box) return;
   const ctx = ctxNow();
   const roster = view.st.rosters[me.team].slice().sort((a, b) => (POS_ORDER[a.pos] ?? 9) - (POS_ORDER[b.pos] ?? 9));
-  const canNoDrop = roster.length < E.ROSTER_MAX;
-  const dropOpts = (canNoDrop ? '<option value="">No drop (roster has ' + roster.length + ")</option>" : '<option value="">Pick a player to drop…</option>') +
-    roster.map(p => `<option value="${esc(p.name)}" ${pickDrop === p.name ? "selected" : ""}>${esc(E.posLabel(p.pos) + " " + p.name + " (" + p.team + ")")}</option>`).join("");
+  // Same-position rule: once a player is picked, only same-position players can be dropped,
+  // and "no drop" is offered only if that position has an open spot.
+  const grp = picking ? E.groupOf(picking.pos) : null;
+  const same = grp ? roster.filter(p => E.groupOf(p.pos) === grp) : roster;
+  const canNoDrop = roster.length < E.ROSTER_MAX && (!grp || same.length < E.GROUP_MAX[grp]);
+  if (pickDrop && !same.some(p => p.name === pickDrop)) pickDrop = "";
+  const dropOpts = (canNoDrop ? '<option value="">No drop' + (grp ? " (open " + grp + " spot: " + same.length + " of " + E.GROUP_MAX[grp] + ")" : "") + "</option>"
+      : '<option value="">' + (grp ? "Pick a " + grp + " to drop…" : "Pick a player first…") + "</option>") +
+    same.map(p => `<option value="${esc(p.name)}" ${pickDrop === p.name ? "selected" : ""}>${esc(E.posLabel(p.pos) + " " + p.name + " (" + p.team + ")")}</option>`).join("");
   let pickHtml;
   if (picking) {
     pickHtml = `<div class="chosen">${badge(picking.pos)} <span class="n">${esc(picking.name)}</span> <span class="nfl">${esc(picking.team)}</span>
