@@ -719,14 +719,20 @@
       "checked players only · games with both lineups set · " + done + " completed week" + (done === 1 ? "" : "s");
     const groups = [{ key: "Clemenza", cls: "clem" }, { key: "Tessio", cls: "tess" }];
     document.getElementById("standings").innerHTML = groups.map(g => {
-      const rows = Object.keys(TEAMS).filter(c => TEAMS[c].division === g.key)
-        .sort((a, b) => (S[b].w - S[a].w) || (S[b].pf - S[a].pf))
-        .map(c => `<tr>
+      const codes = Object.keys(TEAMS).filter(c => TEAMS[c].division === g.key)
+        .sort((a, b) => (S[b].w - S[a].w) || (S[b].pf - S[a].pf));
+      // Games behind the division leader: ((leader W-L) - (team W-L)) / 2; ties count as nothing.
+      const best = Math.max(...codes.map(c => S[c].w - S[c].l));
+      const rows = codes.map(c => {
+          const gb = (best - (S[c].w - S[c].l)) / 2;
+          return `<tr>
             <td>${esc(TEAMS[c].name)}<span class="tcode">${esc(TEAMS[c].abbrev)}</span></td>
             <td>${S[c].w}&#8209;${S[c].l}${S[c].t ? "&#8209;" + S[c].t : ""}</td>
-            <td>${fmt(S[c].pf)}</td><td>${fmt(S[c].pa)}</td></tr>`).join("");
+            <td>${gb === 0 ? "&mdash;" : (Number.isInteger(gb) ? gb : gb.toFixed(1))}</td>
+            <td>${fmt(S[c].pf)}</td><td>${fmt(S[c].pa)}</td></tr>`;
+        }).join("");
       return `<div class="div-block ${g.cls}"><div class="div-title">${g.key} Division</div>
-        <table class="stand"><thead><tr><th>Team</th><th>W&#8209;L</th><th>PF</th><th>PA</th></tr></thead>
+        <table class="stand"><thead><tr><th>Team</th><th>W&#8209;L</th><th>GB</th><th>PF</th><th>PA</th></tr></thead>
         <tbody>${rows}</tbody></table></div>`;
     }).join("");
   }
