@@ -1,0 +1,55 @@
+name: DadsFFL open next week
+
+# weekly.html lists a week only once the `weeks` table has a row for it, and the
+# fetch-and-score Edge Function creates that row only when ESPN's *current*
+# scoreboard has rolled to the new week (often not until Wednesday). Owners need
+# the new week up earlier so they can set lineups.
+#
+# This runs Tuesday after the Supabase "tuesday-force" pg_cron runs (16:00 and
+# 17:00 UTC) have finished out the previous week. If the latest regular-season
+# week has games and every one of them is final, it asks fetch-and-score for the
+# NEXT week's scoreboard ({"scoreboard":{...week:N+1}}). That call creates the
+# week N+1 row; with no games live or final yet, nothing gets scored. Safe to run
+# again: it does nothing until week N+1 itself has been played.
+#
+# Uses only the public publishable key that web/weekly.html already embeds.
+
+on:
+  schedule:
+    - cron: '23 17 * * 2'   # Tuesdays 17:23 UTC (12:23 PM ET standard / 1:23 PM EDT)
+  workflow_dispatch:
+
+jobs:
+  open-next-week:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create next week's row
+        env:
+          SB: https://lpcremgkmgumumboqjux.supabase.co
+          KEY: sb_publishable_zOdIS--l6_TDNSlrOE_RhA_s3E54zsj
+        run: |
+          set -euo pipefail
+          H=(-H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          latest=$(curl -fsS "${H[@]}" "$SB/rest/v1/weeks?select=id,week_number,seasons(year)&season_type=eq.2&order=season_id.desc,week_number.desc&limit=1")
+          echo "latest week: $latest"
+          id=$(jq -r '.[0].id // empty' <<<"$latest")
+          n=$(jq -r '.[0].week_number // empty' <<<"$latest")
+          year=$(jq -r '.[0].seasons.year // empty' <<<"$latest")
+          [ -n "$id" ] && [ -n "$year" ] || { echo "no regular-season week yet"; exit 0; }
+          [ "$n" -lt 18 ] || { echo "week $n is the last regular-season week"; exit 0; }
+
+          games=$(curl -fsS "${H[@]}" "$SB/rest/v1/games?week_id=eq.$id&select=state")
+          total=$(jq length <<<"$games")
+          final=$(jq '[.[] | select(.state == "post")] | length' <<<"$games")
+          echo "week $n: $final of $total games final"
+          if [ "$total" -eq 0 ] || [ "$final" -ne "$total" ]; then
+            echo "week $n not finished yet; leaving it as the current week"; exit 0
+          fi
+
+          next=$((n + 1))
+          body=$(jq -nc --argjson y "$year" --argjson w "$next" '{trigger:"cron",scoreboard:{year:$y,seasontype:2,week:$w}}')
+          curl -fsS -X POST "${H[@]}" -H "Content-Type: application/json" -d "$body" "$SB/functions/v1/fetch-and-score"; echo
+
+          check=$(curl -fsS "${H[@]}" "$SB/rest/v1/weeks?select=week_number,label&season_type=eq.2&week_number=eq.$next")
+          echo "week $next row: $check"
+          [ "$(jq length <<<"$check")" -ge 1 ] || { echo "::error::week $next row was not created"; exit 1; }
